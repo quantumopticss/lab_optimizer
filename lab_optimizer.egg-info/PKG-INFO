@@ -1,0 +1,17 @@
+Metadata-Version: 2.1
+Name: lab_optimizer
+Version: 0.1.0
+Summary: a collection of optimization algorithms
+Home-page: https://github.com/quantumopticss/lab_optimizer
+Author: Zifeng Li
+Author-email: 221503020@smail.nju.edu.cn
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: requests
+
+# lab_optimizer
+lab_optimization algorithms packages
