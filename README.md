@@ -1,2 +1,2 @@
 # lab_optimizer
-lab_optimizer packages
+lab_optimization algorithms packages
