@@ -1,4 +1,4 @@
-from optimize_base import optimize_base
+from .optimize_base import optimize_base
 from scipy.optimize import minimize
 import numpy as np
 

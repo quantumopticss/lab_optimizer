@@ -1,4 +1,4 @@
-from optimize_base import optimize_base
+from .optimize_base import optimize_base
 import numpy as np
 
 class global_optimize(optimize_base):
