@@ -1,0 +1,10 @@
+start_time : 2024_11_18_14:45:05
+name : labopt_logs\lab_opt_2024_11\optimization__2024-11-18-14-45__direct__.txt
+method : direct
+args : (6, 8, -5, 2)
+paras_init : array([3, 0, 4, 2])
+bounds : ((-10, 10), (-10, 10), (-10, 10), (-10, 10))
+max_run : 10
+form : rounds, time, parameters, cost 
+
+

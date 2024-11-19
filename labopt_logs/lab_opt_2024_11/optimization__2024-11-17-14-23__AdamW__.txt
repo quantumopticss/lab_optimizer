@@ -1,0 +1,111 @@
+start_time : 2024_11_17_14:23:10
+name : labopt_logs\lab_opt_2024_11\optimization__2024-11-17-14-23__AdamW__.txt
+method : AdamW
+args : (6.0, 4.0, 1.0, 2.0)
+paras_init : tensor([3., 0., 4., 2.])
+bounds : ((-10, 10), (-10, 10), (-10, 10), (-10, 10))
+max_run : 100
+form : rounds, time, parameters, cost 
+
+
+0, 17:14:23:13, [tensor(3., grad_fn=<UnbindBackward0>),tensor(0., grad_fn=<UnbindBackward0>),tensor(4., grad_fn=<UnbindBackward0>),tensor(2., grad_fn=<UnbindBackward0>)], 88.313934
+1, 17:14:23:13, [tensor(3.0485, grad_fn=<UnbindBackward0>),tensor(0.0500, grad_fn=<UnbindBackward0>),tensor(3.9480, grad_fn=<UnbindBackward0>),tensor(1.9490, grad_fn=<UnbindBackward0>)], 87.050919
+2, 17:14:23:13, [tensor(3.0966, grad_fn=<UnbindBackward0>),tensor(0.0999, grad_fn=<UnbindBackward0>),tensor(3.8960, grad_fn=<UnbindBackward0>),tensor(1.8981, grad_fn=<UnbindBackward0>)], 85.794220
+3, 17:14:23:13, [tensor(3.1444, grad_fn=<UnbindBackward0>),tensor(0.1497, grad_fn=<UnbindBackward0>),tensor(3.8438, grad_fn=<UnbindBackward0>),tensor(1.8472, grad_fn=<UnbindBackward0>)], 84.545013
+4, 17:14:23:13, [tensor(3.1922, grad_fn=<UnbindBackward0>),tensor(0.1993, grad_fn=<UnbindBackward0>),tensor(3.7916, grad_fn=<UnbindBackward0>),tensor(1.7964, grad_fn=<UnbindBackward0>)], 83.304245
+5, 17:14:23:13, [tensor(3.2401, grad_fn=<UnbindBackward0>),tensor(0.2487, grad_fn=<UnbindBackward0>),tensor(3.7392, grad_fn=<UnbindBackward0>),tensor(1.7458, grad_fn=<UnbindBackward0>)], 82.072662
+6, 17:14:23:13, [tensor(3.2882, grad_fn=<UnbindBackward0>),tensor(0.2978, grad_fn=<UnbindBackward0>),tensor(3.6866, grad_fn=<UnbindBackward0>),tensor(1.6954, grad_fn=<UnbindBackward0>)], 80.850853
+7, 17:14:23:13, [tensor(3.3367, grad_fn=<UnbindBackward0>),tensor(0.3466, grad_fn=<UnbindBackward0>),tensor(3.6338, grad_fn=<UnbindBackward0>),tensor(1.6452, grad_fn=<UnbindBackward0>)], 79.639229
+8, 17:14:23:13, [tensor(3.3856, grad_fn=<UnbindBackward0>),tensor(0.3949, grad_fn=<UnbindBackward0>),tensor(3.5807, grad_fn=<UnbindBackward0>),tensor(1.5954, grad_fn=<UnbindBackward0>)], 78.438004
+9, 17:14:23:13, [tensor(3.4349, grad_fn=<UnbindBackward0>),tensor(0.4428, grad_fn=<UnbindBackward0>),tensor(3.5273, grad_fn=<UnbindBackward0>),tensor(1.5459, grad_fn=<UnbindBackward0>)], 77.247200
+10, 17:14:23:14, [tensor(3.4847, grad_fn=<UnbindBackward0>),tensor(0.4901, grad_fn=<UnbindBackward0>),tensor(3.4737, grad_fn=<UnbindBackward0>),tensor(1.4968, grad_fn=<UnbindBackward0>)], 76.066650
+11, 17:14:23:14, [tensor(3.5324, grad_fn=<UnbindBackward0>),tensor(0.5345, grad_fn=<UnbindBackward0>),tensor(3.4224, grad_fn=<UnbindBackward0>),tensor(1.4506, grad_fn=<UnbindBackward0>)], 74.954369
+12, 17:14:23:14, [tensor(3.5807, grad_fn=<UnbindBackward0>),tensor(0.5782, grad_fn=<UnbindBackward0>),tensor(3.3708, grad_fn=<UnbindBackward0>),tensor(1.4050, grad_fn=<UnbindBackward0>)], 73.850525
+13, 17:14:23:14, [tensor(3.6296, grad_fn=<UnbindBackward0>),tensor(0.6212, grad_fn=<UnbindBackward0>),tensor(3.3189, grad_fn=<UnbindBackward0>),tensor(1.3600, grad_fn=<UnbindBackward0>)], 72.754349
+14, 17:14:23:14, [tensor(3.6790, grad_fn=<UnbindBackward0>),tensor(0.6634, grad_fn=<UnbindBackward0>),tensor(3.2667, grad_fn=<UnbindBackward0>),tensor(1.3158, grad_fn=<UnbindBackward0>)], 71.664902
+15, 17:14:23:14, [tensor(3.7289, grad_fn=<UnbindBackward0>),tensor(0.7048, grad_fn=<UnbindBackward0>),tensor(3.2141, grad_fn=<UnbindBackward0>),tensor(1.2723, grad_fn=<UnbindBackward0>)], 70.581123
+16, 17:14:23:14, [tensor(3.7794, grad_fn=<UnbindBackward0>),tensor(0.7453, grad_fn=<UnbindBackward0>),tensor(3.1611, grad_fn=<UnbindBackward0>),tensor(1.2298, grad_fn=<UnbindBackward0>)], 69.501778
+17, 17:14:23:14, [tensor(3.8305, grad_fn=<UnbindBackward0>),tensor(0.7847, grad_fn=<UnbindBackward0>),tensor(3.1079, grad_fn=<UnbindBackward0>),tensor(1.1883, grad_fn=<UnbindBackward0>)], 68.425529
+18, 17:14:23:14, [tensor(3.8821, grad_fn=<UnbindBackward0>),tensor(0.8231, grad_fn=<UnbindBackward0>),tensor(3.0543, grad_fn=<UnbindBackward0>),tensor(1.1479, grad_fn=<UnbindBackward0>)], 67.350876
+19, 17:14:23:14, [tensor(3.9343, grad_fn=<UnbindBackward0>),tensor(0.8604, grad_fn=<UnbindBackward0>),tensor(3.0003, grad_fn=<UnbindBackward0>),tensor(1.1087, grad_fn=<UnbindBackward0>)], 66.276306
+20, 17:14:23:14, [tensor(3.9870, grad_fn=<UnbindBackward0>),tensor(0.8965, grad_fn=<UnbindBackward0>),tensor(2.9461, grad_fn=<UnbindBackward0>),tensor(1.0709, grad_fn=<UnbindBackward0>)], 65.200180
+21, 17:14:23:14, [tensor(4.0377, grad_fn=<UnbindBackward0>),tensor(0.9296, grad_fn=<UnbindBackward0>),tensor(2.8942, grad_fn=<UnbindBackward0>),tensor(1.0364, grad_fn=<UnbindBackward0>)], 64.174957
+22, 17:14:23:14, [tensor(4.0888, grad_fn=<UnbindBackward0>),tensor(0.9615, grad_fn=<UnbindBackward0>),tensor(2.8421, grad_fn=<UnbindBackward0>),tensor(1.0033, grad_fn=<UnbindBackward0>)], 63.145405
+23, 17:14:23:14, [tensor(4.1404, grad_fn=<UnbindBackward0>),tensor(0.9921, grad_fn=<UnbindBackward0>),tensor(2.7897, grad_fn=<UnbindBackward0>),tensor(0.9718, grad_fn=<UnbindBackward0>)], 62.110126
+24, 17:14:23:14, [tensor(4.1925, grad_fn=<UnbindBackward0>),tensor(1.0215, grad_fn=<UnbindBackward0>),tensor(2.7370, grad_fn=<UnbindBackward0>),tensor(0.9420, grad_fn=<UnbindBackward0>)], 61.067822
+25, 17:14:23:14, [tensor(4.2451, grad_fn=<UnbindBackward0>),tensor(1.0495, grad_fn=<UnbindBackward0>),tensor(2.6841, grad_fn=<UnbindBackward0>),tensor(0.9139, grad_fn=<UnbindBackward0>)], 60.017368
+26, 17:14:23:14, [tensor(4.2981, grad_fn=<UnbindBackward0>),tensor(1.0761, grad_fn=<UnbindBackward0>),tensor(2.6309, grad_fn=<UnbindBackward0>),tensor(0.8876, grad_fn=<UnbindBackward0>)], 58.957817
+27, 17:14:23:14, [tensor(4.3516, grad_fn=<UnbindBackward0>),tensor(1.1014, grad_fn=<UnbindBackward0>),tensor(2.5776, grad_fn=<UnbindBackward0>),tensor(0.8631, grad_fn=<UnbindBackward0>)], 57.888481
+28, 17:14:23:14, [tensor(4.4055, grad_fn=<UnbindBackward0>),tensor(1.1253, grad_fn=<UnbindBackward0>),tensor(2.5241, grad_fn=<UnbindBackward0>),tensor(0.8406, grad_fn=<UnbindBackward0>)], 56.808937
+29, 17:14:23:14, [tensor(4.4597, grad_fn=<UnbindBackward0>),tensor(1.1478, grad_fn=<UnbindBackward0>),tensor(2.4705, grad_fn=<UnbindBackward0>),tensor(0.8201, grad_fn=<UnbindBackward0>)], 55.719082
+30, 17:14:23:14, [tensor(4.5143, grad_fn=<UnbindBackward0>),tensor(1.1689, grad_fn=<UnbindBackward0>),tensor(2.4168, grad_fn=<UnbindBackward0>),tensor(0.8015, grad_fn=<UnbindBackward0>)], 54.619144
+31, 17:14:23:14, [tensor(4.5666, grad_fn=<UnbindBackward0>),tensor(1.1877, grad_fn=<UnbindBackward0>),tensor(2.3656, grad_fn=<UnbindBackward0>),tensor(0.7858, grad_fn=<UnbindBackward0>)], 53.565308
+32, 17:14:23:15, [tensor(4.6191, grad_fn=<UnbindBackward0>),tensor(1.2051, grad_fn=<UnbindBackward0>),tensor(2.3144, grad_fn=<UnbindBackward0>),tensor(0.7719, grad_fn=<UnbindBackward0>)], 52.503525
+33, 17:14:23:15, [tensor(4.6718, grad_fn=<UnbindBackward0>),tensor(1.2212, grad_fn=<UnbindBackward0>),tensor(2.2632, grad_fn=<UnbindBackward0>),tensor(0.7599, grad_fn=<UnbindBackward0>)], 51.434944
+34, 17:14:23:15, [tensor(4.7248, grad_fn=<UnbindBackward0>),tensor(1.2361, grad_fn=<UnbindBackward0>),tensor(2.2121, grad_fn=<UnbindBackward0>),tensor(0.7497, grad_fn=<UnbindBackward0>)], 50.361015
+35, 17:14:23:15, [tensor(4.7781, grad_fn=<UnbindBackward0>),tensor(1.2497, grad_fn=<UnbindBackward0>),tensor(2.1609, grad_fn=<UnbindBackward0>),tensor(0.7412, grad_fn=<UnbindBackward0>)], 49.283508
+36, 17:14:23:15, [tensor(4.8315, grad_fn=<UnbindBackward0>),tensor(1.2621, grad_fn=<UnbindBackward0>),tensor(2.1099, grad_fn=<UnbindBackward0>),tensor(0.7344, grad_fn=<UnbindBackward0>)], 48.204464
+37, 17:14:23:15, [tensor(4.8850, grad_fn=<UnbindBackward0>),tensor(1.2734, grad_fn=<UnbindBackward0>),tensor(2.0590, grad_fn=<UnbindBackward0>),tensor(0.7293, grad_fn=<UnbindBackward0>)], 47.126175
+38, 17:14:23:15, [tensor(4.9386, grad_fn=<UnbindBackward0>),tensor(1.2835, grad_fn=<UnbindBackward0>),tensor(2.0083, grad_fn=<UnbindBackward0>),tensor(0.7257, grad_fn=<UnbindBackward0>)], 46.051182
+39, 17:14:23:15, [tensor(4.9923, grad_fn=<UnbindBackward0>),tensor(1.2925, grad_fn=<UnbindBackward0>),tensor(1.9577, grad_fn=<UnbindBackward0>),tensor(0.7235, grad_fn=<UnbindBackward0>)], 44.982166
+40, 17:14:23:15, [tensor(5.0461, grad_fn=<UnbindBackward0>),tensor(1.3004, grad_fn=<UnbindBackward0>),tensor(1.9075, grad_fn=<UnbindBackward0>),tensor(0.7227, grad_fn=<UnbindBackward0>)], 43.921993
+41, 17:14:23:15, [tensor(5.0971, grad_fn=<UnbindBackward0>),tensor(1.3070, grad_fn=<UnbindBackward0>),tensor(1.8600, grad_fn=<UnbindBackward0>),tensor(0.7231, grad_fn=<UnbindBackward0>)], 42.925739
+42, 17:14:23:15, [tensor(5.1481, grad_fn=<UnbindBackward0>),tensor(1.3126, grad_fn=<UnbindBackward0>),tensor(1.8129, grad_fn=<UnbindBackward0>),tensor(0.7246, grad_fn=<UnbindBackward0>)], 41.942780
+43, 17:14:23:15, [tensor(5.1990, grad_fn=<UnbindBackward0>),tensor(1.3174, grad_fn=<UnbindBackward0>),tensor(1.7661, grad_fn=<UnbindBackward0>),tensor(0.7271, grad_fn=<UnbindBackward0>)], 40.975739
+44, 17:14:23:15, [tensor(5.2498, grad_fn=<UnbindBackward0>),tensor(1.3214, grad_fn=<UnbindBackward0>),tensor(1.7198, grad_fn=<UnbindBackward0>),tensor(0.7305, grad_fn=<UnbindBackward0>)], 40.027222
+45, 17:14:23:15, [tensor(5.3004, grad_fn=<UnbindBackward0>),tensor(1.3246, grad_fn=<UnbindBackward0>),tensor(1.6739, grad_fn=<UnbindBackward0>),tensor(0.7346, grad_fn=<UnbindBackward0>)], 39.099754
+46, 17:14:23:15, [tensor(5.3508, grad_fn=<UnbindBackward0>),tensor(1.3270, grad_fn=<UnbindBackward0>),tensor(1.6285, grad_fn=<UnbindBackward0>),tensor(0.7394, grad_fn=<UnbindBackward0>)], 38.195778
+47, 17:14:23:15, [tensor(5.4009, grad_fn=<UnbindBackward0>),tensor(1.3288, grad_fn=<UnbindBackward0>),tensor(1.5836, grad_fn=<UnbindBackward0>),tensor(0.7448, grad_fn=<UnbindBackward0>)], 37.317612
+48, 17:14:23:15, [tensor(5.4508, grad_fn=<UnbindBackward0>),tensor(1.3299, grad_fn=<UnbindBackward0>),tensor(1.5393, grad_fn=<UnbindBackward0>),tensor(0.7506, grad_fn=<UnbindBackward0>)], 36.467400
+49, 17:14:23:15, [tensor(5.5002, grad_fn=<UnbindBackward0>),tensor(1.3304, grad_fn=<UnbindBackward0>),tensor(1.4957, grad_fn=<UnbindBackward0>),tensor(0.7568, grad_fn=<UnbindBackward0>)], 35.647118
+50, 17:14:23:15, [tensor(5.5493, grad_fn=<UnbindBackward0>),tensor(1.3304, grad_fn=<UnbindBackward0>),tensor(1.4528, grad_fn=<UnbindBackward0>),tensor(0.7633, grad_fn=<UnbindBackward0>)], 34.858551
+51, 17:14:23:15, [tensor(5.5955, grad_fn=<UnbindBackward0>),tensor(1.3299, grad_fn=<UnbindBackward0>),tensor(1.4127, grad_fn=<UnbindBackward0>),tensor(0.7697, grad_fn=<UnbindBackward0>)], 34.140404
+52, 17:14:23:15, [tensor(5.6412, grad_fn=<UnbindBackward0>),tensor(1.3290, grad_fn=<UnbindBackward0>),tensor(1.3733, grad_fn=<UnbindBackward0>),tensor(0.7761, grad_fn=<UnbindBackward0>)], 33.453773
+53, 17:14:23:15, [tensor(5.6864, grad_fn=<UnbindBackward0>),tensor(1.3277, grad_fn=<UnbindBackward0>),tensor(1.3347, grad_fn=<UnbindBackward0>),tensor(0.7826, grad_fn=<UnbindBackward0>)], 32.799553
+54, 17:14:23:16, [tensor(5.7311, grad_fn=<UnbindBackward0>),tensor(1.3260, grad_fn=<UnbindBackward0>),tensor(1.2968, grad_fn=<UnbindBackward0>),tensor(0.7890, grad_fn=<UnbindBackward0>)], 32.178402
+55, 17:14:23:16, [tensor(5.7751, grad_fn=<UnbindBackward0>),tensor(1.3241, grad_fn=<UnbindBackward0>),tensor(1.2598, grad_fn=<UnbindBackward0>),tensor(0.7954, grad_fn=<UnbindBackward0>)], 31.590809
+56, 17:14:23:16, [tensor(5.8185, grad_fn=<UnbindBackward0>),tensor(1.3218, grad_fn=<UnbindBackward0>),tensor(1.2237, grad_fn=<UnbindBackward0>),tensor(0.8016, grad_fn=<UnbindBackward0>)], 31.037006
+57, 17:14:23:16, [tensor(5.8612, grad_fn=<UnbindBackward0>),tensor(1.3193, grad_fn=<UnbindBackward0>),tensor(1.1885, grad_fn=<UnbindBackward0>),tensor(0.8076, grad_fn=<UnbindBackward0>)], 30.517052
+58, 17:14:23:16, [tensor(5.9031, grad_fn=<UnbindBackward0>),tensor(1.3167, grad_fn=<UnbindBackward0>),tensor(1.1542, grad_fn=<UnbindBackward0>),tensor(0.8133, grad_fn=<UnbindBackward0>)], 30.030781
+59, 17:14:23:16, [tensor(5.9443, grad_fn=<UnbindBackward0>),tensor(1.3138, grad_fn=<UnbindBackward0>),tensor(1.1209, grad_fn=<UnbindBackward0>),tensor(0.8188, grad_fn=<UnbindBackward0>)], 29.577858
+60, 17:14:23:16, [tensor(5.9846, grad_fn=<UnbindBackward0>),tensor(1.3108, grad_fn=<UnbindBackward0>),tensor(1.0885, grad_fn=<UnbindBackward0>),tensor(0.8239, grad_fn=<UnbindBackward0>)], 29.157726
+61, 17:14:23:16, [tensor(6.0221, grad_fn=<UnbindBackward0>),tensor(1.3079, grad_fn=<UnbindBackward0>),tensor(1.0587, grad_fn=<UnbindBackward0>),tensor(0.8285, grad_fn=<UnbindBackward0>)], 28.788582
+62, 17:14:23:16, [tensor(6.0587, grad_fn=<UnbindBackward0>),tensor(1.3048, grad_fn=<UnbindBackward0>),tensor(1.0299, grad_fn=<UnbindBackward0>),tensor(0.8327, grad_fn=<UnbindBackward0>)], 28.448032
+63, 17:14:23:16, [tensor(6.0944, grad_fn=<UnbindBackward0>),tensor(1.3018, grad_fn=<UnbindBackward0>),tensor(1.0021, grad_fn=<UnbindBackward0>),tensor(0.8366, grad_fn=<UnbindBackward0>)], 28.135118
+64, 17:14:23:16, [tensor(6.1292, grad_fn=<UnbindBackward0>),tensor(1.2987, grad_fn=<UnbindBackward0>),tensor(0.9753, grad_fn=<UnbindBackward0>),tensor(0.8401, grad_fn=<UnbindBackward0>)], 27.848787
+65, 17:14:23:16, [tensor(6.1630, grad_fn=<UnbindBackward0>),tensor(1.2955, grad_fn=<UnbindBackward0>),tensor(0.9495, grad_fn=<UnbindBackward0>),tensor(0.8432, grad_fn=<UnbindBackward0>)], 27.587908
+66, 17:14:23:16, [tensor(6.1959, grad_fn=<UnbindBackward0>),tensor(1.2924, grad_fn=<UnbindBackward0>),tensor(0.9247, grad_fn=<UnbindBackward0>),tensor(0.8460, grad_fn=<UnbindBackward0>)], 27.351269
+67, 17:14:23:16, [tensor(6.2277, grad_fn=<UnbindBackward0>),tensor(1.2894, grad_fn=<UnbindBackward0>),tensor(0.9010, grad_fn=<UnbindBackward0>),tensor(0.8484, grad_fn=<UnbindBackward0>)], 27.137627
+68, 17:14:23:16, [tensor(6.2585, grad_fn=<UnbindBackward0>),tensor(1.2863, grad_fn=<UnbindBackward0>),tensor(0.8782, grad_fn=<UnbindBackward0>),tensor(0.8504, grad_fn=<UnbindBackward0>)], 26.945662
+69, 17:14:23:16, [tensor(6.2882, grad_fn=<UnbindBackward0>),tensor(1.2834, grad_fn=<UnbindBackward0>),tensor(0.8565, grad_fn=<UnbindBackward0>),tensor(0.8521, grad_fn=<UnbindBackward0>)], 26.774055
+70, 17:14:23:16, [tensor(6.3169, grad_fn=<UnbindBackward0>),tensor(1.2805, grad_fn=<UnbindBackward0>),tensor(0.8358, grad_fn=<UnbindBackward0>),tensor(0.8534, grad_fn=<UnbindBackward0>)], 26.621449
+71, 17:14:23:16, [tensor(6.3430, grad_fn=<UnbindBackward0>),tensor(1.2778, grad_fn=<UnbindBackward0>),tensor(0.8171, grad_fn=<UnbindBackward0>),tensor(0.8544, grad_fn=<UnbindBackward0>)], 26.492975
+72, 17:14:23:16, [tensor(6.3682, grad_fn=<UnbindBackward0>),tensor(1.2752, grad_fn=<UnbindBackward0>),tensor(0.7993, grad_fn=<UnbindBackward0>),tensor(0.8551, grad_fn=<UnbindBackward0>)], 26.379482
+73, 17:14:23:16, [tensor(6.3923, grad_fn=<UnbindBackward0>),tensor(1.2727, grad_fn=<UnbindBackward0>),tensor(0.7825, grad_fn=<UnbindBackward0>),tensor(0.8555, grad_fn=<UnbindBackward0>)], 26.279747
+74, 17:14:23:16, [tensor(6.4153, grad_fn=<UnbindBackward0>),tensor(1.2703, grad_fn=<UnbindBackward0>),tensor(0.7666, grad_fn=<UnbindBackward0>),tensor(0.8556, grad_fn=<UnbindBackward0>)], 26.192598
+75, 17:14:23:17, [tensor(6.4372, grad_fn=<UnbindBackward0>),tensor(1.2681, grad_fn=<UnbindBackward0>),tensor(0.7517, grad_fn=<UnbindBackward0>),tensor(0.8556, grad_fn=<UnbindBackward0>)], 26.116913
+76, 17:14:23:17, [tensor(6.4582, grad_fn=<UnbindBackward0>),tensor(1.2659, grad_fn=<UnbindBackward0>),tensor(0.7376, grad_fn=<UnbindBackward0>),tensor(0.8553, grad_fn=<UnbindBackward0>)], 26.051590
+77, 17:14:23:17, [tensor(6.4780, grad_fn=<UnbindBackward0>),tensor(1.2639, grad_fn=<UnbindBackward0>),tensor(0.7243, grad_fn=<UnbindBackward0>),tensor(0.8548, grad_fn=<UnbindBackward0>)], 25.995602
+78, 17:14:23:17, [tensor(6.4969, grad_fn=<UnbindBackward0>),tensor(1.2620, grad_fn=<UnbindBackward0>),tensor(0.7120, grad_fn=<UnbindBackward0>),tensor(0.8542, grad_fn=<UnbindBackward0>)], 25.947968
+79, 17:14:23:17, [tensor(6.5147, grad_fn=<UnbindBackward0>),tensor(1.2602, grad_fn=<UnbindBackward0>),tensor(0.7004, grad_fn=<UnbindBackward0>),tensor(0.8534, grad_fn=<UnbindBackward0>)], 25.907768
+80, 17:14:23:17, [tensor(6.5315, grad_fn=<UnbindBackward0>),tensor(1.2586, grad_fn=<UnbindBackward0>),tensor(0.6897, grad_fn=<UnbindBackward0>),tensor(0.8525, grad_fn=<UnbindBackward0>)], 25.874138
+81, 17:14:23:17, [tensor(6.5465, grad_fn=<UnbindBackward0>),tensor(1.2571, grad_fn=<UnbindBackward0>),tensor(0.6802, grad_fn=<UnbindBackward0>),tensor(0.8515, grad_fn=<UnbindBackward0>)], 25.847580
+82, 17:14:23:17, [tensor(6.5605, grad_fn=<UnbindBackward0>),tensor(1.2558, grad_fn=<UnbindBackward0>),tensor(0.6715, grad_fn=<UnbindBackward0>),tensor(0.8505, grad_fn=<UnbindBackward0>)], 25.825642
+83, 17:14:23:17, [tensor(6.5737, grad_fn=<UnbindBackward0>),tensor(1.2545, grad_fn=<UnbindBackward0>),tensor(0.6634, grad_fn=<UnbindBackward0>),tensor(0.8494, grad_fn=<UnbindBackward0>)], 25.807709
+84, 17:14:23:17, [tensor(6.5860, grad_fn=<UnbindBackward0>),tensor(1.2534, grad_fn=<UnbindBackward0>),tensor(0.6560, grad_fn=<UnbindBackward0>),tensor(0.8482, grad_fn=<UnbindBackward0>)], 25.793209
+85, 17:14:23:17, [tensor(6.5974, grad_fn=<UnbindBackward0>),tensor(1.2524, grad_fn=<UnbindBackward0>),tensor(0.6492, grad_fn=<UnbindBackward0>),tensor(0.8471, grad_fn=<UnbindBackward0>)], 25.781647
+86, 17:14:23:17, [tensor(6.6080, grad_fn=<UnbindBackward0>),tensor(1.2515, grad_fn=<UnbindBackward0>),tensor(0.6431, grad_fn=<UnbindBackward0>),tensor(0.8459, grad_fn=<UnbindBackward0>)], 25.772564
+87, 17:14:23:17, [tensor(6.6177, grad_fn=<UnbindBackward0>),tensor(1.2507, grad_fn=<UnbindBackward0>),tensor(0.6375, grad_fn=<UnbindBackward0>),tensor(0.8447, grad_fn=<UnbindBackward0>)], 25.765549
+88, 17:14:23:17, [tensor(6.6267, grad_fn=<UnbindBackward0>),tensor(1.2501, grad_fn=<UnbindBackward0>),tensor(0.6325, grad_fn=<UnbindBackward0>),tensor(0.8436, grad_fn=<UnbindBackward0>)], 25.760250
+89, 17:14:23:17, [tensor(6.6349, grad_fn=<UnbindBackward0>),tensor(1.2495, grad_fn=<UnbindBackward0>),tensor(0.6280, grad_fn=<UnbindBackward0>),tensor(0.8424, grad_fn=<UnbindBackward0>)], 25.756351
+90, 17:14:23:17, [tensor(6.6424, grad_fn=<UnbindBackward0>),tensor(1.2490, grad_fn=<UnbindBackward0>),tensor(0.6240, grad_fn=<UnbindBackward0>),tensor(0.8413, grad_fn=<UnbindBackward0>)], 25.753584
+91, 17:14:23:17, [tensor(6.6489, grad_fn=<UnbindBackward0>),tensor(1.2486, grad_fn=<UnbindBackward0>),tensor(0.6206, grad_fn=<UnbindBackward0>),tensor(0.8403, grad_fn=<UnbindBackward0>)], 25.751778
+92, 17:14:23:17, [tensor(6.6548, grad_fn=<UnbindBackward0>),tensor(1.2483, grad_fn=<UnbindBackward0>),tensor(0.6177, grad_fn=<UnbindBackward0>),tensor(0.8394, grad_fn=<UnbindBackward0>)], 25.750597
+93, 17:14:23:17, [tensor(6.6600, grad_fn=<UnbindBackward0>),tensor(1.2480, grad_fn=<UnbindBackward0>),tensor(0.6151, grad_fn=<UnbindBackward0>),tensor(0.8385, grad_fn=<UnbindBackward0>)], 25.749891
+94, 17:14:23:17, [tensor(6.6647, grad_fn=<UnbindBackward0>),tensor(1.2478, grad_fn=<UnbindBackward0>),tensor(0.6130, grad_fn=<UnbindBackward0>),tensor(0.8377, grad_fn=<UnbindBackward0>)], 25.749531
+95, 17:14:23:17, [tensor(6.6688, grad_fn=<UnbindBackward0>),tensor(1.2477, grad_fn=<UnbindBackward0>),tensor(0.6111, grad_fn=<UnbindBackward0>),tensor(0.8369, grad_fn=<UnbindBackward0>)], 25.749407
+96, 17:14:23:18, [tensor(6.6725, grad_fn=<UnbindBackward0>),tensor(1.2477, grad_fn=<UnbindBackward0>),tensor(0.6097, grad_fn=<UnbindBackward0>),tensor(0.8362, grad_fn=<UnbindBackward0>)], 25.749439
+97, 17:14:23:18, [tensor(6.6756, grad_fn=<UnbindBackward0>),tensor(1.2477, grad_fn=<UnbindBackward0>),tensor(0.6085, grad_fn=<UnbindBackward0>),tensor(0.8356, grad_fn=<UnbindBackward0>)], 25.749552
+98, 17:14:23:18, [tensor(6.6783, grad_fn=<UnbindBackward0>),tensor(1.2477, grad_fn=<UnbindBackward0>),tensor(0.6076, grad_fn=<UnbindBackward0>),tensor(0.8351, grad_fn=<UnbindBackward0>)], 25.749699
+99, 17:14:23:18, [tensor(6.6806, grad_fn=<UnbindBackward0>),tensor(1.2478, grad_fn=<UnbindBackward0>),tensor(0.6069, grad_fn=<UnbindBackward0>),tensor(0.8346, grad_fn=<UnbindBackward0>)], 25.749828
+100, 17:14:23:18, [tensor(6.6825),tensor(1.2480),tensor(0.6065),tensor(0.8342)], 25.749935

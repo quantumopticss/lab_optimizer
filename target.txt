@@ -1,0 +1,16 @@
+a generlized and universe interface of some usually used 
+optimization algrithms in cold atom labs, and is suitable for RTMQ
+
+algrithms: minimize cost function
+    1.mloop
+    2.scipy.optimize.minimize <- a lot of methods in 
+    3.gradient descent
+    4.Simulated Annealing
+
+generial method:
+    1. parametrs setting: initial value, params bounds
+    2. visualizing
+        like mloop
+        trajatories of parameters and loss
+
+
