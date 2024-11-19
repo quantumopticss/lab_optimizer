@@ -2,7 +2,7 @@
 import torch as th
 from torch import nn
 import numpy as np
-from optimize_base import optimize_base
+from .optimize_base import optimize_base
 from torch.optim.lr_scheduler import ExponentialLR
 
 class _torch_interface(nn.Module):

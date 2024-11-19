@@ -1,12 +1,8 @@
-import os,sys
-path = os.path.abspath(__file__)
-sys.path.append(os.path.dirname(path))
-
-from local_optimize import local_optimize
-from mloop_optimize import mloop_optimize
-from torch_optimize import torch_optimize
-from global_optimize import global_optimize
-from optimize_base import log_visiual
+from .local_optimize import local_optimize
+from .mloop_optimize import mloop_optimize
+from .torch_optimize import torch_optimize
+from .global_optimize import global_optimize
+from .optimize_base import log_visiual
 
 """
 

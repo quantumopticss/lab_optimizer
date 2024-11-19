@@ -1,7 +1,7 @@
 import mloop.interfaces as mli
 import mloop.controllers as mlc
 # import mloop.visualizations as mlv
-from optimize_base import optimize_base
+from .optimize_base import optimize_base
 import numpy as np
 
 class _mloops_interface(mli.Interface,optimize_base):
