@@ -1,8 +1,7 @@
 ## gradient descent
 import torch as th
 from torch import nn
-import numpy as np
-from .optimize_base import optimize_base
+from .optimize_base import *
 from torch.optim.lr_scheduler import ExponentialLR
 
 class _torch_interface(nn.Module):
@@ -67,10 +66,14 @@ class torch_optimize(optimize_base):
         kwArgs
         ---------
         extra_dict : dict
-            used for extra parameters for torch optimization algorithms
-        
+            used for extra parameters for torch optimization algorithms except learning rate and learning rate control
+            
         lr : float
             learning rate, defeault is 0.05
+            
+        opt_inherit : class 
+            inherit ``optimization results``, ``parameters`` and ``logs``
+            defeault is None (not use inherit)
             
         lr_clt : float
             learning rate control, regularly decrease learning rate
@@ -92,37 +95,49 @@ class torch_optimize(optimize_base):
         log : Bool
             whether to generate a log file in labopt_logs
             
+        logfile : str
+            log file name , defeault is "optimization__ + <timestamp>__ + <method>__.txt"
+            level lower than inherited logfile
+            
     """
-    def __init__(self,func,paras_init,args = (),extra_dict = {},bounds = None,**kwargs):
+    @staticmethod
+    def _doc():
+        doc = "torch_optimizer"
+        return doc
+    
+    def __init__(self,func,paras_init:np.ndarray,bounds:tuple = None,args:tuple = (),extra_dict:dict = {},opt_inherit = None,**kwargs):
+        self._device = "cuda" if th.cuda.is_available() else "cpu"
         kwargs["val_only"] = True # only need cose
         kwargs["torch"] = True # activate pytorch
-        optimize_base.__init__(self,func,paras_init,args = args,bounds = bounds,**kwargs)
+        kwargs["opt_inherit"] = opt_inherit
+        optimize_base.__init__(self,func,paras_init,args = args,bounds = bounds,**kwargs,_opt_type = self._doc())
         self._method = kwargs.get("method","ASGD")
-        self._model = _torch_interface(self._func,paras_init,args = args)
+        self._model = _torch_interface(self._func,paras_init,args = args).to(self._device)
         
         match self._method:
             case "Adagrade":
-                self._optimizer = th.optim.Adagrad(params = self._model.parameters(),lr = kwargs.get("lr",0.05),**extra_dict)
+                th_alg = th.optim.Adagrad
                 
             case "Adamax":
-                self._optimizer = th.optim.Adamax(params = self._model.parameters(),lr = kwargs.get("lr",0.05),**extra_dict)
+                th_alg = th.optim.Adamax
             
             case "Adam":
-                self._optimizer = th.optim.Adam(params = self._model.parameters(),lr = kwargs.get("lr",0.05),**extra_dict)
+                th_alg = th.optim.Adam
                 
             case 'AdamW':
-                self._optimizer = th.optim.AdamW(params = self._model.parameters(),lr = kwargs.get("lr",0.05),**extra_dict)
+                th_alg = th.optim.AdamW
                 
             case "RMSprop":
-                self._optimizer = th.optim.RMSprop(params = self._model.parameters(),lr = kwargs.get("lr",0.05),**extra_dict)
+                th_alg = th.optim.RMSprop
                 
             case "SGD":
-                self._optimizer = th.optim.SGD(params = self._model.parameters(),lr = kwargs.get("lr",0.05),**extra_dict)
+                th_alg = th.optim.SGD
                                            
             case _:    
                 self._method = "ASGD"
-                self._optimizer = th.optim.ASGD(params = self._model.parameters(),lr = kwargs.get("lr",0.05),**extra_dict)
-    
+                th_alg = th.optim.ASGD
+                
+        self._optimizer = th_alg(params = self._model.parameters(),lr = kwargs.get("lr",0.05),**extra_dict)
         self._scheduler = ExponentialLR(self._optimizer, gamma=kwargs.get("lr_ctl",0.95))
     
     def optimization(self):
@@ -139,17 +154,22 @@ class torch_optimize(optimize_base):
                 if (n+1) % th.min(th.tensor([int(self._max_run/10), 500],dtype = th.int)) == 0:
                     self._scheduler.step()
                     
-        x_optimize = self._model.state_dict()['_th_params']
+        self.x_optimize = self._model.to("cpu").state_dict()['_th_params']
         
-        print("best parameters find: ")
-        print(self._func(x_optimize,*self._args))
+        print("******************************************")
+        print("best parameters find : ")
+        print(self.x_optimize)
+        print("cost : ")
+        self._func(self.x_optimize,*self._args)
+        print("******************************************")
         
-        return x_optimize
+        self._logging()
+        return self.x_optimize
     
     def visualization(self):
         self._visualization(self._flist,self._x_vec,self._method)
 
-def main():
+def _main():
     def func(x,a,b,c,d):
         vec = th.tensor([a,b,c,d])
         f = th.sum((x - vec)**2,dim = None) + 5*th.sum(th.cos(x-a) + th.cos(x-b) + th.sin(x-c) + th.sin(x-d)) + a*b*c*d
@@ -158,14 +178,18 @@ def main():
         return_dict = {'cost':f,'uncer':uncer,'bad':bad}
         return return_dict
     
-    init = th.tensor([3.,0.,4.,2.])
+    init = th.tensor([3.,0.,4.,-3.])
     a = 6.;b=8.;c = 1.;d = 2.
     bounds = ((-10,10),(-10,10),(-10,10),(-10,10))
     # 'SGD', 'Adam','RMSprop','ASGD','AdamW', 'SparseAdam'
-    opt = torch_optimize(func,init,args = (a,b,c,d),bounds = bounds,max_run = 100,delay = 0.07,method = "AdamW",lr = 0.1, lr_clt = 0.9,log = True)
-    x_end =  opt.optimization()
-    print(x_end)
-    opt.visualization()
+    opt1 = torch_optimize(func,init,args = (a,b,c,d),bounds = bounds,max_run = 10,delay = 0.02,method = "ASGD",lr = 0.03, lr_clt = 0.9,log = "inherit")
+    x_end =  opt1.optimization()
+    opt2 = torch_optimize(func,init,args = (a,b,c,d),bounds = bounds,max_run = 10,delay = 0.02,method = "SGD",lr = 0.05, lr_clt = 0.9,log = True,opt_inherit=opt1)
+    x_end = opt2.optimization()
+
+    opt2.visualization()
      
 if __name__ == "__main__":
-    main()
+    _main()
+    
+del _main

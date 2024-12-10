@@ -53,8 +53,8 @@ def main_torch():
     opt.visualization()
      
 if __name__ == "__main__":
-    # main_numpy()
-    main_torch()
+    main_numpy()
+    # main_torch()
     
     # # visual logs
     # path = "labopt_logs/lab_opt_2024_11/optimization__2024-11-17-13-14__dual_annealing__.txt"

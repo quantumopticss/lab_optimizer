@@ -1,7 +1,7 @@
 import mloop.interfaces as mli
 import mloop.controllers as mlc
 # import mloop.visualizations as mlv
-from .optimize_base import optimize_base
+from .optimize_base import *
 import numpy as np
 
 class _mloops_interface(mli.Interface,optimize_base):
@@ -49,6 +49,11 @@ class mloop_optimize(optimize_base):
         args : tuple, optional
             Extra arguments passed to the objective function which will not
             change during optimization
+
+        bounds : sequence or `Bounds`, optional
+            Bounds on variables
+
+                Should be Sequence of ``(min, max)`` pairs for each element in `x`. None is used to specify no bound.
         
         kwArgs
         ---------
@@ -57,15 +62,14 @@ class mloop_optimize(optimize_base):
         
         target : float
             target cost of optimization function, defeault is  -infty
+            
+        opt_inherit : class 
+            inherit ``optimization results``, ``parameters`` and ``logs``
+            defeault is None (not use inherit)
         
         method : string 
             method of scipy.optimize.minimize to be used, 
             should be one of: 'gaussian_process', 'neural_net', 'differential_evolution',  'simeplx' which is "nelder_mead", 'random'
-            
-        bounds : sequence or `Bounds`, optional
-            Bounds on variables
-
-                Should be Sequence of ``(min, max)`` pairs for each element in `x`. None is used to specify no bound.
         
         delay : float 
             delay of each iteration, default is 0.1s
@@ -79,11 +83,21 @@ class mloop_optimize(optimize_base):
         log : Bool
             whether to generate a log file in labopt_logs
             
+        logfile : str
+            log file name , defeault is "optimization__ + <timestamp>__ + <method>__.txt"
+            level lower than inherited logfile
+            
     """
-    def __init__(self,func,paras_init,args = (),extra_dict = {},bounds = None,**kwargs):
+    @staticmethod
+    def _doc():
+        doc = "mloop_optimizer"
+        return doc
+    
+    def __init__(self,func,paras_init:np.ndarray,bounds:tuple,args:tuple = (),extra_dict:dict = {},opt_inherit = None,**kwargs):
         kwargs["val_only"] = False # let f return cost dict instead of a cost value
         kwargs["msg"] = None # use mloop msg
-        optimize_base.__init__(self,func,paras_init,args = args,bounds = bounds,**kwargs)
+        kwargs["opt_inherit"] = opt_inherit
+        optimize_base.__init__(self,func,paras_init,args = args,bounds = bounds,**kwargs,_opt_type = self._doc())
         self._method = kwargs.get("method","simplex")
         if self._method == "simplex":
             self._method = "nelder_mead"
@@ -111,15 +125,16 @@ class mloop_optimize(optimize_base):
         
     def optimization(self):
         self._controller.optimize()
-        x_optimize = self._controller.best_params
+        self.x_optimize = self._controller.best_params
         
-        return x_optimize
+        self._logging()
+        return self.x_optimize
         
     def visualization(self):
         self._visualization(self._flist,self._x_vec,self._method)
     
 ### operation
-def main():
+def _main():
     def func(x,a,b,c,d):
         vec = np.array([a,b,c,d])
         f = np.sum((x - vec)**2,axis = None) + 5*np.sum(np.cos(x-a) + np.cos(x-b) + np.sin(x-c) + np.sin(x-d)) + a*b*c*d
@@ -142,4 +157,6 @@ def main():
     opt.visualization()
 
 if __name__ == '__main__':
-    main()
+    _main()
+    
+del _main

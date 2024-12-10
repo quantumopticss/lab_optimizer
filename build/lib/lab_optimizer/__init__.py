@@ -1,11 +1,15 @@
+import os,sys
+path = os.path.abspath(__file__)
+sys.path.append(os.path.dirname(path))
+
 from .local_optimize import local_optimize
 from .mloop_optimize import mloop_optimize
 from .torch_optimize import torch_optimize
 from .global_optimize import global_optimize
-from .optimize_base import log_visiual
+from .optimize_base import *
+from .units import *
 
 """
-
 ``func`` should be a callable match the optimizer
 and func should return a dict {"cost":cost,"uncer":uncer,"bad":bad}
 
@@ -41,6 +45,10 @@ paras_init : ndarray, shape (n,)
 args : tuple, optional
     Extra arguments passed to the objective function which will not
     change during optimization
+    
+bounds : sequence or `Bounds`, optional
+    Bounds on variables
+        should be Sequence of ``(min, max)`` pairs for each element in `x`. None is used to specify no bound.
 
 kwArgs
 ---------
@@ -50,12 +58,12 @@ method : string
 extra_dict : dict
     used to transfer specific arguments for optimization algorithm
     
-bounds : sequence or `Bounds`, optional
-            Bounds on variables
-            
-                should be Sequence of ``(min, max)`` pairs for each element in `x`. None is used to specify no bound.
+opt_inherit : class 
+    inherit ``optimization results``, ``parameters`` and ``logs``
+    defeault is None (not use inherit) 
+
 delay : float 
-            delay of each iteration, default is 0.1s
+    delay of each iteration, default is 0.1s
 
 max_run : int 
     maxmun times of running optimization, default = 10 
@@ -65,9 +73,13 @@ msg : Bool
     
 log : Bool
     whether to generate a log file in labopt_logs
+    
+logfile : str
+    log file name , defeault is "optimization__ + <timestamp>__ + <method>__.txt"
 
 """
-def main():
+    
+def _main():
     import numpy as np
     def func(x,a,b,c,d):
         vec = np.array([a,b,c,d])
@@ -77,19 +89,18 @@ def main():
         return_dict = {'cost':f,'uncer':uncer,'bad':bad}
         return return_dict
     
-    method = "dual_annealing"
-    
     init = np.array([3,0,4,2])
     a = 6
     b = 8
     c = 1
     d = 2
     bounds = ((-10,10),(-10,10),(-10,10),(-10,10))
-    extra_dict = {"eps":0.05}
-    opt = global_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 3,delay = 0.03,method = method,extra_dict=extra_dict,val_only = True)
-    x_end = opt.optimization()
-    print(x_end)
-    opt.visualization()
+    method_list =  ["dual","simplex"]
+    optimizer_list = [global_optimize,local_optimize]
+    multi_optimize(func,init,args = (a,b,c,d,),optimizer_list=optimizer_list,bounds_list = [bounds],
+                   max_run_list = [1,20],delay = 0.03,method_list = method_list,extra_dict_list=[{},{}],val_only = True,msg = False,log = True)
      
 if __name__ == "__main__":
-    main()
+    _main()
+    
+del _main

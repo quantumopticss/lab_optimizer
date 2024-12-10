@@ -1,4 +1,4 @@
-from .optimize_base import optimize_base
+from .optimize_base import *
 from scipy.optimize import minimize
 import numpy as np
 
@@ -36,14 +36,23 @@ class local_optimize(optimize_base):
         args : tuple, optional
             Extra arguments passed to the objective function which will not
             change during optimization
+            
+        bounds : sequence or `Bounds`, optional
+            Bounds on variables for Nelder-Mead, L-BFGS-B, TNC, SLSQP, Powell,
+            trust-constr, COBYLA, and COBYQA methods. There are two ways to specify
+            the bounds:
+
+                1. Instance of `Bounds` class.
+                2. Sequence of ``(min, max)`` pairs for each element in `x`. None is used to specify no bound.
         
         kwArgs
         ---------
         extra_dict : dict
-            used for extra parameters for scipy.optimize.minimize falily such as jac, hessel ... 
+            used for extra parameters for scipy.optimize.minimize family such as jac, hessel ... 
         
-        target : float
-            target cost of optimization function, defeault is  -infty
+        opt_inherit : class 
+            inherit ``optimization results``, ``parameters`` and ``logs``
+            defeault is None (not use inherit)
         
         method : str or callable, optional
             Type of solver.  Should be one of
@@ -67,14 +76,6 @@ class local_optimize(optimize_base):
         
             default is "Nelder-Mead"
         
-        bounds : sequence or `Bounds`, optional
-            Bounds on variables for Nelder-Mead, L-BFGS-B, TNC, SLSQP, Powell,
-            trust-constr, COBYLA, and COBYQA methods. There are two ways to specify
-            the bounds:
-
-                1. Instance of `Bounds` class.
-                2. Sequence of ``(min, max)`` pairs for each element in `x`. None is used to specify no bound.
-        
         delay : float 
             delay of each iteration, default is 0.1s
         
@@ -87,10 +88,20 @@ class local_optimize(optimize_base):
         log : Bool
             whether to generate a log file in labopt_logs
             
+        logfile : str
+            log file name , defeault is "optimization__ + <timestamp>__ + <method>__.txt"
+            level lower than inherited logfile
+            
     """
-    def __init__(self,func,paras_init,args = (),extra_dict = {},bounds = None,**kwargs,):
+    @staticmethod
+    def _doc():
+        doc = "local_optimizer"
+        return doc
+    
+    def __init__(self,func,paras_init:np.ndarray,bounds:tuple,args:tuple = (),extra_dict:dict = {},opt_inherit = None,**kwargs):
         kwargs["val_only"] = True # only need cost
-        optimize_base.__init__(self,func,paras_init,args = args,bounds = bounds,**kwargs)
+        kwargs["opt_inherit"] = opt_inherit
+        optimize_base.__init__(self,func,paras_init,args = args,bounds = bounds,**kwargs,_opt_type = self._doc())
         self._extra_dict = extra_dict
         self._method = kwargs.get("method","simplex")
         if self._method == "simplex":
@@ -98,26 +109,33 @@ class local_optimize(optimize_base):
     
     def optimization(self):
         res = minimize(self._func,self._paras_init,args = self._args,method = self._method,bounds = self._bounds,**self._extra_dict,options = {"maxiter":self._max_run})
-        x_optimize = res.x
+        self.x_optimize = res.x
         
-        print("best parameters find: ")
-        print(self._func(x_optimize,*self._args))
+        print("******************************************")
+        print("best parameters find : ")
+        print(self.x_optimize)
+        print("cost : ")
+        self._func(self.x_optimize,*self._args)
+        print("******************************************")
         
-        return x_optimize
+        self._logging()
+        return self.x_optimize
         
     def visualization(self):
         self._visualization(self._flist,self._x_vec,self._method)
         
-def main():
+def _main():
     def func(x,a,b,c,d):
         vec = np.array([a,b,c,d])
-        f = np.sum((x - vec)**2,axis = None) + 5*np.sum(np.cos(x-a) + np.cos(x-b) + np.sin(x-c) + np.sin(x-d)) + a*b*c*d
+        f = np.sum((x - vec)**2,axis = None) + 5*np.sum(np.cos(x-a) + np.cos(x-b) + np.sin(x-c) + np.sin(x-d)) + a*b*c*d + 0.1*np.random.randn()
         uncer = 0.1
-        bad = None
+        bad = False
         return_dict = {'cost':f,'uncer':uncer,'bad':bad}
         return return_dict
     
-    method = "simplex"
+    method1 = "simplex"
+    method2 = "CG"
+    ave_dict = {"ave":True,"ave_time":3,"ave_wait":0.01}
     
     init = np.array([3,0,4,2])
     a = 6
@@ -125,13 +143,15 @@ def main():
     c = 1
     d = 2
     bounds = ((-10,10),(-10,10),(-10,10),(-10,10))
-    opt = local_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 100,delay = 0.03,method = method,val_only = True, log = False,msg = True)
-    x_end = opt.optimization()
+    opt1 = local_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 30,delay = 0.02,method = method1,val_only = True,ave_dict = ave_dict, log = "inherit",msg = True)
+    opt1.optimization()
+    opt2 = local_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 10,delay = 0.02,method = method2,val_only = True,ave_dict = ave_dict, log = True,msg = True,opt_inherit = opt1)
+    x_end = opt2.optimization()
     print(x_end)
-    opt.visualization()
+    opt2.visualization()
      
 if __name__ == "__main__":
-    main()
+    _main()
         
-            
+del _main
         

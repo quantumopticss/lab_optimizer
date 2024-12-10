@@ -1,4 +1,4 @@
-from .optimize_base import optimize_base
+from .optimize_base import *
 import numpy as np
 
 class global_optimize(optimize_base):
@@ -10,6 +10,10 @@ class global_optimize(optimize_base):
         which represent serching step, which can't be too low, defeault is 1e-1 
         
             - dual_annealing : <scipy.optimize.dual_annealing>
+
+                - if you set ``no_local_search = True``, then ``dual_annealing`` will degenerate to simulated_annealing , \
+                  defeault is False and using eps (defeault 0.1) to local gradiant descent
+                    
             - differential_evolution : <scipy.optimize.differential_evolution>
             - shgo : <scipy.optimize.shgo>
             - direct : <scipy.optimize.direct>
@@ -19,7 +23,7 @@ class global_optimize(optimize_base):
 
         ``warning`` : 
         global optimization algorithms (except "direct") do not need too many rounds, usually x ~ 5, because in each round the function will be called many times. 
-        scikit-optimize "genetic", "particle_swarm" may be less efficient and less robust than scipy.optimization
+        scikit-optimize "genetic", "particle_swarm" may be less efficient and less robust than scipy.optimization, and "artificial_fish" is very expensive for analog cost_func
         
         Args
         ---------
@@ -44,21 +48,25 @@ class global_optimize(optimize_base):
         args : tuple, optional
             Extra arguments passed to the objective function which will not
             change during optimization
+            
+        bounds : sequence or `Bounds`, optional
+            Bounds on variables
+            
+                should be Sequence of ``(min, max)`` pairs for each element in `x`. None is used to specify no bound.
         
         kwArgs
         ---------
         method : string
             which global algorithm to use, should be one of
-            ``"dual_annealing","differential_evolution","direct","shgo","genetic","particle_swarm","artificial_fish"``, \
+            ``"dual_annealing","differential_evolution","direct","shgo","genetic","particle_swarm","artificial_fish"``, 
             defeault is ``"dual_annealing"``
         
         extra_dict : dict
-            used for extra parameters for scipy.optimize.dual_annealing
-        
-        bounds : sequence or `Bounds`, optional
-            Bounds on variables
-            
-                should be Sequence of ``(min, max)`` pairs for each element in `x`. None is used to specify no bound.
+            used for extra parameters for optimization algorithms
+                
+        opt_inherit : class 
+            inherit ``optimization results``, ``parameters`` and ``logs``
+            defeault is None (not use inherit)
         
         delay : float 
             delay of each iteration, default is 0.1s
@@ -70,15 +78,25 @@ class global_optimize(optimize_base):
             whether to output massages in every iterarion, default is True
         
         log : Bool
-            whether to generate a log file in labopt_logs
+            whether to generate a txt log file in labopt_logs
+            
+        logfile : str
+            log file name , defeault is "optimization__ + <timestamp>__ + <method>__.txt"
+            level lower than inherited logfile
             
     """
-    def __init__(self,func,paras_init,args = (),extra_dict = {},bounds = None,**kwargs):
+    @staticmethod
+    def _doc():
+        doc = "global_optimizer"
+        return doc
+    
+    def __init__(self,func,paras_init:np.ndarray,bounds:tuple,args:tuple = (),extra_dict:dict = {},opt_inherit = None,**kwargs):
         kwargs["val_only"] = True # only need cost
+        kwargs["opt_inherit"] = opt_inherit
         self._method = kwargs.get("method","simulated_annealing")
         if "max_rum" not in kwargs:
             kwargs["max_run"] = 10
-        optimize_base.__init__(self,func,paras_init,args = args,bounds = bounds,**kwargs)
+        optimize_base.__init__(self,func,paras_init,args = args,bounds = bounds,**kwargs,_opt_type = self._doc())
         self._extra_dict = extra_dict
     
     #### scipy algorithms
@@ -129,7 +147,7 @@ class global_optimize(optimize_base):
                 self._extra_dict["minimizer_kwargs"] = self._extra_dict.get("minimizer_kwargs",{"method":"L-BFGS-B","bounds":self._bounds,"options":{"eps":self._extra_dict.get("eps",0.1)}})
                 if "eps" in self._extra_dict:
                     del self._extra_dict["eps"]
-                self._extra_dict["no_local_search"] =self._extra_dict.get("no_local_search",False) # defeault is no local search
+                self._extra_dict["no_local_search"] =self._extra_dict.get("no_local_search",False) # defeault is to have local search
                 self._extra_dict["initial_temp"] = self._extra_dict.get("initial_temp",6e3)
                 self._extra_dict["accept"] = self._extra_dict.get("accept",-6.)
                 ##
@@ -157,68 +175,92 @@ class global_optimize(optimize_base):
                 from sko.PSO import PSO
                 if "eps" in self._extra_dict:
                     del self._extra_dict["eps"]
+                if "no_local_search" in self._extra_dict:
+                    del self._extra_dict["no_local_search"]
+                self._extra_dict["size_pop"] = self._extra_dict.get("size_pop",15)  
+                
                 self._opt = PSO(self._func_args,n_dim = n_dim,max_iter = self._max_run,lb = lb, ub = ub,**self._extra_dict)
-                self._opt.X = self._paras_init
+                self._opt.X[0,:] = self._paras_init
                 
             case "genetic":
                 from sko.GA import GA
-                eps = self._extra_dict.get("eps",0.05)
+                
+                self._extra_dict["precision"] = self._extra_dict.get("eps",0.05)
                 if "eps" in self._extra_dict:
                     del self._extra_dict["eps"]
-                self._opt = GA(self._func_args,n_dim = n_dim,max_iter = self._max_run,lb = lb, ub = ub,precision = eps,**self._extra_dict)
-                self._opt.X = self._paras_init
+                if "no_local_search" in self._extra_dict:
+                    del self._extra_dict["no_local_search"]
+                self._extra_dict["size_pop"] = self._extra_dict.get("size_pop",15)
+                self._extra_dict["prob_mut"] = self._extra_dict.get("prob_mut",0.003)
+                    
+                self._opt = GA(self._func_args,n_dim = n_dim,max_iter = self._max_run,lb = lb, ub = ub,**self._extra_dict)
                 
-            # case "artificial_fish":
-            #     from sko.AFSA import AFSA
-            #     if "eps" in self._extra_dict:
-            #         del self._extra_dict["eps"]
-            #     self._opt = AFSA(self._func_args,n_dim = n_dim,max_iter = self._max_run,max_try_num = np.max([50,self._max_run//4]),**self._extra_dict)
-            #     self._opt.X[0,:] = self._paras_init
+            case "artificial_fish":
+                from sko.AFSA import AFSA
+                if "eps" in self._extra_dict:
+                    del self._extra_dict["eps"]
+                if "no_local_search" in self._extra_dict:
+                    del self._extra_dict["no_local_search"]
+                    
+                self._extra_dict["size_pop"] = self._extra_dict.get("size_pop",5)  
+                self._opt = AFSA(self._func_args,n_dim = n_dim,max_iter = self._max_run//100,max_try_num = np.max([10,self._max_run//10]),**self._extra_dict)
+                self._opt.X[0,:] = self._paras_init
+                self._opt.Y[0,:] = self._func_args(self._paras_init)
                 
     def optimization(self):
         if self._method in ["particle_swarm","genetic","artificial_fish"]:
             self._optimization_scikit()
-            x_optimize, _ = self._opt.run()
-            print("best parameters find: ")
-            print(self._func_args(x_optimize))
+            self.x_optimize, _ = self._opt.run()
+            print("******************************************")
+            print("best parameters find : ")
+            print(self.x_optimize)
+            print("cost : ")
+            self._func_args(self.x_optimize)
+            print("******************************************")
         else:
             self._optimization_scipy()
-            x_optimize = self._res.x
-            print("best parameters find: ")
-            print(self._func(x_optimize,*self._args))
+            self.x_optimize = self._res.x
+            print("******************************************")
+            print("best parameters find : ")
+            print(self.x_optimize)
+            print("cost : ")
+            self._func(self.x_optimize,*self._args)
+            print("******************************************")
         
-        return x_optimize
+        self._logging()
+        return self.x_optimize
     
     def visualization(self):
         self._visualization(self._flist,self._x_vec,self._method)
 
-def main():
+def _main():
     def func(x,a,b,c,d):
         vec = np.array([a,b,c,d])
-        f = 0.01*np.sum((x - vec)**2*np.sum((x+0.3*vec)**2),axis = None) + 10*np.sum(np.cos(x-a) + np.cos(x-b) + np.sin(x-c) + np.sin(x-d)) + a*b*c*d
+        f = np.sum( (x-vec)**2 + 7*np.cos(2*np.pi*(x-vec))  )
         uncer = 0.1
         bad = None
         return_dict = {'cost':f,'uncer':uncer,'bad':bad}
         return return_dict
     
-    method = "dual_annealing"
+    method = "_"
     
     init = np.array([3,0,4,2])
     a = 6
     b = 8
-    c = -5
+    c = 5
     d = 2
     bounds = ((-10,10),(-10,10),(-10,10),(-10,10))
-    extra_dict = {"no_local_search":True,"eps":np.array([0.2,0.2,0.2,0.2])}
-    opt = global_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 2,delay = 0.03,method = method,extra_dict=extra_dict,val_only = True, log = True)
+    extra_dict = {"no_local_search":None,"eps":0.1}
+    opt = global_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 1,delay = 0.03,method = method,extra_dict=extra_dict,val_only = True, log = True, logfile = "114514")
     x_end = opt.optimization()
-    print(x_end)
     opt.visualization()
      
 if __name__ == "__main__":
-    main()
-        
-            
+    _main()
+    # print(global_optimize._doc())   
+
+del _main
+
 """
 direct algorithm is a deterministic global optimization algorithm particularly effective 
 for problems where the objective function is expensive to evaluate or where derivative information is unavailable
