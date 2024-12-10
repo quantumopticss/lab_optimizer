@@ -11,7 +11,7 @@ import lab_optimizer import XXX_optimize # XXX is sub opt package, including : g
 
 opt = XXX_optimize(func,paras_init,args) 
 
-opt.optimize() # run optimization algorithm 
+opt.optimization() # run optimization algorithm 
 
-opt.visualization # visualize opt results 
+opt.visualization() # visualize opt results 
 
