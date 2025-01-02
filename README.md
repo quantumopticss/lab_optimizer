@@ -9,10 +9,10 @@ Provides :
   5. physics units and constants 
   6. lab_optimizer examples
 
-to download this package, using
-
->>> pip install lab_optimizer
-
+- to download this package, using
+```shell
+pip install lab_optimizer
+```
 
 ## Example
 ---------
