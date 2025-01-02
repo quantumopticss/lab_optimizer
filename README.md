@@ -1,13 +1,13 @@
 lab_optimizer
 ---------
-lab_optimization algorithms packages
+optimization algorithms packages
 
 - Provides : 
-  1. global_optimizer
-  2. local_optimizer
-  3. mloop_optimizer
-  4. torch_optimizer (only for torch functions)
-  5. physics units and constants 
+  1. <span style="color:red">global_optimizer</span>, include algorithms for finding <span style="color:red">__global minimun__</span> 
+  2. <span style="color:green">local_optimizer</span>, include algorithms for finding <span style="color:green">__local minimun__</span>
+  3. mloop_optimizer, a general and integral API of its functions
+  4. torch_optimizer (only for torch functions), a general and integral API of its functions
+  5. physics constants and units conversion 
   6. lab_optimizer examples
 
 - to download this package, using
