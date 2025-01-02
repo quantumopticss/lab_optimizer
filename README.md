@@ -1,7 +1,8 @@
-## lab_optimizer
+lab_optimizer
+---------
 lab_optimization algorithms packages
 
-Provides : 
+- Provides : 
   1. global_optimizer
   2. local_optimizer
   3. mloop_optimizer
@@ -14,7 +15,7 @@ Provides :
 pip install lab_optimizer
 ```
 
-## Example
+Examples
 ---------
 - do not use opt_inherit
 ```python
