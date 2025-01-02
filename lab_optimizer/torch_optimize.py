@@ -71,10 +71,6 @@ class torch_optimize(optimize_base):
         lr : float
             learning rate, defeault is 0.05
             
-        opt_inherit : class 
-            inherit ``optimization results``, ``parameters`` and ``logs``
-            defeault is None (not use inherit)
-            
         lr_clt : float
             learning rate control, regularly decrease learning rate
             defeault is 0.95
@@ -94,11 +90,32 @@ class torch_optimize(optimize_base):
             
         log : Bool
             whether to generate a log file in labopt_logs
-            
+
         logfile : str
             log file name , defeault is "optimization__ + <timestamp>__ + <method>__.txt"
             level lower than inherited logfile
-            
+
+        opt_inherit : class 
+            inherit ``optimization results``, ``parameters`` and ``logs``
+            defeault is None (not use inherit)
+        
+        Example
+        ---------
+        do not use opt_inherit
+        >>> from lab_optimizer import torch_optimize
+        >>> opt1 = torch_optimize(func,paras_init,bounds,args)
+        >>> x_opt = opt.optimization()
+        >>> opt.visualization()
+        \\
+        use opt_inherit (cascade multi optimizers)
+        >>> from lab_optimizer import torch_optimize
+        >>> opt1 = torch_optimize(func,paras_init,bounds,args,log = "inherit")
+        >>> x_opt1 = opt.optimization()
+        >>> # x_opt1 = opt.x_optimize
+        >>> opt2 = torch_optimize(func,x_opt1,bounds,args,opt_inherit = opt1) # paras_init will be automatically set to x_opt1
+        >>> opt2.optimization()
+        >>> opt2.visualization()
+     
     """
     @staticmethod
     def _doc():

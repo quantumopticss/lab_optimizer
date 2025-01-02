@@ -1,3 +1,32 @@
+__version__ = "1.0.1"
+
+"""
+lab_optimizer
+=========
+
+Provides
+  1. global_optimizer
+  2. local_optimizer
+  3. mloop_optimizer
+  4. torch_optimizer (only for torch functions)
+  5. physics units and constants 
+  #. lab_optimizer examples
+
+MIT License
+
+Copyright (c) 2025 Zifeng Li
+email : 221503020@smail.nju.edu.cn
+
+All rights reserved.
+
+part of this project are published under 
+
+BSD 3-Clause License : <https://github.com/michaelhush/M-LOOP>, <https://github.com/scikit-learn/scikit-learn>, <https://github.com/scipy/scipy>
+MIT License : <https://github.com/scikit-optimize/scikit-optimize>
+Other License : <https://github.com/pytorch/pytorch>, <https://github.com/numpy/numpy>
+
+"""
+
 import os,sys
 path = os.path.abspath(__file__)
 sys.path.append(os.path.dirname(path))
@@ -7,77 +36,8 @@ from .mloop_optimize import mloop_optimize
 from .torch_optimize import torch_optimize
 from .global_optimize import global_optimize
 from .optimize_base import *
-from .units import *
-
-"""
-``func`` should be a callable match the optimizer
-and func should return a dict {"cost":cost,"uncer":uncer,"bad":bad}
-
-cost : float -> cost value
-uncer : float -> uncertainty of the cost
-bad : bool -> whether the run is bad (bad = True represent bad run)
-
-you are suggested to calculate uncer and bad, but they are required only in mloop_optimize,
-and uncer and bad will not be used in other optimizers 
-
-call th optimization algorithm ``XXX_optimize``
-
-    `` XXX_optimize(func,paras_init,args,bounds,extra_dict,kwargs) ``
-
-Args
---------
-fun : callable
-    The objective function to be minimized.
-
-        ``fun(x, *args) -> dict : {'cost':float, 'uncer':float, 'bad':bool}``
-        
-    where ``cost`` is the value to minimize, ``uncer`` is uncertainty,
-    ``bad`` is the judge whether this value is bad (bad = True) for this cost
-
-    ``x`` is a 1-D array with shape (n,) and ``args``
-    is a tuple of the fixed parameters needed to completely
-    specify the function.
-
-paras_init : ndarray, shape (n,)
-    Initial guess. Array of real elements of size (n,),
-    where ``n`` is the number of independent variables.
-
-args : tuple, optional
-    Extra arguments passed to the objective function which will not
-    change during optimization
-    
-bounds : sequence or `Bounds`, optional
-    Bounds on variables
-        should be Sequence of ``(min, max)`` pairs for each element in `x`. None is used to specify no bound.
-
-kwArgs
----------
-method : string
-    optimization algorithm to use 
-
-extra_dict : dict
-    used to transfer specific arguments for optimization algorithm
-    
-opt_inherit : class 
-    inherit ``optimization results``, ``parameters`` and ``logs``
-    defeault is None (not use inherit) 
-
-delay : float 
-    delay of each iteration, default is 0.1s
-
-max_run : int 
-    maxmun times of running optimization, default = 10 
-
-msg : Bool
-    whether to output massages in every iterarion, default is True
-    
-log : Bool
-    whether to generate a log file in labopt_logs
-    
-logfile : str
-    log file name , defeault is "optimization__ + <timestamp>__ + <method>__.txt"
-
-"""
+from .opt_examples import examples
+from units import *
     
 def _main():
     import numpy as np

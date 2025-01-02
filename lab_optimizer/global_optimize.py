@@ -11,7 +11,7 @@ class global_optimize(optimize_base):
         
             - dual_annealing : <scipy.optimize.dual_annealing>
 
-                - if you set ``no_local_search = True``, then ``dual_annealing`` will degenerate to simulated_annealing , \
+                - if you set ``no_local_search = True`` in ``extra_dict``, then ``dual_annealing`` will degenerate to ``simulated_annealing``, \
                   defeault is False and using eps (defeault 0.1) to local gradiant descent
                     
             - differential_evolution : <scipy.optimize.differential_evolution>
@@ -21,9 +21,10 @@ class global_optimize(optimize_base):
             - genetic : <scikit.GA>
             - artificial_fish: <scikit.AF>
 
-        ``warning`` : 
+        warning 
+        --------- 
         global optimization algorithms (except "direct") do not need too many rounds, usually x ~ 5, because in each round the function will be called many times. 
-        scikit-optimize "genetic", "particle_swarm" may be less efficient and less robust than scipy.optimization, and "artificial_fish" is very expensive for analog cost_func
+        scikit-optimize ``genetic``, ``particle_swarm`` may be less efficient and less robust than scipy.optimization, and ``artificial_fish`` is very expensive for analog cost_func
         
         Args
         ---------
@@ -56,17 +57,28 @@ class global_optimize(optimize_base):
         
         kwArgs
         ---------
+        ave_dict : dict
+            - ave : Bool
+                whethr to use average
+            - ave_times : int
+                average times
+            - ave_wait
+                wait times during each ave_run
+            - ave_opt
+                average operation code, defeault is "ave"
+                - "ave" : following cost_dict
+                - "std" : use for val_only func, it will cal uncer automatedly
+                
+            defeault is {False, X, X}
+            if you set ave == True, then defeault is {True, 3, 0.01,"ave"}       
+
         method : string
             which global algorithm to use, should be one of
-            ``"dual_annealing","differential_evolution","direct","shgo","genetic","particle_swarm","artificial_fish"``, 
-            defeault is ``"dual_annealing"``
+            ``"dual_annealing","differential_evolution","direct","shgo","genetic","particle_swarm","artificial_fish"(not recommend)``, 
+            defeault is ``"dual_annealing"`` 
         
         extra_dict : dict
             used for extra parameters for optimization algorithms
-                
-        opt_inherit : class 
-            inherit ``optimization results``, ``parameters`` and ``logs``
-            defeault is None (not use inherit)
         
         delay : float 
             delay of each iteration, default is 0.1s
@@ -79,11 +91,32 @@ class global_optimize(optimize_base):
         
         log : Bool
             whether to generate a txt log file in labopt_logs
-            
+
         logfile : str
             log file name , defeault is "optimization__ + <timestamp>__ + <method>__.txt"
             level lower than inherited logfile
             
+        opt_inherit : class 
+            inherit ``optimization results``, ``parameters`` and ``logs``
+            defeault is None (not use inherit)
+        
+        Example
+        ---------
+        do not use opt_inherit
+        >>> from lab_optimizer import global_optimize
+        >>> opt1 = global_optimize(func,paras_init,bounds,args)
+        >>> x_opt = opt.optimization()
+        >>> opt.visualization()
+        \\
+        use opt_inherit (cascade multi optimizers)
+        >>> from lab_optimizer import global_optimize
+        >>> opt1 = global_optimize(func,paras_init,bounds,args,log = "inherit")
+        >>> x_opt1 = opt.optimization()
+        >>> # x_opt1 = opt.x_optimize
+        >>> opt2 = global_optimize(func,x_opt1,bounds,args,opt_inherit = opt1) # paras_init will be automatically set to x_opt1 
+        >>> opt2.optimization()
+        >>> opt2.visualization()
+     
     """
     @staticmethod
     def _doc():
@@ -228,6 +261,7 @@ class global_optimize(optimize_base):
             print("******************************************")
         
         self._logging()
+        self._agent_()
         return self.x_optimize
     
     def visualization(self):
@@ -241,24 +275,23 @@ def _main():
         bad = None
         return_dict = {'cost':f,'uncer':uncer,'bad':bad}
         return return_dict
-    
-    method = "_"
-    
+
+    method = "differential_evolution"
+
     init = np.array([3,0,4,2])
     a = 6
     b = 8
     c = 5
     d = 2
     bounds = ((-10,10),(-10,10),(-10,10),(-10,10))
-    extra_dict = {"no_local_search":None,"eps":0.1}
-    opt = global_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 1,delay = 0.03,method = method,extra_dict=extra_dict,val_only = True, log = True, logfile = "114514")
+    extra_dict = {"no_local_search":None,"eps":0.05}
+    opt = global_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 1,delay = 0.03,method = method,extra_dict=extra_dict, log = True, logfile = "test_logfile")
     x_end = opt.optimization()
     opt.visualization()
-     
+
 if __name__ == "__main__":
     _main()
-    # print(global_optimize._doc())   
-
+    
 del _main
 
 """

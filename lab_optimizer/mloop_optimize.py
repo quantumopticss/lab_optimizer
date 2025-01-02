@@ -21,7 +21,8 @@ class _mloops_interface(mli.Interface,optimize_base):
         return cost_dict
     
 class mloop_optimize(optimize_base):
-    """reconstructed mloop a good integrated lab used optimization algorithm, ``methods`` including:
+    """reconstructed mloop algorithms <https://m-loop.readthedocs.io/en/stable/index.html> 
+        mloop is a good integrated lab used optimization algorithm, ``methods`` including:
         - ``'gaussian_process', 'neural_net', 'differential_evolution',  'simplex', 'random'``
 
         Warning
@@ -57,15 +58,23 @@ class mloop_optimize(optimize_base):
         
         kwArgs
         ---------
+        ave_dict : dict
+            - ave : Bool
+                whethr to use average
+            - ave_times : int
+                average times
+            - ave_wait
+                wait times during each ave_run
+            - ave_opt
+                average operation code, defeault is "ave"
+                - "ave" : following cost_dict
+                - "std" : use for val_only func, it will cal uncer automatedly
+                
+            defeault is {False, X, X, X}
+            if you set ave == True, then defeault is {True, 3, 0.01,"ave"}
+            
         extra_dict : dict
             used for extra parameters for mloop controller
-        
-        target : float
-            target cost of optimization function, defeault is  -infty
-            
-        opt_inherit : class 
-            inherit ``optimization results``, ``parameters`` and ``logs``
-            defeault is None (not use inherit)
         
         method : string 
             method of scipy.optimize.minimize to be used, 
@@ -82,11 +91,32 @@ class mloop_optimize(optimize_base):
             
         log : Bool
             whether to generate a log file in labopt_logs
-            
+             
         logfile : str
             log file name , defeault is "optimization__ + <timestamp>__ + <method>__.txt"
             level lower than inherited logfile
             
+        opt_inherit : class 
+            inherit ``optimization results``, ``parameters`` and ``logs``
+            defeault is None (not use inherit)
+        
+        Example
+        ---------
+        do not use opt_inherit
+        >>> from lab_optimizer import mloop_optimize
+        >>> opt1 = mloop_optimize(func,paras_init,bounds,args)
+        >>> x_opt = opt.optimization()
+        >>> opt.visualization()
+        \\
+        use opt_inherit (cascade multi optimizers)
+        >>> from lab_optimizer import mloop_optimize
+        >>> opt1 = mloop_optimize(func,paras_init,bounds,args,log = "inherit")
+        >>> x_opt1 = opt.optimization()
+        >>> # x_opt1 = opt.x_optimize
+        >>> opt2 = mloop_optimize(func,x_opt1,bounds,args,opt_inherit = opt1) # paras_init will be automatically set to x_opt1 
+        >>> opt2.optimization()
+        >>> opt2.visualization()
+     
     """
     @staticmethod
     def _doc():
@@ -128,6 +158,7 @@ class mloop_optimize(optimize_base):
         self.x_optimize = self._controller.best_params
         
         self._logging()
+        self._agent_()
         return self.x_optimize
         
     def visualization(self):

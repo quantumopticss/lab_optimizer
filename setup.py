@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="lab_optimizer", 
-    version="0.2.3", 
+    version="1.0.1", 
     author="Zifeng Li",  # 
     author_email="221503020@smail.nju.edu.cn",  # 
     description="a collection of optimization algorithms",  # 

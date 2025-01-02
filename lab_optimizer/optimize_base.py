@@ -65,6 +65,9 @@ def multi_optimize(func,paras_init,args:tuple,optimizer_list:list,extra_dict_lis
 
         kwArgs
         ---------
+        MMA : Bool
+            whether to use MMA to double check the result and output a visualization of the optimization process, default is False
+        
         delay : float 
             delay of each iteration, default is 0.1s
         
@@ -254,59 +257,70 @@ class OptimizateException(Exception):
     def __init__(self,err):
         Exception.__init__(self,"optimize error : " + err)
     
-    ## user define
-    @staticmethod    
+    ## user define  
     def user_define(func):
         def wrapper(self,*args,**kwargs):
             func(self,*args,**kwargs)
             raise OptimizateException(func.__name__ + " not defined!")
         return wrapper
-
+    
+    @staticmethod
+    def no_MMA(func):
+        print(func.__name__ + " Mathematic do not download, and we automatically close MMA function")
+            
 class optimize_base(OptimizateException):
     """optimize_base class
     
     Args:
     ---------
-        func : callable
-            func to opt
-            
-        paras_init : np.ndarray || th.Tensor
-            init parameters
-            
-        args : tuple
-            extra args for func
-            
-        bounds : tuple
-            bounds of opt algorithm
+    func : callable
+        func to opt
+        
+    paras_init : np.ndarray || th.Tensor
+        init parameters
+        
+    args : tuple
+        extra args for func
+        
+    bounds : tuple
+        bounds of opt algorithm
         
     Kwargs:
     ---------
-        ave_dict : dict
-            - ave : Bool
-                whethr to use average
-            - ave_times : int
-                average times
-            - ave_wait
-                wait times during each ave_run
-                
-            defeault is {False, X, X}
-            if you set ave == True, then defeault is {True, 3, 0.01}
-    
-        val_only : Bool
-            whether to only use cost in cost_dict
+    ave_dict : dict
+        - ave : Bool
+            whethr to use average
+        - ave_times : int
+            average times
+        - ave_wait
+            wait times during each ave_run
+        - ave_opt
+            average operation code, defeault is "ave"
+            - "ave" : following cost_dict
+            - "std" : use for val_only func, it will cal uncer automatedly
             
-        torch : Bool
-            whether it is a torch opt class
+        defeault is {False, X, X, X}
+        if you set ave == True, then defeault is {True, 3, 0.01}
+
+    val_only : Bool
+        whether to only use cost in cost_dict
         
-        log : Bool
-            whether to generate a log file
-            
-        log_file : str
-            name of log name
-            
-        opt_ingerit : opt class
-            ingerit some result from opt class result
-            
+    torch : Bool
+        whether it is a torch opt class
+    
+    log : Bool
+        whether to generate a log file
+        
+    log_file : str
+        name of log name
+       
+    opt_inherit : class 
+        inherit ``optimization results``, ``parameters`` and ``logs``
+        defeault is None (not use inherit)
+        
+    agent : Bool
+        whether to use agent model to do further prediction and visualization, defeault is false
+        
     """
     def __init__(self,func,paras_init:np.ndarray,args:tuple = (),bounds:tuple = None,**kwargs):
         print("optimization start")
@@ -322,17 +336,20 @@ class optimize_base(OptimizateException):
         msg = kwargs.get("msg",True)
         delay = kwargs.get("delay",0.1)
         
-        opt_inherit = kwargs.get("opt_inherit",None)
+        self.opt_inherit = kwargs.get("opt_inherit",None)
         ## inherit args
-        if opt_inherit != None: # if we have inherit
-            self._flist = opt_inherit._flist
-            self._x_vec = opt_inherit._x_vec
-            self._time_stamp = opt_inherit._time_stamp
-            log_head_inhert = opt_inherit._log_head
-            self._filename = opt_inherit._filename
-            self._paras_init = opt_inherit.x_optimize
-            self._run_count = opt_inherit._run_count
-            self._ave_dict = opt_inherit._ave_dict
+        if self.opt_inherit != None: # if we have inherit
+            self._flist = self.opt_inherit._flist
+            self._x_vec = self.opt_inherit._x_vec
+            self._time_stamp = self.opt_inherit._time_stamp
+            log_head_inhert = self.opt_inherit._log_head
+            self._filename = self.opt_inherit._filename
+            self._paras_init = self.opt_inherit.x_optimize
+            self._run_count = self.opt_inherit._run_count
+            self._ave_dict = self.opt_inherit._ave_dict
+            self._agent = self.opt_inherit._agent
+            self._agent_model = self.opt_inherit._agent_model
+
         else: # if no inherit
             self._paras_init = paras_init
             if self._torch == True:
@@ -346,9 +363,10 @@ class optimize_base(OptimizateException):
             self._filename = kwargs.get("logfile","optimization__" + time.strftime("%Y-%m-%d-%H-%M",time.gmtime(self._time_start)) + "__" + kwargs.get("method","None") + "__" + ".txt")
             self._ave_dict = kwargs.get("ave_dict",{"ave":False,"ave_times":1,"ave_wait":0.})
             self._run_count = 0
-            
+            self._agent = kwargs.get("agent",False)
+
         ## using average
-        if self._ave_dict.get("ave",False) == True:
+        if self._ave_dict.get("ave",False) == True and self._torch == False:
             func = ave_decorate(func,self._ave_dict.get("ave_times",3),self._ave_dict.get("ave_wait",0.01))
         
         ## decorate func
@@ -446,19 +464,54 @@ class optimize_base(OptimizateException):
     def optimization(self):
         """ you must define this method in XXX_optimize class
         """   
-    
+            
     def _visualization(self,flist,x_vec,method = "None",visual = "all"):        
         if type(x_vec) == th.Tensor:
             flist = flist.detach().numpy()
             x_vec = x_vec.detach().numpy()
-        
+            
         opt_plot(flist,x_vec,method,visual)
         
-if __name__ == "__main__":
-    
-    # visual logs
-    path = "labopt_logs/lab_opt_2024_12_08/optimization__2024-12-08-15-59__ASGD__.txt"
-    log_visiual(path)
-        
-    # """
+    def _agent_(self):
+        ## train agent model
+        if self._agent != True:
+            self._agent_model = None
+        else:
+            from sklearn.gaussian_process import GaussianProcessRegressor
+            from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
+            
+            if type(self._flist) == th.Tensor:
+                self._flist = self._flist.detach().numpy()
+                self._x_vec = self._x_vec.detach().numpy()
+            
+            self.ave_x = np.mean(self._x_vec,axis = 0)
+            self.std_x = np.std(self._x_vec,axis = 0)
+            x_train = (self._x_vec - self.ave_x)/self.std_x
+            
+            y_train = np.reshape(self._flist,-1)
+
+            kernel = C(1.0, (1e-4, 1e1)) * RBF(1.0, (1e-4, 1e1))
+            if self.opt_inherit != None: # if we have inherit
+                pass
+            else:
+                self._agent_model = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=10)
+            self._agent_model.fit(x_train, y_train)
+            
+            n = len(self._paras_init)
+            x_pred = np.array([self.x_optimize])
+            for i in range(25):
+                x_pred = np.concatenate((x_pred,[self.x_optimize+(6*np.random.rand(n)-3)*self.std_x]),axis = 0)
+                
+            y_pred,sigma = self._agent_model.predict(x_pred,return_std = True)
+            
+            plt.figure(800)
+            for i in range(len(self._paras_init)):
+                plt.scatter(np.arange(len(y_pred)),x_pred[:,i],label = f"agent_model, paras{i}",marker = "+",linewidth = 5)
+            
+            plt.twinx()
+            plt.errorbar(np.arange(len(y_pred)),y_pred,yerr=sigma,fmt='o',label = "agent model pred cost",c = "r")
+            plt.xlabel("agent pred runs")
+            plt.ylabel("amp")
+            plt.title("agent model predict")
+            plt.legend()    
     

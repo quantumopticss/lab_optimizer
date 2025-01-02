@@ -9,8 +9,7 @@ class local_optimize(optimize_base):
     
         warning
         --------
-        "Newton-CG" needs an extra argument Hessian in extra_dict
-        
+        "Newton-CG" needs an extra argument Hessian in extra_dict \\
         "trust-krylov", "trust-exact", "trust-ncg", "dogleg" requires Jabobian in extra_dict
     
         Args
@@ -47,12 +46,23 @@ class local_optimize(optimize_base):
         
         kwArgs
         ---------
+        ave_dict : dict
+            - ave : Bool
+                whethr to use average
+            - ave_times : int
+                average times
+            - ave_wait
+                wait times during each ave_run
+            - ave_opt
+                average operation code, defeault is "ave"
+                - "ave" : following cost_dict
+                - "std" : use for val_only func, it will cal uncer automatedly
+                
+            defeault is {False, X, X, X}
+            if you set ave == True, then defeault is {True, 3, 0.01,"ave"}
+        
         extra_dict : dict
             used for extra parameters for scipy.optimize.minimize family such as jac, hessel ... 
-        
-        opt_inherit : class 
-            inherit ``optimization results``, ``parameters`` and ``logs``
-            defeault is None (not use inherit)
         
         method : str or callable, optional
             Type of solver.  Should be one of
@@ -92,6 +102,27 @@ class local_optimize(optimize_base):
             log file name , defeault is "optimization__ + <timestamp>__ + <method>__.txt"
             level lower than inherited logfile
             
+        opt_inherit : class 
+            inherit ``optimization results``, ``parameters`` and ``logs``
+            defeault is None (not use inherit)
+            
+        Example
+        ---------
+        do not use opt_inherit
+        >>> from lab_optimizer import local_optimize
+        >>> opt1 = local_optimize(func,paras_init,bounds,args)
+        >>> x_opt = opt.optimization()
+        >>> opt.visualization()
+        \\
+        use opt_inherit (cascade multi optimizers)
+        >>> from lab_optimizer import local_optimize
+        >>> opt1 = local_optimize(func,paras_init,bounds,args,log = "inherit")
+        >>> x_opt1 = opt.optimization()
+        >>> # x_opt1 = opt.x_optimize
+        >>> opt2 = local_optimize(func,x_opt1,bounds,args,opt_inherit = opt1) # paras_init will be automatically set to x_opt1
+        >>> opt2.optimization()
+        >>> opt2.visualization()
+     
     """
     @staticmethod
     def _doc():
@@ -119,39 +150,39 @@ class local_optimize(optimize_base):
         print("******************************************")
         
         self._logging()
+        self._agent_()
         return self.x_optimize
         
     def visualization(self):
         self._visualization(self._flist,self._x_vec,self._method)
-        
+
 def _main():
     def func(x,a,b,c,d):
         vec = np.array([a,b,c,d])
-        f = np.sum((x - vec)**2,axis = None) + 5*np.sum(np.cos(x-a) + np.cos(x-b) + np.sin(x-c) + np.sin(x-d)) + a*b*c*d + 0.1*np.random.randn()
+        f = np.sum((x - vec)**2,axis = None) + 5*np.sum(np.cos(x-a) + np.cos(x-b) + np.sin(x-c) + np.sin(x-d)) + a*b*c*d + 5*np.random.randn()
         uncer = 0.1
         bad = False
         return_dict = {'cost':f,'uncer':uncer,'bad':bad}
         return return_dict
-    
+
     method1 = "simplex"
     method2 = "CG"
     ave_dict = {"ave":True,"ave_time":3,"ave_wait":0.01}
-    
+
     init = np.array([3,0,4,2])
     a = 6
     b = 8
     c = 1
     d = 2
     bounds = ((-10,10),(-10,10),(-10,10),(-10,10))
-    opt1 = local_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 30,delay = 0.02,method = method1,val_only = True,ave_dict = ave_dict, log = "inherit",msg = True)
+    opt1 = local_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 100,delay = 0.02,method = method1,val_only = True,ave_dict = ave_dict, log = "inherit",msg = True)
     opt1.optimization()
     opt2 = local_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 10,delay = 0.02,method = method2,val_only = True,ave_dict = ave_dict, log = True,msg = True,opt_inherit = opt1)
     x_end = opt2.optimization()
     print(x_end)
     opt2.visualization()
-     
+
 if __name__ == "__main__":
     _main()
-        
+    
 del _main
-        
