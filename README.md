@@ -19,7 +19,7 @@ pip install lab_optimizer
 - do not use opt_inherit
 ```python
 from lab_optimizer import global_optimize
-opt1 = global_optimize(func,paras_init,bounds,args)
+opt = global_optimize(func,paras_init,bounds,args)
 x_opt = opt.optimization()
 opt.visualization()
 ```
@@ -28,7 +28,7 @@ opt.visualization()
 ```python
 from lab_optimizer import global_optimize
 opt1 = global_optimize(func,paras_init,bounds,args,log = "inherit")
-x_opt1 = opt.optimization()
+x_opt1 = opt1.optimization()
 # x_opt1 = opt.x_optimize ## you can also use this one
 opt2 = global_optimize(func,x_opt1,bounds,args,opt_inherit = opt1) # paras_init will be automatically set to x_opt1 
 opt2.optimization()
