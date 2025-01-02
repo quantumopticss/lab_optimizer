@@ -3,7 +3,7 @@ path = os.path.abspath(__file__)
 sys.path.append(os.path.dirname(path))
 
 import numpy as np
-import lab_optimization as lab_opt
+import lab_optimizer as lab_opt
 
 def main_numpy():
     def func(x,a,b,c,d):
