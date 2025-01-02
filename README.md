@@ -1,5 +1,7 @@
 # lab_optimizer
 lab_optimization algorithms packages
+
+\\
 Provides : 
   1. global_optimizer
   2. local_optimizer
@@ -12,6 +14,7 @@ to download this package, using
 
 >>> pip install lab_optimizer
 
+\\
 Example
 ---------
 do not use opt_inherit
@@ -19,7 +22,7 @@ do not use opt_inherit
 >>> opt1 = global_optimize(func,paras_init,bounds,args)
 >>> x_opt = opt.optimization()
 >>> opt.visualization()
-\\
+
 use opt_inherit (cascade multi optimizers)
 >>> from lab_optimizer import global_optimize
 >>> opt1 = global_optimize(func,paras_init,bounds,args,log = "inherit")
