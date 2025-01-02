@@ -122,7 +122,7 @@ class torch_optimize(optimize_base):
         doc = "torch_optimizer"
         return doc
     
-    def __init__(self,func,paras_init:np.ndarray,bounds:tuple = None,args:tuple = (),extra_dict:dict = {},opt_inherit = None,**kwargs):
+    def __init__(self,func,paras_init:th.Tensor,bounds:tuple = None,args:tuple = (),extra_dict:dict = {},opt_inherit = None,**kwargs):
         self._device = "cuda" if th.cuda.is_available() else "cpu"
         kwargs["val_only"] = True # only need cose
         kwargs["torch"] = True # activate pytorch

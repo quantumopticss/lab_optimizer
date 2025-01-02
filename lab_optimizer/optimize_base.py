@@ -254,7 +254,7 @@ def ave_decorate(func,ave_times,ave_wait,ave_opt = "ave"):
     return ave_func
 
 class OptimizateException(Exception):
-    def __init__(self,err):
+    def __init__(self,err:str):
         Exception.__init__(self,"optimize error : " + err)
     
     ## user define  
@@ -263,10 +263,6 @@ class OptimizateException(Exception):
             func(self,*args,**kwargs)
             raise OptimizateException(func.__name__ + " not defined!")
         return wrapper
-    
-    @staticmethod
-    def no_MMA(func):
-        print(func.__name__ + " Mathematic do not download, and we automatically close MMA function")
             
 class optimize_base(OptimizateException):
     """optimize_base class

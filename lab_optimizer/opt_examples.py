@@ -16,7 +16,7 @@ class examples:
     >>> opt_examples.examples("direct_opt")
     >>> " code example "        
     """
-    def __init__(self,opcode = "direct_opt"):
+    def __init__(self,opcode:str = "direct_opt"):
         
         direct_opt = """
 from lab_optimizer import global_optimize 
