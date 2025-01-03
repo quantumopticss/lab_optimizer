@@ -111,6 +111,21 @@ from lab_optimizer import global_optimize
 opt = global_optimize(func,paras_init,bounds,args)
 x_opt = opt.optimization()
 opt.visualization()
+
+## units
+from lab_optimizer.units import *
+"""
+then you can easily use physics constants like :
+
+- planck constant : h_const
+- velocity of light in vacuum : c0_const
+
+and do units conversion :  
+
+- freq = 100*THz # freq = 100[THz]
+- m = 100*kg # m = 100[kg]
+
+"""
 ```
 
 - use opt_inherit (cascade multi optimizers)

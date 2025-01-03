@@ -37,7 +37,7 @@ from .torch_optimize import torch_optimize
 from .global_optimize import global_optimize
 from .optimize_base import *
 from .opt_examples import examples
-from units import *
+from . import units
     
 def _main():
     import numpy as np
