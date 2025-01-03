@@ -50,11 +50,10 @@ args : tuple, optional
     
 bounds : sequence or `Bounds`, optional
     Bounds on variables for Nelder-Mead, L-BFGS-B, TNC, SLSQP, Powell,
-    trust-constr, COBYLA, and COBYQA methods. There are two ways to specify
+    trust-constr, COBYLA, and COBYQA methods. To specify
     the bounds:
 
-        1. Instance of `Bounds` class.
-        2. Sequence of ``(min, max)`` pairs for each element in `x`. None is used to specify no bound.
+        Sequence of ``(min, max)`` pairs for each element in `x`. None is used to specify no bound.
 
 kwArgs
 ---------
