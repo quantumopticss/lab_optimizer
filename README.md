@@ -84,7 +84,7 @@ Documentation
 
 - global_optimize :
   
-  global_optimize aims at finding global minimum of a function, the __local_optimize__ submodule is constructed based on [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html) and [scikit-optimize](https://scikit-optimize.github.io/stable/) including some powerful algorithms 
+  global_optimize aims at finding global minimum of a function, the __local_optimize__ submodule is constructed based on [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html) and [scikit-opt](https://scikit-opt.github.io/scikit-opt/#/en/README) including some powerful algorithms 
   
   - based on scipy.optimize 
 
