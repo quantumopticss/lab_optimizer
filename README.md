@@ -24,27 +24,80 @@ opt = XXX_optimize(func,paras_init,bounds,args)
 x_opt = opt.optimization() # x_opt is the optimization result
 opt.visualization()
 """
+Args
+--------
 fun : callable
     The objective function to be minimized.
 
-    ``fun(x, *args) -> dict : {'cost':float, 'uncer':float, 'bad':bool}``
-
-    where ``cost`` is the value to minimize, ``uncer`` is uncertainty, ``bad`` is the judge whether this value is bad (bad = True) for this cost
-
+        ``fun(x, *args) -> dict : {'cost':float, 'uncer':float, 'bad':bool}``
+        
+    where ``cost`` is the value to minimize, ``uncer`` is uncertainty,
+    ``bad`` is the judge whether this value is bad (bad = True) for this cost
+    
     f you set val_only = True, then you can set bad and uncer to anything because they will not be used and default is True
 
-    ``x`` is a 1-D array with shape (n,) and ``args`` is a tuple of the fixed parameters needed to completely specify the function.
+    ``x`` is a 1-D array with shape (n,) and ``args``
+    is a tuple of the fixed parameters needed to completely
+    specify the function.
 
 paras_init : ndarray, shape (n,)
-    Initial guess. Array of real elements of size (n,), where ``n`` is the number of independent variables.
+    Initial guess. Array of real elements of size (n,),
+    where ``n`` is the number of independent variables.
 
 args : tuple, optional
-    Extra arguments passed to the objective function which will not change during optimization
-
+    Extra arguments passed to the objective function which will not
+    change during optimization
+    
 bounds : sequence or `Bounds`, optional
-    Bounds on variables for Nelder-Mead, L-BFGS-B, TNC, SLSQP, Powell, trust-constr, COBYLA, and COBYQA methods. to specify the bounds:
+    Bounds on variables for Nelder-Mead, L-BFGS-B, TNC, SLSQP, Powell,
+    trust-constr, COBYLA, and COBYQA methods. There are two ways to specify
+    the bounds:
 
-    shoud be Sequence of ``(min, max)`` pairs for each element in `x`. None is used to specify no bound.
+        1. Instance of `Bounds` class.
+        2. Sequence of ``(min, max)`` pairs for each element in `x`. None is used to specify no bound.
+
+kwArgs
+---------
+ave_dict : dict
+    - ave : Bool
+        whethr to use average
+    - ave_times : int
+        average times
+    - ave_wait
+        wait times during each ave_run
+    - ave_opt
+        average operation code, defeault is "ave"
+        - "ave" : following cost_dict
+        - "std" : use for val_only func, it will cal uncer automatedly
+        
+    defeault is {False, X, X, X}
+    if you set ave == True, then defeault is {True, 3, 0.01,"ave"}
+
+extra_dict : dict
+    used for extra parameters for scipy.optimize.minimize family such as jac, hessel ... 
+
+method : str 
+    optimization algorithm to use
+
+delay : float 
+    delay of each iteration, default is 0.1s
+
+max_run : int 
+    maxmun times of running optimization
+
+msg : Bool
+    whether to output massages in every iterarion, default is True
+    
+log : Bool
+    whether to generate a log file in folder labopt_logs
+    
+logfile : str
+    log file name , defeault is "optimization__ + <timestamp>__ + <method>__.txt"
+    level lower than inherited logfile
+    
+opt_inherit : opt_class 
+    inherit ``optimization results``, ``parameters`` and ``logs``
+    defeault is None (not use inherit)
 """
 
 ## get example code
@@ -76,7 +129,7 @@ Documentation
 - local_optimize : 
   
   local_optimize aims at finding local minimum of a function, the __local_optimize__ submodule is constructed based on [scipy.optimize.minimize](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html), including all of its supported algorithms : 
-  
+
   - Nelder-Mead (defeault)
   - L-BFGS-B
   - Powell
