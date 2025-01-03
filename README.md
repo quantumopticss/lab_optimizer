@@ -104,24 +104,37 @@ from lab_optimizer import examples
 examples(opcode = "direct_opt") # direct_opt, inherit_opt, log
 ```
 
-- do not use opt_inherit
-```python
-from lab_optimizer import global_optimize
-opt = global_optimize(func,paras_init,bounds,args)
-x_opt = opt.optimization()
-opt.visualization()
-```
+- using examples : 
 
-- use opt_inherit (cascade multi optimizers)
-```python
-from lab_optimizer import global_optimize
-opt1 = global_optimize(func,paras_init,bounds,args,log = "inherit")
-x_opt1 = opt1.optimization()
-# x_opt1 = opt.x_optimize ## you can also use this one
-opt2 = global_optimize(func,x_opt1,bounds,args,opt_inherit = opt1) # paras_init will be automatically set to x_opt1 
-opt2.optimization()
-opt2.visualization()
-```
+    - do not use opt_inherit
+    ```python
+    from lab_optimizer import global_optimize
+    opt = global_optimize(func,paras_init,bounds,args)
+    x_opt = opt.optimization()
+    opt.visualization()
+    ```
+
+    - use opt_inherit (cascade multi optimizers)
+    ```python
+    from lab_optimizer import global_optimize
+    opt1 = global_optimize(func,paras_init,bounds,args,log = "inherit")
+    x_opt1 = opt1.optimization()
+    # x_opt1 = opt.x_optimize ## you can also use this one
+    opt2 = global_optimize(func,x_opt1,bounds,args,opt_inherit = opt1) # paras_init will be automatically set to x_opt1 
+    opt2.optimization()
+    opt2.visualization()
+    ```
+
+    - Generic functional interface
+    to use another optimization algorithm, you only need to change the opt_class and just a little about its args
+    ```python
+    from lab_optimizer import global_optimize, local_optimize
+    opt1 = global_optimize(func,paras_init,bounds,args,log = "inherit")
+    x_opt1 = opt1.optimization()
+    opt2 = local_optimize(func,x_opt1,bounds,args,opt_inherit = opt1) # paras_init will be automatically set to x_opt1 
+    opt2.optimization()
+    opt2.visualization()
+    ```
 
 - units module 
 ```python
