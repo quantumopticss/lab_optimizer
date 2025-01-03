@@ -71,7 +71,7 @@ Documentation
 ---------
 - local_optimize : 
   
-  local_optimize aim at finding local minimum of a function, the __local_optimize__ submodule is constructed based on [scipy.optimize.minimize](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html), including all of its supported algorithms, including 
+  local_optimize aims at finding local minimum of a function, the __local_optimize__ submodule is constructed based on [scipy.optimize.minimize](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html), including all of its supported algorithms, including 
 
   - Nelder-Mead (defeault)
   - L-BFGS-B
@@ -80,7 +80,7 @@ Documentation
 
 - global_optimize :
   
-  global_optimize aim at finding global minimum of a function, the __local_optimize__ submodule is constructed based on [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html) and [scikit-optimize](https://scikit-optimize.github.io/stable/) including some powerful algorithms 
+  global_optimize aims at finding global minimum of a function, the __local_optimize__ submodule is constructed based on [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html) and [scikit-optimize](https://scikit-optimize.github.io/stable/) including some powerful algorithms 
   
   - based on scipy.optimize 
 
