@@ -21,8 +21,8 @@ All rights reserved.
 
 part of this project are published under 
 
-BSD 3-Clause License : <https://github.com/michaelhush/M-LOOP>, <https://github.com/scikit-learn/scikit-learn>, <https://github.com/scipy/scipy>
-MIT License : <https://github.com/scikit-optimize/scikit-optimize>
+BSD 3-Clause License : <https://github.com/scikit-learn/scikit-learn>, <https://github.com/scipy/scipy>
+MIT License :  <https://github.com/guofei9987/scikit-opt>, <https://github.com/michaelhush/M-LOOP>
 Other License : <https://github.com/pytorch/pytorch>, <https://github.com/numpy/numpy>
 
 """

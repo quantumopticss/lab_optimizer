@@ -15,8 +15,39 @@ optimization algorithms packages
 pip install lab_optimizer
 ```
 
-Examples
+Quick Start
 ---------
+- basic set : 
+```python
+## general form
+opt = XXX_optimize(func,paras_init,bounds,args)
+x_opt = opt.optimization() # x_opt is the optimization result
+opt.visualization()
+"""
+fun : callable
+    The objective function to be minimized.
+
+    ``fun(x, *args) -> dict : {'cost':float, 'uncer':float, 'bad':bool}``
+
+    where ``cost`` is the value to minimize, ``uncer`` is uncertainty, ``bad`` is the judge whether this value is bad (bad = True) for this cost
+
+    f you set val_only = True, then you can set bad and uncer to anything because they will not be used and default is True
+
+    ``x`` is a 1-D array with shape (n,) and ``args`` is a tuple of the fixed parameters needed to completely specify the function.
+
+paras_init : ndarray, shape (n,)
+    Initial guess. Array of real elements of size (n,), where ``n`` is the number of independent variables.
+
+args : tuple, optional
+    Extra arguments passed to the objective function which will not change during optimization
+
+bounds : sequence or `Bounds`, optional
+    Bounds on variables for Nelder-Mead, L-BFGS-B, TNC, SLSQP, Powell, trust-constr, COBYLA, and COBYQA methods. to specify the bounds:
+
+    shoud be Sequence of ``(min, max)`` pairs for each element in `x`. None is used to specify no bound.
+"""
+```
+
 - do not use opt_inherit
 ```python
 from lab_optimizer import global_optimize
@@ -36,3 +67,59 @@ opt2.optimization()
 opt2.visualization()
 ```
 
+Documentation
+---------
+- local_optimize : 
+  
+  local_optimize aim at finding local minimum of a function, the __local_optimize__ submodule is constructed based on [scipy.optimize.minimize](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html), including all of its supported algorithms, including 
+
+  - Nelder-Mead (defeault)
+  - L-BFGS-B
+  - Powell
+  - ...
+
+- global_optimize :
+  
+  global_optimize aim at finding global minimum of a function, the __local_optimize__ submodule is constructed based on [scipy.optimize](https://docs.scipy.org/doc/scipy/reference/optimize.html) and [scikit-optimize](https://scikit-optimize.github.io/stable/) including some powerful algorithms 
+  
+  - based on scipy.optimize 
+
+    - [dual_annealing](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.dual_annealing.html#scipy.optimize.dual_annealing) (defeault)
+    - [differential_evolution](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.differential_evolution.html#scipy.optimize.differential_evolution)
+    - [direct](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.direct.html#scipy.optimize.direct)
+    - [shgo](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.shgo.html#scipy.optimize.shgo)
+
+  - [based on scikit-optimize](https://scikit-opt.github.io/scikit-opt/#/en/README)
+    
+    - genetic
+    - particle_swarm
+    - artificial_fish
+
+- mloop_optimize :
+
+  mloop_optimize inherits all functions of [M-LOOP](https://m-loop.readthedocs.io/en/stable/index.html) : 
+
+  - gaussian_process (defeault)
+  - neural_net
+  - differential_evolution
+  - Nelder-Mead
+  - Random
+
+- torch_optimize : 
+
+  torch_optimize aims at optimizing __explicit function__ (which can be expressed explicitly in your code instead of experiment results), using [torch based gradient optimization algorithms family](https://pytorch.org/docs/stable/optim.html) 
+
+  - 'ASGD' (defeault)
+  - 'SGD'
+  - 'RMSprop'
+  - 'LBFGS' (require extra parameters in extra_dict)
+  - 'Rprop'
+  - 'Adadelta'
+  - 'Adagrade' (cpu_only)
+  - 'Adam'
+  - 'NAdam'
+  - 'RAdam'
+  - 'AdamW'
+  - 'Adamax'
+
+  

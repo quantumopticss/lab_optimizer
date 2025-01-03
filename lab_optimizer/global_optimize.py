@@ -74,7 +74,15 @@ class global_optimize(optimize_base):
 
         method : string
             which global algorithm to use, should be one of
-            ``"dual_annealing","differential_evolution","direct","shgo","genetic","particle_swarm","artificial_fish"(not recommend)``, 
+            
+            - ``"dual_annealing"``
+            - ``"differential_evolution"``
+            - ``"direct"
+            - ``"shgo"``
+            - ``"genetic"``
+            - ``"particle_swarm"``
+            - ``"artificial_fish"(not recommend)``
+             
             defeault is ``"dual_annealing"`` 
         
         extra_dict : dict

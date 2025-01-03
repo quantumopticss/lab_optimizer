@@ -128,7 +128,7 @@ class mloop_optimize(optimize_base):
         kwargs["msg"] = None # use mloop msg
         kwargs["opt_inherit"] = opt_inherit
         optimize_base.__init__(self,func,paras_init,args = args,bounds = bounds,**kwargs,_opt_type = self._doc())
-        self._method = kwargs.get("method","simplex")
+        self._method = kwargs.get("method","gaussian_process")
         if self._method == "simplex":
             self._method = "nelder_mead"
         self._interface = _mloops_interface(self._func,args = args)

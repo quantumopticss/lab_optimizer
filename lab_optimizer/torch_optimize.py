@@ -17,14 +17,19 @@ class _torch_interface(nn.Module):
     
 class torch_optimize(optimize_base):
     """reconstructed pytorch ``gradient descent algorithm family``
-    
-            - 'ASGD' 
+
+            - 'ASGD' (defeault)
             - 'SGD'
             - 'RMSprop'
+            - 'LBFGS' (require extra parameters in extra_dict)
+            - 'Rprop'
+            - 'Adadelta'
             - 'Adam'
+            - 'NAdam'
+            - 'RAdam'
             - 'AdamW'
             - 'Adamax'
-            - 'Adagrade'
+            - 'Adagrade' (cpu_only)
     
     require ``torch based func`` and must be ``based on explicite cost function``
         
@@ -67,7 +72,10 @@ class torch_optimize(optimize_base):
         ---------
         extra_dict : dict
             used for extra parameters for torch optimization algorithms except learning rate and learning rate control
-            
+        
+        device : str
+            working device of torch_optimize, defeault is try to use cuda
+        
         lr : float
             learning rate, defeault is 0.05
             
@@ -123,7 +131,7 @@ class torch_optimize(optimize_base):
         return doc
     
     def __init__(self,func,paras_init:th.Tensor,bounds:tuple = None,args:tuple = (),extra_dict:dict = {},opt_inherit = None,**kwargs):
-        self._device = "cuda" if th.cuda.is_available() else "cpu"
+        self._device = kwargs.get("device",("cuda" if th.cuda.is_available() else "cpu"))
         kwargs["val_only"] = True # only need cose
         kwargs["torch"] = True # activate pytorch
         kwargs["opt_inherit"] = opt_inherit
@@ -132,6 +140,21 @@ class torch_optimize(optimize_base):
         self._model = _torch_interface(self._func,paras_init,args = args).to(self._device)
         
         match self._method:
+            case "Adadelta":
+                th_alg = th.optim.Adadelta
+                
+            case "RAdam":
+                th_alg = th.optim.RAdam
+                
+            case "NAdam":
+                th_alg = th.optim.NAdam
+
+            case "LBFGS":
+                th_alg = th.optim.LBFGS
+                
+            case "Rprop":
+                th_alg = th.optim.Rprop
+            
             case "Adagrade":
                 th_alg = th.optim.Adagrad
                 
@@ -199,12 +222,13 @@ def _main():
     a = 6.;b=8.;c = 1.;d = 2.
     bounds = ((-10,10),(-10,10),(-10,10),(-10,10))
     # 'SGD', 'Adam','RMSprop','ASGD','AdamW', 'SparseAdam'
-    opt1 = torch_optimize(func,init,args = (a,b,c,d),bounds = bounds,max_run = 10,delay = 0.02,method = "ASGD",lr = 0.03, lr_clt = 0.9,log = "inherit")
+    opt1 = torch_optimize(func,init,args = (a,b,c,d),bounds = bounds,max_run = 10,delay = 0.02,method = "RAdam",lr = 0.03, lr_clt = 0.9,log = "inherit")
     x_end =  opt1.optimization()
-    opt2 = torch_optimize(func,init,args = (a,b,c,d),bounds = bounds,max_run = 10,delay = 0.02,method = "SGD",lr = 0.05, lr_clt = 0.9,log = True,opt_inherit=opt1)
-    x_end = opt2.optimization()
+    opt1.visualization()
+    # opt2 = torch_optimize(func,init,args = (a,b,c,d),bounds = bounds,max_run = 10,delay = 0.02,method = "SGD",lr = 0.05, lr_clt = 0.9,log = True,opt_inherit=opt1)
+    # x_end = opt2.optimization()
 
-    opt2.visualization()
+    # opt2.visualization()
      
 if __name__ == "__main__":
     _main()
