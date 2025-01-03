@@ -135,9 +135,10 @@ then you can easily use physics constants like :
 
 and do units conversion :  
 
-- freq = 100*units.THz # freq = 100[THz]
-- m = 100*units.kg # m = 100[kg]
+- freq = 100*units.THz = 1e5*units.GHz = 1e8*units.MHz = ... # freq = 1e14 Hz
+- m = 100*units.kg = 1e5*units.g # m = 100[kg]
 
+the units module uses SI units (kg,m,s)
 """
 ```
 
