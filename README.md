@@ -111,19 +111,20 @@ from lab_optimizer import global_optimize
 opt = global_optimize(func,paras_init,bounds,args)
 x_opt = opt.optimization()
 opt.visualization()
-
-## units
-from lab_optimizer.units import *
+```
+- units module 
+```python
+from lab_optimizer import units
 """
 then you can easily use physics constants like :
 
-- planck constant : h_const
-- velocity of light in vacuum : c0_const
+- planck constant : units.h_const
+- velocity of light in vacuum : units.c0_const
 
 and do units conversion :  
 
-- freq = 100*THz # freq = 100[THz]
-- m = 100*kg # m = 100[kg]
+- freq = 100*units.THz # freq = 100[THz]
+- m = 100*units.kg # m = 100[kg]
 
 """
 ```
