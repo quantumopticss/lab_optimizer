@@ -46,6 +46,10 @@ bounds : sequence or `Bounds`, optional
 
     shoud be Sequence of ``(min, max)`` pairs for each element in `x`. None is used to specify no bound.
 """
+
+## get example code
+from lab_optimizer import examples
+examples(opcode = "direct_opt") # direct_opt, inherit_opt, log
 ```
 
 - do not use opt_inherit

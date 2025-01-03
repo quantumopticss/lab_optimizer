@@ -19,6 +19,8 @@ class examples:
     def __init__(self,opcode:str = "direct_opt"):
         
         direct_opt = """
+## examples for performing direct_opt
+        
 from lab_optimizer import global_optimize 
 def func(x,a,b,c,d):
     vec = np.array([a,b,c,d])
@@ -43,6 +45,8 @@ opt.visualization()
         """
         
         inherit_opt = """
+## example for performing inherit_opt
+        
 from lab_optimizer import local_optimize 
 def func(x,a,b,c,d):
     vec = np.array([a,b,c,d])
@@ -72,6 +76,9 @@ opt2.visualization()
         """
         
         log = """
+## example for visualizing opt_logs
+        
+from lab_optimizer import log_visual
 path = "labopt_logs/lab_opt_2024_12_08/optimization__2024-12-08-15-59__ASGD__.txt"
 log_visiual(path)
         """
