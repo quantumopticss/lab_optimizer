@@ -1,7 +1,7 @@
 ## gradient descent
 import torch as th
 from torch import nn
-from .optimize_base import *
+from optimize_base import *
 from torch.optim.lr_scheduler import ExponentialLR
 
 class _torch_interface(nn.Module):

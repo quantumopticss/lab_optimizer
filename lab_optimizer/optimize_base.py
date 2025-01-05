@@ -257,14 +257,15 @@ class OptimizateException(Exception):
     def __init__(self,err:str):
         Exception.__init__(self,"optimize error : " + err)
     
-    ## user define  
+    ## user define
+    @staticmethod
     def user_define(func):
         def wrapper(self,*args,**kwargs):
             func(self,*args,**kwargs)
             raise OptimizateException(func.__name__ + " not defined!")
         return wrapper
             
-class optimize_base(OptimizateException):
+class optimize_base:
     """optimize_base class
     
     Args:
@@ -458,9 +459,9 @@ class optimize_base(OptimizateException):
 
     @OptimizateException.user_define
     def optimization(self):
-        """ you must define this method in XXX_optimize class
-        """   
-            
+        """ you must define this method in XXX_optimize class"""
+        pass
+
     def _visualization(self,flist,x_vec,method = "None",visual = "all"):        
         if type(x_vec) == th.Tensor:
             flist = flist.detach().numpy()
