@@ -35,6 +35,9 @@ setup(
         'numpy',
         'scipy',
         'matplotlib',
+        'panads',
+        'seaborn',
+        'plotly',
         torch_version,
     ],
 )
