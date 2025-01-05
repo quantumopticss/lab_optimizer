@@ -7,12 +7,19 @@ from lab_optimizer import __version__
 
 ## for pytorch
 import subprocess
+try:
+    result = subprocess.run(["nvidia-smi"], capture_output=True, text=True)
+except:
+    result = None
 
-result = subprocess.run(["nvidia-smi"], capture_output=True, text=True)
 if result.returncode == 0:
     device = 'cu118'
 else:
     device = 'cpu'
+    
+if result == None:
+    device = 'cpu'
+
 torch_version = 'torch>=2.4.0+' + device
 
 setup(
