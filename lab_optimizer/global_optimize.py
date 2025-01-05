@@ -271,9 +271,6 @@ class global_optimize(optimize_base):
         self._logging()
         self._agent_()
         return self.x_optimize
-    
-    def visualization(self):
-        self._visualization(self._flist,self._x_vec,self._method)
 
 def _main():
     def func(x,a,b,c,d):

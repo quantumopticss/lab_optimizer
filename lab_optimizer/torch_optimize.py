@@ -1,7 +1,7 @@
 ## gradient descent
 import torch as th
 from torch import nn
-from optimize_base import *
+from .optimize_base import *
 from torch.optim.lr_scheduler import ExponentialLR
 
 class _torch_interface(nn.Module):
@@ -205,9 +205,6 @@ class torch_optimize(optimize_base):
         
         self._logging()
         return self.x_optimize
-    
-    def visualization(self):
-        self._visualization(self._flist,self._x_vec,self._method)
 
 def _main():
     def func(x,a,b,c,d):
@@ -222,7 +219,7 @@ def _main():
     a = 6.;b=8.;c = 1.;d = 2.
     bounds = ((-10,10),(-10,10),(-10,10),(-10,10))
     # 'SGD', 'Adam','RMSprop','ASGD','AdamW', 'SparseAdam'
-    opt1 = torch_optimize(func,init,args = (a,b,c,d),bounds = bounds,max_run = 10,delay = 0.02,method = "RAdam",lr = 0.03, lr_clt = 0.9,log = "inherit")
+    opt1 = torch_optimize(func,init,args = (a,b,c,d),bounds = bounds,max_run = 40,delay = 0.02,method = "RAdam",lr = 0.03, lr_clt = 0.9,log = "inherit")
     x_end =  opt1.optimization()
     opt1.visualization()
     # opt2 = torch_optimize(func,init,args = (a,b,c,d),bounds = bounds,max_run = 10,delay = 0.02,method = "SGD",lr = 0.05, lr_clt = 0.9,log = True,opt_inherit=opt1)

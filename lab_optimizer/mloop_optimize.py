@@ -1,7 +1,7 @@
 import mloop.interfaces as mli
 import mloop.controllers as mlc
 # import mloop.visualizations as mlv
-from optimize_base import *
+from .optimize_base import *
 import numpy as np
 
 class _mloops_interface(mli.Interface,optimize_base):
@@ -160,9 +160,6 @@ class mloop_optimize(optimize_base):
         self._logging()
         self._agent_()
         return self.x_optimize
-        
-    def visualization(self):
-        self._visualization(self._flist,self._x_vec,self._method)
     
 ### operation
 def _main():

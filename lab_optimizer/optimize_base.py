@@ -141,49 +141,132 @@ def local_time(time_zone:int = 8) -> float:
     t = time.time() + time_zone*3600.0
     return t
 
-def opt_plot(flist,x_vec,method,visual = "all"):
+def _opt_plot(flist,x_vec,method,visual = "all"):
+    print("making visualizing figures")
     if visual == "all":
-        visual = ["traj","cost"]
+        visual = ["classic","advanced"]
+    else:
+        visual = [visual]
     N,M = x_vec.shape
     ## cost vs rounds
-    if "cost" in visual:
-        plt.figure(1)
+    if "classic" in visual:
+        plt.figure(figsize=(12, 6))
+        plt.subplot(1,2,1) # cost vs round
         timelist = np.arange(N)
         plt.plot(timelist,flist,label = "f value")
         plt.xlabel("rounds")
         plt.title("cost vs optimization rounds @ " + str(method))
         plt.legend()
-    
-    ## cost vs 
-    if "traj" in visual:
-        plt.figure(2)
-        for i in range(M):
-            plot_vec = x_vec[:,i]
-            normal = np.max(np.abs(plot_vec),axis = None)
-            plot_vec = plot_vec/normal
-            plt.scatter(timelist,plot_vec,label = f"times vs paras-{i} with amp = {normal:.4f}")
-        plt.legend()
-        plt.xlabel("rounds")
-        plt.title("normalized parameters  @ " + str(method))
         
-        plt.figure(3)
+        mean = np.mean(x_vec,axis = 0)        
+        plt.subplot(1,2,2) # std-normal traj
         for i in range(M):
             plot_vec = x_vec[:,i]
-            plt.scatter(timelist,x_vec[:,i],label = f"times vs paras-{i}")
+            normal = np.std(plot_vec)
+            plot_vec = (plot_vec - mean[i])/normal
+            plt.scatter(timelist,plot_vec,label = f"times vs paras-{i} with : [amp-std = {normal:.4f} , mean = {mean[i]:.3f}]")
         plt.legend()
         plt.xlabel("rounds")
-        plt.title("raw parameters @ " + str(method))
+        plt.title("std normalized parameters  @ " + str(method))
     
+    # data = np.concatenate((x_vec,flist),axis = 1)
+    if "advanced" in visual:
+        import plotly.express as px
+        import pandas as pd
+        from sklearn.decomposition import PCA
+        from sklearn.manifold import TSNE
+        from sklearn.preprocessing import MinMaxScaler
+        import seaborn as sns 
+        from pandas.plotting import parallel_coordinates
+        
+        # data 
+        scalar = MinMaxScaler()
+        df = pd.DataFrame(x_vec,columns=[f"x{i}" for i in range(x_vec.shape[1])])
+        df['cost'] = flist
+        
+        # scalar x and f
+        x_vec_scalar = scalar.fit_transform(x_vec)
+        flist_scalar = scalar.fit_transform(flist)
+        df_scalar = pd.DataFrame(x_vec_scalar,columns=[f"x{i}" for i in range(x_vec.shape[1])])
+        df_scalar["cost"] = flist_scalar
+        
+        if x_vec.shape[1] <= 6:
+            # Parallel Coordinates
+            plt.figure(2,figsize=(6,6)) 
+            df_scalar['cost_range'] = pd.qcut(df_scalar['cost'],q = 10,labels = False)
+            color_mapping = plt.cm.viridis(df_scalar['cost_range']/df_scalar['cost_range'].max())
+            color_mapping[:, -1] = 0.85  # 
+            parallel_coordinates(df_scalar, 'cost_range', 
+                                 color=color_mapping)
+            plt.title('Parallel Coordinates')
+            plt.xlabel('ordered parameters [0-1] normalized')
+            plt.ylabel('cost [0-1] normalized')  
+
+            # scatter matrix
+            sns.pairplot(df,vars = [f"x{i}" for i in range(x_vec.shape[1])],
+                        hue = "cost", palette = 'viridis', diag_kind = 'hist',
+                        plot_kws = {'alpha':0.5},height = 6)
+            plt.title("scatter matrix")
+        
+        # PCA
+        pca = PCA(n_components=3)
+        df['iter'] = range(1,len(df)+1)
+        data_pca = pca.fit_transform(x_vec)
+        
+        df["PCA1"] = data_pca[:,0]
+        df["PCA2"] = data_pca[:,1]
+        df["PCA3"] = data_pca[:,2]
+
+        # pca results
+        variance_ratio = pca.explained_variance_ratio_
+        comp = np.round(pca.components_,2)
+        
+        fig1 = px.scatter_3d(df,x = "PCA1",y = "PCA2",z = "PCA3",color = "cost",size="iter",
+                             title = "high dimension visual @ PCA , focus on main dimension",
+                             labels = {"cost":"cost"},hover_data = [f"x{i}" for i in range(x_vec.shape[1])])
+        fig1.update_traces(marker=dict(line=dict(width=0.5, color='DarkSlateGrey')),opacity=0.7)
+        
+        fig1.update_layout(
+            title="PCA 3D Scatter Plot",
+            scene=dict(
+                xaxis=dict(title="PCA1, comp = " + str(comp[0]) + f", contribute = {variance_ratio[0]*100:.2f}%"),
+                yaxis=dict(title="PCA2, comp = " + str(comp[1]) + f", contribute = {variance_ratio[1]*100:.2f}%"),
+                zaxis=dict(title="PCA3, comp = " + str(comp[2]) + f", contribute = {variance_ratio[2]*100:.2f}%")
+                    )
+            )
+                
+        # t-SNE
+        tsne = TSNE(n_components = 3,perplexity=30,n_iter = 550)
+        data_tsne = tsne.fit_transform(x_vec)
+        df["tsne1"] = data_tsne[:,0]
+        df["tsne2"] = data_tsne[:,1]
+        df["tsne3"] = data_tsne[:,2]
+        fig2 = px.scatter_3d(df,x = "tsne1",y = "tsne2",z = "tsne3",color = "cost",size="iter"
+                                ,title = "high dimension visual @ TSNE , focus on ** Clusters **",
+                                labels = {"cost":"cost"},hover_data = [f"x{i}" for i in range(x_vec.shape[1])])
+        fig2.update_traces(marker=dict(line=dict(width=0.5, color='DarkSlateGrey')))
+        
+        fig1.show()
+        fig2.show()
+        
     plt.show()
-    
-def log_visiual(path:str):
+     
+def log_visiual(path:str,visual:str = "all"):
     """view optimization results from log  
 
         Args
         ---------
         path : string
             log path of optimization log 
-        
+            
+        visual : str
+            to choose visualization figures, should be one of 
+            
+                - ``"classic"`` : to view just cost and std-normalized traj
+                - ``"advanced"`` : provide multidimension visualization 
+                - ``"all"`` : all of them
+            
+            defeault is ``"all"``
     """
     def converter(s):
         s = s[1:-2].decode('utf-8')
@@ -202,12 +285,13 @@ def log_visiual(path:str):
     
     data_list = np.loadtxt(path,skiprows = head_numbers,usecols=(2),converters = {2: converter},dtype = object)
     value_list = np.loadtxt(path,skiprows = head_numbers,usecols=(3))
+    flist = np.reshape(value_list,[-1,1])
     
     x_list = np.array([data_list[0]])
     for i in range(1,len(data_list)):
         x_list = np.vstack((x_list,data_list[i]))
     
-    opt_plot(value_list,x_list,"from log : " + os.path.basename(path))
+    _opt_plot(flist,x_list,"from log : " + os.path.basename(path),visual)
 
 def ave_decorate(func,ave_times,ave_wait,ave_opt = "ave"):
     """average decorator:
@@ -373,12 +457,12 @@ class optimize_base:
         if self._log == True or self._log == "inherit":
             self._log_head = log_head_inhert + (
                 "start_time : " + time.strftime("%Y_%m_%d_%H:%M:%S",time.gmtime(local_time())) + " * " + "\n" +
-                "method : " + kwargs.get("_opt_type","None") + " @ " + kwargs.get("method","None") + "\n" +
+                "opt_alg : " + kwargs.get("_opt_type","None") + " @ " + kwargs.get("method","None") + "\n" +
                 "func : " + func.__repr__() + "\n" + 
-                "args : " + self._args.__repr__() + "\n" +
                 "paras_init : " + self._paras_init.__repr__() + "\n" +
-                "kwargs : " + kwargs.__repr__() + "\n" + 
                 "bounds : " + self._bounds.__repr__() + "\n" + 
+                "args : " + self._args.__repr__() + "\n" +
+                "kwargs : " + kwargs.__repr__() + "\n" + 
                 "max_run : "  f"{self._max_run}" + "\n"
                 "form : " + "rounds, time, parameters, cost " + "\n\n" 
             )
@@ -458,16 +542,27 @@ class optimize_base:
         return func_decorate
 
     @OptimizateException.user_define
-    def optimization(self):
-        """ you must define this method in XXX_optimize class"""
-        pass
+    def optimization(self):...
 
-    def _visualization(self,flist,x_vec,method = "None",visual = "all"):        
-        if type(x_vec) == th.Tensor:
-            flist = flist.detach().numpy()
-            x_vec = x_vec.detach().numpy()
-            
-        opt_plot(flist,x_vec,method,visual)
+    def visualization(self,visual:str = "all"):
+        """to visualize optimization results
+        
+            Args
+            ---------
+            visual : str
+                to choose visualization figures, should be one of 
+                
+                    - ``"classic"`` : to view just cost and std-normalized traj
+                    - ``"advanced"`` : provide multidimension visualization 
+                    - ``"all"`` : all of them
+                
+                defeault is ``"all"``
+        """        
+        if type(self._x_vec) == th.Tensor:
+            self._flist = self._flist.detach().numpy()
+            self._x_vec = self._x_vec.detach().numpy()
+        
+        _opt_plot(self._flist,self._x_vec,self._method,visual)
         
     def _agent_(self):
         ## train agent model
@@ -512,3 +607,6 @@ class optimize_base:
             plt.title("agent model predict")
             plt.legend()    
     
+if __name__ == "__main__":
+    path = "labopt_logs/lab_opt_2025_01_05/optimization__2025-01-05-23-33__simplex__.txt"
+    log_visiual(path)

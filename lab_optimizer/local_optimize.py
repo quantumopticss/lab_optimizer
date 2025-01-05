@@ -1,4 +1,4 @@
-from optimize_base import *
+from .optimize_base import *
 from scipy.optimize import minimize
 import numpy as np
 
@@ -152,14 +152,11 @@ class local_optimize(optimize_base):
         self._logging()
         self._agent_()
         return self.x_optimize
-        
-    def visualization(self):
-        self._visualization(self._flist,self._x_vec,self._method)
 
 def _main():
     def func(x,a,b,c,d):
         vec = np.array([a,b,c,d])
-        f = np.sum((x - vec)**2,axis = None) + 5*np.sum(np.cos(x-a) + np.cos(x-b) + np.sin(x-c) + np.sin(x-d)) + a*b*c*d + 5*np.random.randn()
+        f = np.sum((x - vec)**2,axis = None) + 5*np.sum(np.cos(x-a) + np.cos(x-b) + np.sin(x-c) + np.sin(x-d)) + a*b*c*d # + 5*np.random.randn()
         uncer = 0.1
         bad = False
         return_dict = {'cost':f,'uncer':uncer,'bad':bad}
@@ -175,12 +172,13 @@ def _main():
     c = 1
     d = 2
     bounds = ((-10,10),(-10,10),(-10,10),(-10,10))
-    opt1 = local_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 100,delay = 0.02,method = method1,val_only = True,ave_dict = ave_dict, log = "inherit",msg = True)
+    opt1 = local_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 20,delay = 0.002,method = method1,val_only = True,ave_dict = ave_dict, log = True,msg = True)
     opt1.optimization()
-    opt2 = local_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 10,delay = 0.02,method = method2,val_only = True,ave_dict = ave_dict, log = True,msg = True,opt_inherit = opt1)
-    x_end = opt2.optimization()
-    print(x_end)
-    opt2.visualization()
+    opt1.visualization()
+    # opt2 = local_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 10,delay = 0.002,method = method2,val_only = True,ave_dict = ave_dict, log = True,msg = True,opt_inherit = opt1)
+    # x_end = opt2.optimization()
+    # print(x_end)
+    # opt2.visualization()
 
 if __name__ == "__main__":
     _main()

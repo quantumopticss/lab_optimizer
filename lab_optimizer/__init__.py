@@ -1,4 +1,4 @@
-__version__ = "1.0.3"
+__version__ = "1.1.0"
 
 """
 lab_optimizer
@@ -21,9 +21,9 @@ All rights reserved.
 
 part of this project are published under 
 
-BSD 3-Clause License : <https://github.com/scikit-learn/scikit-learn>, <https://github.com/scipy/scipy>
-MIT License :  <https://github.com/guofei9987/scikit-opt>, <https://github.com/michaelhush/M-LOOP>
-Other License : <https://github.com/pytorch/pytorch>, <https://github.com/numpy/numpy>
+BSD 3-Clause License : <https://github.com/scikit-learn/scikit-learn>, <https://github.com/scipy/scipy>, <https://github.com/pandas-dev/pandas>, <https://github.com/mwaskom/seaborn>
+MIT License : <https://github.com/michaelhush/M-LOOP>, <https://github.com/guofei9987/scikit-opt>, <https://github.com/plotly/plotly.py>
+Other License : <https://github.com/pytorch/pytorch>, <https://github.com/numpy/numpy>,<https://github.com/matplotlib/matplotlib>
 
 """
 
