@@ -7,8 +7,9 @@ optimization algorithms packages
   2. <span style="color:green">local_optimizer</span>, include algorithms for finding <span style="color:green">__local minimun__</span>
   3. mloop_optimizer, a general and integral API of its functions
   4. torch_optimizer __(only for torch functions)__, a general and integral API of its functions
-  5. physics constants and units conversion 
-  6. lab_optimizer examples
+  5. powerful visualization tools
+  6. physics constants and units conversion 
+  7. lab_optimizer examples
 
 - to download this package, using
 ```shell
