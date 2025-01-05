@@ -4,22 +4,8 @@ sys.path.append(os.path.dirname(path))
 
 from setuptools import setup, find_packages
 from lab_optimizer import __version__
-
-## for pytorch
-import subprocess
-try:
-    result = subprocess.run(["nvidia-smi"], capture_output=True, text=True)
-except:
-    result = None
-
-if result == None:
-    device = 'cpu'
-elif result.returncode == 0:
-    device = 'cu118'
-else:
-    device = 'cpu'
     
-torch_version = 'torch>=2.4.0+' + device
+torch_version = 'torch>=2.4.0'
 
 setup(
     name="lab_optimizer", 
