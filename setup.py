@@ -12,14 +12,13 @@ try:
 except:
     result = None
 
-if result.returncode == 0:
+if result == None:
+    device = 'cpu'
+elif result.returncode == 0:
     device = 'cu118'
 else:
     device = 'cpu'
     
-if result == None:
-    device = 'cpu'
-
 torch_version = 'torch>=2.4.0+' + device
 
 setup(
