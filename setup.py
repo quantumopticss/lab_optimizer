@@ -26,12 +26,12 @@ setup(
         'M-LOOP>=3.3.5',
         'scikit-opt>=0.6.6',
         'scikit-learn>=1.2.2',
-        'numpy>=1.24.0',
+        'numpy>=1.26.4',
         'scipy>=1.14.0',
-        'matplotlib>=1.5',
-        'panads>=2.0',
-        'seaborn>=0.12',
+        'matplotlib>=3.9.2',
+        'panads>=1.5.3',
+        'seaborn>=0.12.2',
         'plotly>=5.24.1',
-        'torch>=2.4.0'
+        'torch>=2.3.1'
     ],
 )
