@@ -30,7 +30,7 @@ setup(
         'scipy>=1.14.0',
         'matplotlib>=1.5',
         'panads>=2.0',
-        'seaborn=0.12',
+        'seaborn>=0.12',
         'plotly>=5.24.1',
         'torch>=2.4.0'
     ],
