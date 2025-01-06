@@ -143,12 +143,15 @@ def local_time(time_zone:int = 8) -> float:
 
 def _opt_plot(flist,x_vec,method,visual = "all"):
     print("making visualizing figures")
-    if visual == "all":
-        visual = ["classic","advanced"]
-    else:
-        visual = [visual]
+    match visual:
+        case "classic":
+            visual = [visual]
+        case "advanced":
+            visual = [visual]
+        case _:
+            visual = ["classic","advanced"]
     N,M = x_vec.shape
-    ## cost vs rounds
+    ## classic : traj & cost vs rounds
     if "classic" in visual:
         plt.figure(figsize=(12, 6))
         plt.subplot(1,2,1) # cost vs round
@@ -169,7 +172,7 @@ def _opt_plot(flist,x_vec,method,visual = "all"):
         plt.xlabel("rounds")
         plt.title("std normalized parameters  @ " + str(method))
     
-    # data = np.concatenate((x_vec,flist),axis = 1)
+    # advanced : higher dimensional visualizing
     if "advanced" in visual:
         import plotly.express as px
         import pandas as pd
@@ -193,7 +196,7 @@ def _opt_plot(flist,x_vec,method,visual = "all"):
         if x_vec.shape[1] <= 6:
             # Parallel Coordinates
             plt.figure(2,figsize=(6,6)) 
-            df_scalar['cost_range'] = pd.qcut(df_scalar['cost'],q = 10,labels = False)
+            df_scalar['cost_range'] = pd.qcut(df_scalar['cost'],q = 15,labels = False)
 
             parallel_coordinates(df_scalar, 'cost_range',colormap = "plasma")
             plt.title('Parallel Coordinates')
@@ -203,10 +206,10 @@ def _opt_plot(flist,x_vec,method,visual = "all"):
             # scatter matrix
             sns.pairplot(df,vars = [f"x{i}" for i in range(x_vec.shape[1])],
                         hue = "cost", palette = 'viridis', diag_kind = 'hist',
-                        plot_kws = {'alpha':0.75},height = 8/(x_vec.shape[1]))
+                        plot_kws = {'alpha':0.75},height = 8.1/(x_vec.shape[1]))
             plt.title("scatter matrix")
         
-        # PCA
+        ## PCA
         pca = PCA(n_components=3)
         df['iter'] = range(1,len(df)+1)
         data_pca = pca.fit_transform(x_vec)
@@ -233,7 +236,7 @@ def _opt_plot(flist,x_vec,method,visual = "all"):
                     )
             )
                 
-        # t-SNE
+        ## t-SNE
         tsne = TSNE(n_components = 3,perplexity=np.min([30,int(x_vec.shape[0]//1.5)]),n_iter = 550)
         data_tsne = tsne.fit_transform(x_vec)
         df["tsne1"] = data_tsne[:,0]
@@ -283,13 +286,18 @@ def log_visiual(path:str,visual:str = "all"):
     
     data_list = np.loadtxt(path,skiprows = head_numbers,usecols=(2),converters = {2: converter},dtype = object)
     value_list = np.loadtxt(path,skiprows = head_numbers,usecols=(3))
-    flist = np.reshape(value_list,[-1,1])
     
     x_list = np.array([data_list[0]])
     for i in range(1,len(data_list)):
         x_list = np.vstack((x_list,data_list[i]))
     
-    _opt_plot(flist,x_list,"from log : " + os.path.basename(path),visual)
+    ## handling nan
+    valid_flist = ~np.isnan(value_list)
+    f_list = value_list[valid_flist]
+    f_list = np.reshape(f_list,[-1,1])
+    x_list = x_list[valid_flist.flatten(),:]
+    
+    _opt_plot(f_list,x_list,"from log : " + os.path.basename(path),visual)
 
 def ave_decorate(func,ave_times,ave_wait,ave_opt = "ave"):
     """average decorator:
@@ -489,9 +497,7 @@ class optimize_base:
         
         # if there are err_msg , we will add special head !!_ in log
         if err_msg != "":
-            file_head = "err_"
-            
-        self._filename = file_head + self._filename
+            self._filename = "err_" + self._filename
             
         self._time_end = local_time()
         delta_t = self._time_end - self._time_start
@@ -511,6 +517,8 @@ class optimize_base:
                 file.write("name : " + self._filename + "\n") 
                 file.write(self._log_head)
                 file.write("end_time : " + time.strftime("%Y_%m_%d_%H:%M:%S",time.gmtime(self._time_end)) + " * " +  "\n\n")
+                if err_msg != "":
+                    file.write("** " + "ERROR : " +  err_msg + " : ERROR" + " ** \n\n")
                 file.write("##\n")
             ## data
             if type(self._x_vec) == th.Tensor:
@@ -523,7 +531,6 @@ class optimize_base:
                                 + ", ")
                     file.write("[" + ",".join(map(str,self._x_vec[i])) + "]")
                     file.write(", " + f"{self._flist[i,0]}" + "\n")
-                file.write("\n" + err_msg + "\n")
     
     def _decorate(self,func,delay = 0.1,msg = True): # delay in s
         if self._torch == True:
@@ -538,7 +545,7 @@ class optimize_base:
                 self._run_count += 1
                 ## build flist including f values
                 ## and x_vec in which x_vec[:,i] include the 
-                ## changing traj of a parameter
+                ## changing traj of a parameter 
                 self._flist = th.vstack((self._flist,th.tensor([f_val])))
                 self._x_vec = th.vstack((self._x_vec,x))
                 self._time_stamp = self._time_stamp + [ time.strftime("%d:%H:%M:%S",time.gmtime(local_time())) ]
@@ -648,7 +655,7 @@ class optimize_base:
         raise optimize_Exception(err_msg)
     
 if __name__ == "__main__":
-    path = "labopt_logs/lab_opt_2025_01_05/optimization__2025-01-05-23-33__simplex__.txt"
+    path = "labopt_logs/lab_opt_2025_01_06/err_optimization__2025-01-06-17-37__simplex__.txt"
     log_visiual(path)
     
     

@@ -119,7 +119,7 @@ class mloop_optimize(optimize_base):
      
     """
     @staticmethod
-    def _doc():
+    def _doc() -> str:
         doc = "mloop_optimizer"
         return doc
     

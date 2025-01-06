@@ -1,4 +1,4 @@
-__version__ = "1.1.9"
+__version__ = "1.2.0"
 
 """
 lab_optimizer
@@ -39,7 +39,7 @@ from .global_optimize import global_optimize
 from .optimize_base import *
 from .opt_examples import examples
 from . import units
-    
+
 def _main():
     import numpy as np
     def func(x,a,b,c,d):

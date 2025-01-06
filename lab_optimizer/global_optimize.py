@@ -127,7 +127,7 @@ class global_optimize(optimize_base):
      
     """
     @staticmethod
-    def _doc():
+    def _doc() -> str:
         doc = "global_optimizer"
         return doc
     

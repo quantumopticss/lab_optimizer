@@ -126,7 +126,7 @@ class torch_optimize(optimize_base):
      
     """
     @staticmethod
-    def _doc():
+    def _doc() -> str:
         doc = "torch_optimizer"
         return doc
     
