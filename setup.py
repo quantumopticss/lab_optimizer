@@ -23,7 +23,7 @@ setup(
     ],
     python_requires='>=3.10',  
     install_requires=[  
-        'MLOOP>=3.3.5',
+        'M-LOOP>=3.3.5',
         'scikit-opt>=0.6.6',
         'scikit-learn>=1.2.2',
         'numpy>=1.24.0',
