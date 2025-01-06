@@ -275,24 +275,29 @@ class global_optimize(optimize_base):
 def _main():
     def func(x,a,b,c,d):
         vec = np.array([a,b,c,d])
-        f = np.sum( (x-vec)**2 + 7*np.cos(2*np.pi*(x-vec))  )
+        f = 2*np.sum((x - vec)**2,axis = None) + 10*np.sum(np.cos(x-a)*np.cos(x-b) + np.sin(x-c) + np.sin(x-d)) + a*b*c*d # + 5*np.random.randn()
         uncer = 0.1
-        bad = None
+        bad = False
         return_dict = {'cost':f,'uncer':uncer,'bad':bad}
         return return_dict
 
     method = "differential_evolution"
 
-    init = np.array([3,0,4,2])
+    init = np.array([3,-8,4,2])
     a = 6
     b = 8
-    c = 5
+    c = 1
     d = 2
     bounds = ((-10,10),(-10,10),(-10,10),(-10,10))
+    bounds = ((-10,10),(-10,10),(-10,10),(-10,10))
     extra_dict = {"no_local_search":None,"eps":0.05}
-    opt = global_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 1,delay = 0.03,method = method,extra_dict=extra_dict, log = True, logfile = "test_logfile")
-    x_end = opt.optimization()
-    opt.visualization()
+    opt = global_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 1,delay = 0.001,method = method,extra_dict=extra_dict, log = "inherit")
+    opt.optimization()
+    from local_optimize import local_optimize
+    opt2 = local_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 10,delay = 0.002,method = "L-BFGS-B",val_only = True, log = True,msg = True,opt_inherit = opt)
+    x_end = opt2.optimization()
+    print(x_end)
+    opt2.visualization()
 
 if __name__ == "__main__":
     _main()
