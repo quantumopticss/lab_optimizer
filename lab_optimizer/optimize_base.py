@@ -335,18 +335,32 @@ def ave_decorate(func,ave_times,ave_wait,ave_opt = "ave"):
         return f_dict
     return ave_func
 
-class OptimizateException(Exception):
-    def __init__(self,err:str):
-        Exception.__init__(self,"optimize error : " + err)
-    
-    ## user define
+class optimize_Exception(Exception):
+    def __init__(self,err_msg:str) -> Exception:
+        """cls to handle exceptions
+        
+        Args
+        ---------
+        err_msg : str 
+            error msgs
+        """
+        Exception.__init__(self,"optimize error : " + err_msg)
+        
     @staticmethod
-    def user_define(func):
-        def wrapper(self,*args,**kwargs):
-            func(self,*args,**kwargs)
-            raise OptimizateException(func.__name__ + " not defined!")
-        return wrapper
+    def err_dict(err_key:str) -> str:
+        """get err_msg corresponds to err_key
+
+        Args
+        ---------
+            err_key : str
             
+        """
+        error_dict = dict(
+            nan = "func return nan",
+            not_def = "method not define",
+        )
+        return error_dict[err_key]
+
 class optimize_base:
     """optimize_base class
     
@@ -464,14 +478,24 @@ class optimize_base:
                 "max_run : "  f"{self._max_run}" + "\n"
                 "form : " + "rounds, time, parameters, cost " + "\n\n" 
             )
+    
+    def _logging(self,err_msg:str = ""):
+        """generating loggings
+        """
         
-    def _logging(self):
+        # if there are err_msg , we will add special head !!_ in log
+        if err_msg != "":
+            file_head = "err_"
+            
+        self._filename = file_head + self._filename
+            
         self._time_end = local_time()
         delta_t = self._time_end - self._time_start
         f_delta_t = time.strftime("%H:%M:%S",time.gmtime(delta_t))
         print("\nthe optimization progress costs:")
         print(f"hh:mm:ss = {f_delta_t}\n")
-        if self._log == True :
+        
+        if self._log == True or err_msg != "":
             ## folder
             os.makedirs("labopt_logs", exist_ok=True)
             sub_folder = os.path.join("labopt_logs","lab_opt_" + time.strftime("%Y_%m_%d",time.gmtime(self._time_start)) )
@@ -495,6 +519,7 @@ class optimize_base:
                                 + ", ")
                     file.write("[" + ",".join(map(str,self._x_vec[i])) + "]")
                     file.write(", " + f"{self._flist[i,0]}" + "\n")
+                file.write("\n" + err_msg + "\n")
     
     def _decorate(self,func,delay = 0.1,msg = True): # delay in s
         if self._torch == True:
@@ -502,6 +527,8 @@ class optimize_base:
                 time.sleep(delay)
                 f = func(x,*args,**kwargs)
                 f_val = f.get("cost",0)
+                if th.isnan(f):
+                    self._error("nan") 
                 print(f"INFO RUN: {self._run_count}")
                 if msg == True:
                     print(f"INFO cost {f_val:.6f}")
@@ -522,6 +549,8 @@ class optimize_base:
                 time.sleep(delay)
                 f = func(x,*args,**kwargs)
                 f_val = f.get("cost",0)
+                if np.isnan(f_val):
+                    self._error("nan") 
                 print(f"INFO RUN: {self._run_count}")
                 if msg == True:
                     print(f"INFO cost {f_val:.6f}")
@@ -539,8 +568,9 @@ class optimize_base:
                     return f
         return func_decorate
 
-    @OptimizateException.user_define
-    def optimization(self):...
+    def optimization(self):
+        ## developers are supposed to override this method for each sub_optimizer
+        self._error("not_def") 
 
     def visualization(self,visual:str = "all"):
         """to visualize optimization results
@@ -604,6 +634,11 @@ class optimize_base:
             plt.ylabel("amp")
             plt.title("agent model predict")
             plt.legend()    
+    
+    def _error(self,err:str) -> Exception:
+        err_msg = optimize_Exception.err_dict(err)
+        self._logging(err_msg)
+        raise optimize_Exception(err_msg)
     
 if __name__ == "__main__":
     path = "labopt_logs/lab_opt_2025_01_05/optimization__2025-01-05-23-33__simplex__.txt"
