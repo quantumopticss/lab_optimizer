@@ -29,7 +29,7 @@ setup(
         'numpy>=1.26.4',
         'scipy>=1.14.0',
         'matplotlib>=3.9.2',
-        'panads>=1.5.3',
+        'pandas>=1.5.3',
         'seaborn>=0.12.2',
         'plotly>=5.24.1',
         'torch>=2.3.1'
