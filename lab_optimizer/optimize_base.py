@@ -127,7 +127,7 @@ def multi_optimize(func,paras_init,args:tuple,optimizer_list:list,extra_dict_lis
         paras_init = opt_operator.optimization()
 
     ## visualization
-    opt_plot(opt_operator._flist,opt_operator._x_vec,method_list)
+    _opt_plot(opt_operator._flist,opt_operator._x_vec,method_list)
 
 def local_time(time_zone:int = 8) -> float:
     """get local time
@@ -180,7 +180,7 @@ def _opt_plot(flist,x_vec,method,visual = "all"):
         from pandas.plotting import parallel_coordinates
         
         # data 
-        scalar = MinMaxScaler()
+        scalar = MinMaxScaler(feature_range=(0,255))
         df = pd.DataFrame(x_vec,columns=[f"x{i}" for i in range(x_vec.shape[1])])
         df['cost'] = flist
         
@@ -194,18 +194,16 @@ def _opt_plot(flist,x_vec,method,visual = "all"):
             # Parallel Coordinates
             plt.figure(2,figsize=(6,6)) 
             df_scalar['cost_range'] = pd.qcut(df_scalar['cost'],q = 10,labels = False)
-            color_mapping = plt.cm.viridis(df_scalar['cost_range']/df_scalar['cost_range'].max())
-            color_mapping[:, -1] = 0.85  # 
-            parallel_coordinates(df_scalar, 'cost_range', 
-                                 color=color_mapping)
+
+            parallel_coordinates(df_scalar, 'cost_range',colormap = "plasma")
             plt.title('Parallel Coordinates')
-            plt.xlabel('ordered parameters [0-1] normalized')
-            plt.ylabel('cost [0-1] normalized')  
+            plt.xlabel('ordered parameters [0-255] normalized')
+            plt.ylabel('cost [0-255] normalized')  
 
             # scatter matrix
             sns.pairplot(df,vars = [f"x{i}" for i in range(x_vec.shape[1])],
                         hue = "cost", palette = 'viridis', diag_kind = 'hist',
-                        plot_kws = {'alpha':0.5},height = 6)
+                        plot_kws = {'alpha':0.75},height = 8/(x_vec.shape[1]))
             plt.title("scatter matrix")
         
         # PCA
@@ -224,7 +222,7 @@ def _opt_plot(flist,x_vec,method,visual = "all"):
         fig1 = px.scatter_3d(df,x = "PCA1",y = "PCA2",z = "PCA3",color = "cost",size="iter",
                              title = "high dimension visual @ PCA , focus on main dimension",
                              labels = {"cost":"cost"},hover_data = [f"x{i}" for i in range(x_vec.shape[1])])
-        fig1.update_traces(marker=dict(line=dict(width=0.5, color='DarkSlateGrey')),opacity=0.7)
+        fig1.update_traces(marker=dict(line=dict(width=0.5, color='DarkSlateGrey',colorscale='viridis')),opacity=0.8)
         
         fig1.update_layout(
             title="PCA 3D Scatter Plot",
@@ -236,15 +234,15 @@ def _opt_plot(flist,x_vec,method,visual = "all"):
             )
                 
         # t-SNE
-        tsne = TSNE(n_components = 3,perplexity=30,n_iter = 550)
+        tsne = TSNE(n_components = 3,perplexity=np.min([30,int(x_vec.shape[0]//1.5)]),n_iter = 550)
         data_tsne = tsne.fit_transform(x_vec)
         df["tsne1"] = data_tsne[:,0]
         df["tsne2"] = data_tsne[:,1]
         df["tsne3"] = data_tsne[:,2]
-        fig2 = px.scatter_3d(df,x = "tsne1",y = "tsne2",z = "tsne3",color = "cost",size="iter"
-                                ,title = "high dimension visual @ TSNE , focus on ** Clusters **",
+        fig2 = px.scatter_3d(df,x = "tsne1",y = "tsne2",z = "tsne3",color = "cost",size="iter",
+                                title = "high dimension visual @ TSNE , focus on ** Clusters **",
                                 labels = {"cost":"cost"},hover_data = [f"x{i}" for i in range(x_vec.shape[1])])
-        fig2.update_traces(marker=dict(line=dict(width=0.5, color='DarkSlateGrey')))
+        fig2.update_traces(marker=dict(line=dict(width=0.5, color='DarkSlateGrey',colorscale='viridis')),opacity=0.8)
         
         fig1.show()
         fig2.show()
@@ -489,7 +487,7 @@ class optimize_base:
             ## data
             if type(self._x_vec) == th.Tensor:
                 self._x_vec = self._x_vec.detach().numpy()
-                self._flist = self._flist.deatch().numpy()
+                self._flist = self._flist.detach().numpy()
             with open(self._filename, "a") as file:
                 for i in range(np.size(self._flist)):
                     file.write(f"{i}" + ", " +
@@ -610,3 +608,5 @@ class optimize_base:
 if __name__ == "__main__":
     path = "labopt_logs/lab_opt_2025_01_05/optimization__2025-01-05-23-33__simplex__.txt"
     log_visiual(path)
+    
+    
