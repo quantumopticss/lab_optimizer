@@ -358,6 +358,7 @@ class optimize_Exception(Exception):
         error_dict = dict(
             nan = "func return nan",
             not_def = "method not define",
+            not_dict = "func should return cost dict : {cost,uncer,bad}"
         )
         return error_dict[err_key]
 
@@ -445,11 +446,14 @@ class optimize_base:
 
         else: # if no inherit
             self._paras_init = paras_init
+            result = func(self._paras_init,*args)
+            if type(result) != dict:
+                self._error("not_dict")
             if self._torch == True:
-                self._flist = th.tensor([(func(self._paras_init,*args).get("cost",0))])
+                self._flist = th.tensor([result.get("cost",0)])
                 self._x_vec = self._paras_init.clone()
             else:   
-                self._flist = np.array([(func(self._paras_init,*args).get("cost",0))])
+                self._flist = np.array([result.get("cost",0)])
                 self._x_vec = np.array([self._paras_init])
             self._time_stamp = [time.strftime("%d:%H:%M:%S",time.gmtime(self._time_start))]
             log_head_inhert = ""
@@ -527,8 +531,6 @@ class optimize_base:
                 time.sleep(delay)
                 f = func(x,*args,**kwargs)
                 f_val = f.get("cost",0)
-                if th.isnan(f):
-                    self._error("nan") 
                 print(f"INFO RUN: {self._run_count}")
                 if msg == True:
                     print(f"INFO cost {f_val:.6f}")
@@ -540,6 +542,8 @@ class optimize_base:
                 self._flist = th.vstack((self._flist,th.tensor([f_val])))
                 self._x_vec = th.vstack((self._x_vec,x))
                 self._time_stamp = self._time_stamp + [ time.strftime("%d:%H:%M:%S",time.gmtime(local_time())) ]
+                if th.isnan(f): # nan error
+                    self._error("nan") 
                 if self._val_only == True:
                     return f_val
                 else:
@@ -549,8 +553,6 @@ class optimize_base:
                 time.sleep(delay)
                 f = func(x,*args,**kwargs)
                 f_val = f.get("cost",0)
-                if np.isnan(f_val):
-                    self._error("nan") 
                 print(f"INFO RUN: {self._run_count}")
                 if msg == True:
                     print(f"INFO cost {f_val:.6f}")
@@ -562,6 +564,8 @@ class optimize_base:
                 self._flist = np.vstack((self._flist,f_val))
                 self._x_vec = np.vstack((self._x_vec,x))
                 self._time_stamp = self._time_stamp + [ time.strftime("%d:%H:%M:%S",time.gmtime(local_time())) ]
+                if np.isnan(f_val): # nan error
+                    self._error("nan") 
                 if self._val_only == True:
                     return f_val
                 else:
@@ -637,7 +641,10 @@ class optimize_base:
     
     def _error(self,err:str) -> Exception:
         err_msg = optimize_Exception.err_dict(err)
-        self._logging(err_msg)
+        try:
+            self._logging(err_msg)
+        except:
+            pass
         raise optimize_Exception(err_msg)
     
 if __name__ == "__main__":
