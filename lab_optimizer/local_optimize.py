@@ -159,6 +159,8 @@ def _main():
         f = 2*np.sum((x - vec)**2,axis = None) + 10*np.sum(np.cos(x-a)*np.cos(x-b) + np.sin(x-c) + np.sin(x-d)) + a*b*c*d # + 5*np.random.randn()
         uncer = 0.1
         bad = False
+        if f <= 100:
+            f = float('nan')
         return_dict = {'cost':f,'uncer':uncer,'bad':bad}
         return return_dict
 
@@ -172,13 +174,13 @@ def _main():
     c = 1
     d = 2
     bounds = ((-10,10),(-10,10),(-10,10),(-10,10))
-    opt1 = local_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 100,delay = 0.002,method = method1,val_only = True,ave_dict = ave_dict, log = "inherit",msg = True)
+    opt1 = local_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 100,delay = 0.002,method = method1,val_only = True,ave_dict = ave_dict, log = True ,msg = True)
     opt1.optimization()
-    #opt1.visualization()
-    opt2 = local_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 10,delay = 0.002,method = method2,val_only = True,ave_dict = ave_dict, log = True,msg = True,opt_inherit = opt1)
-    x_end = opt2.optimization()
-    print(x_end)
-    opt2.visualization()
+    opt1.visualization()
+    # opt2 = local_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 10,delay = 0.002,method = method2,val_only = True,ave_dict = ave_dict, log = True,msg = True,opt_inherit = opt1)
+    # x_end = opt2.optimization()
+    # print(x_end)
+    # opt2.visualization()
 
 if __name__ == "__main__":
     _main()

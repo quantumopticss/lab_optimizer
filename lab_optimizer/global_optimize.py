@@ -196,7 +196,6 @@ class global_optimize(optimize_base):
     
     #### scikit-opt algoriths ####
     def _optimization_scikit(self): 
-        
         ## scikit optimize does not support args, but we can decorate the function
         def _func_args(x):
             func_args = self._func(x,*self._args)
