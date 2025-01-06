@@ -4,8 +4,6 @@ sys.path.append(os.path.dirname(path))
 
 from setuptools import setup, find_packages
 from lab_optimizer import __version__
-    
-torch_version = 'torch>=2.4.0'
 
 setup(
     name="lab_optimizer", 
@@ -25,15 +23,15 @@ setup(
     ],
     python_requires='>=3.10',  
     install_requires=[  
-        'MLOOP',
-        'scikit-opt',
-        'scikit-learn',
-        'numpy',
-        'scipy',
-        'matplotlib',
-        'panads',
-        'seaborn',
-        'plotly',
-        torch_version,
+        'MLOOP>=3.3.5',
+        'scikit-opt>=0.6.6',
+        'scikit-learn>=1.2.2',
+        'numpy>=1.24.0',
+        'scipy>=1.14.0',
+        'matplotlib>=1.5',
+        'panads>=2.0',
+        'seaborn=0.12',
+        'plotly>=5.24.1',
+        'torch>=2.4.0'
     ],
 )
