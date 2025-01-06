@@ -9,8 +9,9 @@ Provides
   2. local_optimizer
   3. mloop_optimizer
   4. torch_optimizer (only for torch functions)
-  5. physics units and constants 
-  #. lab_optimizer examples
+  5. powerful visualization tools
+  6. physics constants and units conversion 
+  7. lab_optimizer examples
 
 MIT License
 
