@@ -129,13 +129,13 @@ def multi_optimize(func,paras_init,args:tuple,optimizer_list:list,extra_dict_lis
     ## visualization
     _opt_plot(opt_operator._flist,opt_operator._x_vec,method_list)
 
-def local_time(time_zone:int = 8) -> float:
+def local_time(time_zone:float = 8.0) -> float:
     """get local time
     
         Args
         ---------
-        time_zone : int
-            local UTC time zone, defeault is 8
+        time_zone : float
+            local UTC time zone, defeault is 8.
 
     """
     t = time.time() + time_zone*3600.0
@@ -206,7 +206,7 @@ def _opt_plot(flist,x_vec,method,visual = "all"):
             # scatter matrix
             sns.pairplot(df,vars = [f"x{i}" for i in range(x_vec.shape[1])],
                         hue = "cost", palette = 'viridis', diag_kind = 'hist',
-                        plot_kws = {'alpha':0.75},height = 8.1/(x_vec.shape[1]))
+                        plot_kws = {'alpha':0.8},height = 8.1/(x_vec.shape[1]))
             plt.title("scatter matrix")
         
         ## PCA
@@ -237,7 +237,7 @@ def _opt_plot(flist,x_vec,method,visual = "all"):
             )
                 
         ## t-SNE
-        tsne = TSNE(n_components = 3,perplexity=np.min([30,int(x_vec.shape[0]//1.5)]),n_iter = 550)
+        tsne = TSNE(n_components = 3,perplexity=np.min([30,2 + x_vec.shape[0]//11]),n_iter = 1000)
         data_tsne = tsne.fit_transform(x_vec)
         df["tsne1"] = data_tsne[:,0]
         df["tsne2"] = data_tsne[:,1]
@@ -265,7 +265,7 @@ def log_visiual(path:str,visual:str = "all"):
             
                 - ``"classic"`` : to view just cost and std-normalized traj
                 - ``"advanced"`` : provide multidimension visualization 
-                - ``"all"`` : all of them
+                - ``otherwise`` : all of them
             
             defeault is ``"all"``
     """
@@ -653,7 +653,7 @@ class optimize_base:
         except:
             pass
         raise optimize_Exception(err_msg)
-    
+
 if __name__ == "__main__":
     path = "labopt_logs/lab_opt_2025_01_06/err_optimization__2025-01-06-17-37__simplex__.txt"
     log_visiual(path)
