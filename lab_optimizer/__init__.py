@@ -25,39 +25,14 @@ part of this project are published under other open source licenses, refer to th
 """
 
 import os,sys
-path = os.path.abspath(__file__)
-sys.path.append(os.path.dirname(path))
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from .local_optimize import local_optimize
 from .mloop_optimize import mloop_optimize
 from .torch_optimize import torch_optimize
 from .global_optimize import global_optimize
-from .optimize_base import *
+from .optimize_base import log_visiual, local_time
 from .opt_examples import examples
 from . import units
 
-def _main():
-    import numpy as np
-    def func(x,a,b,c,d):
-        vec = np.array([a,b,c,d])
-        f = np.sum((x - vec)**2,axis = None) + 5*np.sum(np.cos(x-a) + np.cos(x-b) + np.sin(x-c) + np.sin(x-d)) + a*b*c*d
-        uncer = 0.1
-        bad = None
-        return_dict = {'cost':f,'uncer':uncer,'bad':bad}
-        return return_dict
-    
-    init = np.array([3,0,4,2])
-    a = 6
-    b = 8
-    c = 1
-    d = 2
-    bounds = ((-10,10),(-10,10),(-10,10),(-10,10))
-    method_list =  ["dual","simplex"]
-    optimizer_list = [global_optimize,local_optimize]
-    multi_optimize(func,init,args = (a,b,c,d,),optimizer_list=optimizer_list,bounds_list = [bounds],
-                   max_run_list = [1,20],delay = 0.03,method_list = method_list,extra_dict_list=[{},{}],val_only = True,msg = False,log = True)
-     
-if __name__ == "__main__":
-    _main()
-    
-del _main
+del os, sys
