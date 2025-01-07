@@ -3,6 +3,7 @@ __version__ = "1.2.0"
 """
 lab_optimizer
 =========
+URL : https://github.com/quantumopticss/lab_optimizer
 
 Provides
   1. global_optimizer
