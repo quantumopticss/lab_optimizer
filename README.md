@@ -211,4 +211,18 @@ Documentation
   - 'AdamW'
   - 'Adamax'
 
+ReleaseNotes
+---------
+- 1.1.x 
+
+  add advanced visualization tools :
+
+  - [PCA](https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html)
+  - [TSNE](https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html)
+  - [parallel coordinates](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.plotting.parallel_coordinates.html)
+  - [scatter matrix](https://seaborn.pydata.org/examples/scatterplot_matrix.html)
+
+- 1.2.x
+
+  add functions to handel optimizations Exceptions
   
