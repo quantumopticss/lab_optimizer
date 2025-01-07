@@ -64,7 +64,7 @@ class global_optimize(optimize_base):
                 average times
             - ave_wait
                 wait times during each ave_run
-            - ave_opt
+            - ave_opc
                 average operation code, defeault is "ave"
                 - "ave" : following cost_dict
                 - "std" : use for val_only func, it will cal uncer automatedly
