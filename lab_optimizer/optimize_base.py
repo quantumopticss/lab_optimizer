@@ -3,6 +3,7 @@ import torch as th
 import time 
 import os
 import matplotlib.pyplot as plt
+# from typing import overload
 
 """
 optimization base class
@@ -11,123 +12,6 @@ optimization base class
 2.optimize base: including parameters set, function decorating, optimization progress visualizing 
 
 """
-
-def multi_optimize(func,paras_init,args:tuple,optimizer_list:list,extra_dict_list:list,
-                   method_list:list,max_run_list:list,bounds_list:list,**kwargs):
-    """combine multi optimization algorithms
-    
-        Args
-        --------
-        fun : callable
-            The objective function to be minimized.
-
-                ``fun(x, *args) -> dict : {'cost':float, 'uncer':float, 'bad':bool}``
-                
-            where ``cost`` is the value to minimize, ``uncer`` is uncertainty,
-            ``bad`` is the judge whether this value is bad (bad = True) for this cost
-
-            ``x`` is a 1-D array with shape (n,) and ``args``
-            is a tuple of the fixed parameters needed to completely
-            specify the function.
-
-        paras_init : ndarray, shape (n,)
-            Initial guess. Array of real elements of size (n,),
-            where ``n`` is the number of independent variables.
-
-        args : tuple, optional
-            Extra arguments passed to the objective function which will not
-            change during optimization
-            
-        optimizer_list : list
-            a ordered lists, in which are optimizers to be used 
-
-        method_list : list
-            a list, whose elements are ordered 
-            optimization algorithm to use 
-
-        extra_dict_list : list
-            a list whose elements are ordered extra_dicts for optimizers,
-            extra_dicts are used to transfer specific arguments for optimization algorithm
-            
-        bounds_list : list
-            a list, whose elements are tuples,
-            should be Sequence of ``(min, max)`` pairs for each element in `x`. None is used to specify no bound.
-            
-            >>> [((1,2),(1,2)),((1,2),(1,2)),((1,2),(1,2))]
-            
-            if len(bounds_list) != len(optimizers)
-            
-            will always use bounds_list[0]
-
-        max_run_list : list
-            a list, whose elements are ordered 
-            maxmun times of running optimization, default = 10 
-
-        kwArgs
-        ---------
-        MMA : Bool
-            whether to use MMA to double check the result and output a visualization of the optimization process, default is False
-        
-        delay : float 
-            delay of each iteration, default is 0.1s
-        
-        msg : Bool
-            whether to output massages in every iterarion, default is True
-            
-        log : Bool
-            whether to generate a log file in labopt_logs
-            
-        logfile : str
-            log file name , defeault is "optimization__ + <timestamp>__ + <method>__.txt"
-            ``level lower than inherited logfile``
-    """
-    num_opt = len(optimizer_list)
-    num_extra_dict = len(extra_dict_list)
-    num_method = len(method_list)
-    num_run = len(max_run_list)
-    
-    ## log name
-    special_str = "["
-    for opt_cls, str_method in zip(optimizer_list,method_list):
-        special_str = special_str + opt_cls._doc() + "-" + str(str_method) + ";"
-    special_str = special_str + "]"
-    
-    log = kwargs.get("log",None)
-    kwargs["log"] = "alkaid"
-    log_name = "cascated_opt__" + time.strftime("%Y-%m-%d-%H-%M",time.gmtime(local_time())) + "__" + special_str + "__" + ".txt"
-    
-    ## first run
-    if num_opt != num_extra_dict or num_opt != num_method or num_opt != num_run:
-        OptimizateException("all lists except bounds_list should have equal lens")
-    
-    optimizer = optimizer_list[0]
-    try:
-        opt_operator = optimizer(func,paras_init,args = args,bounds = bounds_list[0],**(extra_dict_list[0]),max_run = max_run_list[0],method = method_list[0],**kwargs,logfile = log_name)
-    except:
-        opt_operator = optimizer(func,paras_init,args = args,bounds = bounds_list[0],**(extra_dict_list[0]),max_run = max_run_list[0],method = method_list[0],**kwargs,logfile = log_name)
-    
-    paras_init = opt_operator.optimization()
-    
-    ## then
-    for i in range(1,num_opt):
-        ## add log in the last time
-        if i == num_opt - 1:
-            kwargs["log"] = log
-        ## define opt class
-        optimizer = optimizer_list[i]
-        try:
-            opt_operator = optimizer(func,paras_init,args = args,bounds = bounds_list[i],**(extra_dict_list[i]),
-                                     method = method_list[i],max_run = max_run_list[i],
-                                     **kwargs,opt_inherit = opt_operator)
-        except:
-            opt_operator = optimizer(func,paras_init,args = args,bounds = bounds_list[0],**(extra_dict_list[i]),
-                                     method = method_list[i],max_run = max_run_list[i],
-                                     **kwargs,opt_inherit = opt_operator)
-        
-        paras_init = opt_operator.optimization()
-
-    ## visualization
-    _opt_plot(opt_operator._flist,opt_operator._x_vec,method_list)
 
 def local_time(time_zone:float = 8.0) -> float:
     """get local time
@@ -299,7 +183,7 @@ def log_visiual(path:str,visual:str = "all"):
     
     _opt_plot(f_list,x_list,"from log : " + os.path.basename(path),visual)
 
-def ave_decorate(func,ave_times,ave_wait,ave_opt = "ave"):
+def _ave_decorate(func,ave_times,ave_wait,ave_opc = "ave"):
     """average decorator:
     
     Args:
@@ -313,14 +197,14 @@ def ave_decorate(func,ave_times,ave_wait,ave_opt = "ave"):
         ave_wait : float   
             wait time during each average run
             
-        ave_opt : str
+        ave_opc : str
             average operation code
             - "ave" to just follow cost_dict
             - "std" to support vals only result 
     """
     def ave_func(x,*args,**kwargs):
         cost = np.array([])
-        if ave_opt == "ave": # follow cost_dict
+        if ave_opc == "ave": # follow cost_dict
             uncer = np.array([])
             bad = True
             for _ in range(int(ave_times)):
@@ -333,7 +217,7 @@ def ave_decorate(func,ave_times,ave_wait,ave_opt = "ave"):
                     bad = False
                 time.sleep(ave_wait)
             f_dict = {"cost":np.mean(cost),"uncer":np.sqrt(np.mean(uncer**2)),"bad" : bad}
-        elif ave_opt == "std": # vals only 
+        elif ave_opc == "std": # vals only 
             for _ in range(int(ave_times)):
                 f_dict = func(x,*args,**kwargs)
                 cost = np.hstack((cost,f_dict["cost"]))
@@ -396,7 +280,7 @@ class optimize_base:
             average times
         - ave_wait
             wait times during each ave_run
-        - ave_opt
+        - ave_opc
             average operation code, defeault is "ave"
             - "ave" : following cost_dict
             - "std" : use for val_only func, it will cal uncer automatedly
@@ -456,7 +340,7 @@ class optimize_base:
             self._paras_init = paras_init
             result = func(self._paras_init,*args)
             if type(result) != dict:
-                self._error("not_dict")
+                self.error("not_dict")
             if self._torch == True:
                 self._flist = th.tensor([result.get("cost",0)])
                 self._x_vec = self._paras_init.clone()
@@ -472,7 +356,7 @@ class optimize_base:
 
         ## using average
         if self._ave_dict.get("ave",False) == True and self._torch == False:
-            func = ave_decorate(func,self._ave_dict.get("ave_times",3),self._ave_dict.get("ave_wait",0.01))
+            func = _ave_decorate(func,self._ave_dict.get("ave_times",3),self._ave_dict.get("ave_wait",0.01))
         
         ## decorate func
         self._func = self._decorate(func,delay = delay,msg = msg)
@@ -550,7 +434,7 @@ class optimize_base:
                 self._x_vec = th.vstack((self._x_vec,x))
                 self._time_stamp = self._time_stamp + [ time.strftime("%d:%H:%M:%S",time.gmtime(local_time())) ]
                 if th.isnan(f): # nan error
-                    self._error("nan") 
+                    self.error("nan") 
                 if self._val_only == True:
                     return f_val
                 else:
@@ -572,7 +456,7 @@ class optimize_base:
                 self._x_vec = np.vstack((self._x_vec,x))
                 self._time_stamp = self._time_stamp + [ time.strftime("%d:%H:%M:%S",time.gmtime(local_time())) ]
                 if np.isnan(f_val): # nan error
-                    self._error("nan") 
+                    self.error("nan") 
                 if self._val_only == True:
                     return f_val
                 else:
@@ -581,7 +465,7 @@ class optimize_base:
 
     def optimization(self):
         ## developers are supposed to override this method for each sub_optimizer
-        self._error("not_def") 
+        self.error("not_def") 
 
     def visualization(self,visual:str = "all"):
         """to visualize optimization results
@@ -646,7 +530,7 @@ class optimize_base:
             plt.title("agent model predict")
             plt.legend()    
     
-    def _error(self,err:str) -> Exception:
+    def error(self,err:str) -> Exception:
         err_msg = optimize_Exception.err_dict(err)
         try:
             self._logging(err_msg)
