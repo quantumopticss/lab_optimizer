@@ -178,7 +178,7 @@ Documentation
     - [direct](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.direct.html#scipy.optimize.direct)
     - [shgo](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.shgo.html#scipy.optimize.shgo)
 
-  - [based on scikit-optimize](https://scikit-opt.github.io/scikit-opt/#/en/README)
+  - [based on scikit-opt](https://scikit-opt.github.io/scikit-opt/#/en/README)
     
     - genetic
     - particle_swarm
@@ -225,4 +225,7 @@ ReleaseNotes
 - 1.2.x
 
   add functions to handel optimizations Exceptions
-  
+
+- 1.3.x(building)
+
+  add multiprocessings ...
