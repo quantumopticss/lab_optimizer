@@ -20,11 +20,7 @@ email : 221503020@smail.nju.edu.cn
 
 All rights reserved.
 
-part of this project are published under 
-
-BSD 3-Clause License : <https://github.com/scikit-learn/scikit-learn>, <https://github.com/scipy/scipy>, <https://github.com/pandas-dev/pandas>, <https://github.com/mwaskom/seaborn>
-MIT License : <https://github.com/michaelhush/M-LOOP>, <https://github.com/guofei9987/scikit-opt>, <https://github.com/plotly/plotly.py>
-Other License : <https://github.com/pytorch/pytorch>, <https://github.com/numpy/numpy>,<https://github.com/matplotlib/matplotlib>
+part of this project are published under other open source licenses, refer to the License profile
 
 """
 
