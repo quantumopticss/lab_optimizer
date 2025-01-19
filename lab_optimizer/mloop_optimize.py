@@ -143,19 +143,27 @@ class mloop_optimize(optimize_base):
         self._controller = mlc.create_controller(self._interface, 
                                        controller_type = self._method,
                                        max_num_runs = self._max_run,
-                                       max_num_runs_without_better_params = int(self._max_run/2),
-                                       target_cost = self._target,
+                                       max_num_runs_without_better_params = self._max_run//2,
+                                       cost_has_noise = True,
+                                       target_cost = -1e10,
                                        num_params = len(self._paras_init), 
                                        first_params = self._paras_init,
                                        min_boundary = min_bound,
                                        max_boundary = max_bound, 
-                                       trust_region = 0.2,
+                                       trust_region = 0.4,
                                        **extra_dict
                                        )
         
     def optimization(self):
         self._controller.optimize()
         self.x_optimize = self._controller.best_params
+        
+        print("******************************************")
+        print("best parameters find : ")
+        print(self.x_optimize)
+        print("cost : ")
+        self._func(self.x_optimize,*self._args)
+        print("******************************************")
         
         self._logging()
         self._agent_()
