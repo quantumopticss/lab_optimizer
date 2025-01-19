@@ -304,8 +304,26 @@ class optimize_base:
         inherit ``optimization results``, ``parameters`` and ``logs``
         defeault is None (not use inherit)
         
-    agent : Bool
-        whether to use agent model to do further prediction and visualization, defeault is false
+    agent_dict : dict
+        - agent : str
+            whether to use agent model to do further prediction and visualization,
+            choose a agent model to accelerate your optimization : 
+            
+                - Gaussian_Process : using gaussian process to train a agent model, a slower but more robust solution
+                - Neural_Net : using neural net to train an agent model, a faster but may less robust slution
+                - otherwise : do not use agent model 
+        
+        - agent_batch : int
+            batch size to train agent model, defeault is 5
+            
+        - train_rounds : int
+            rounds to train agent model, defeault is 100
+            
+        - auxiliary_run : int
+            each time to call agent model, defeault is 1
+            
+        set ``agent = "gaussian_process"`` or ``agent = "neural_net"`` to use agent model,
+        otherwise you will not use it
         
     """
     def __init__(self,func,paras_init:np.ndarray,args:tuple = (),bounds:tuple = None,**kwargs):
@@ -333,7 +351,7 @@ class optimize_base:
             self._paras_init = self.opt_inherit.x_optimize
             self._run_count = self.opt_inherit._run_count
             self._ave_dict = self.opt_inherit._ave_dict
-            self._agent = self.opt_inherit._agent
+            self._agent_dict = self.opt_inherit._agent_dict
             self._agent_model = self.opt_inherit._agent_model
 
         else: # if no inherit
@@ -352,14 +370,15 @@ class optimize_base:
             self._filename = kwargs.get("logfile","optimization__" + time.strftime("%Y-%m-%d-%H-%M",time.gmtime(self._time_start)) + "__" + kwargs.get("method","None") + "__" + ".txt")
             self._ave_dict = kwargs.get("ave_dict",{"ave":False,"ave_times":1,"ave_wait":0.})
             self._run_count = 0
-            self._agent = kwargs.get("agent",False)
+            self._agent_dict = kwargs.get("agent_dict",{"agent":False})
+            self._agent_model = self._agent(self._agent_dict)
 
         ## using average
         if self._ave_dict.get("ave",False) == True and self._torch == False:
             func = _ave_decorate(func,self._ave_dict.get("ave_times",3),self._ave_dict.get("ave_wait",0.01))
         
         ## decorate func
-        self._func = self._decorate(func,delay = delay,msg = msg)
+        self._func = self._decorate(func,delay = delay,msg = msg,activate_agent=self._activate_agent,agent_model=self._agent_model)
             
         ## create log head
         if self._log == True or self._log == "inherit":
@@ -416,12 +435,12 @@ class optimize_base:
                     file.write("[" + ",".join(map(str,self._x_vec[i])) + "]")
                     file.write(", " + f"{self._flist[i,0]}" + "\n")
     
-    def _decorate(self,func,delay = 0.1,msg = True): # delay in s
+    def _decorate(self,func,delay = 0.1,msg = True,activate_agent = False,agent_model = None): # delay in s
         if self._torch == True:
             def func_decorate(x,*args,**kwargs):
                 time.sleep(delay)
                 f = func(x,*args,**kwargs)
-                f_val = f.get("cost",0)
+                f_val = f.get("cost")
                 print(f"INFO RUN: {self._run_count}")
                 if msg == True:
                     print(f"INFO cost {f_val:.6f}")
@@ -443,7 +462,7 @@ class optimize_base:
             def func_decorate(x,*args,**kwargs):
                 time.sleep(delay)
                 f = func(x,*args,**kwargs)
-                f_val = f.get("cost",0)
+                f_val = f.get("cost")
                 print(f"INFO RUN: {self._run_count}")
                 if msg == True:
                     print(f"INFO cost {f_val:.6f}")
@@ -457,6 +476,8 @@ class optimize_base:
                 self._time_stamp = self._time_stamp + [ time.strftime("%d:%H:%M:%S",time.gmtime(local_time())) ]
                 if np.isnan(f_val): # nan error
                     self.error("nan") 
+                if activate_agent == True:
+                    agent_model.train(x,f_val)
                 if self._val_only == True:
                     return f_val
                 else:
@@ -487,56 +508,39 @@ class optimize_base:
         
         _opt_plot(self._flist,self._x_vec,self._method,visual)
         
-    def _agent_(self):
-        ## train agent model
-        if self._agent != True:
-            self._agent_model = None
-        else:
-            from sklearn.gaussian_process import GaussianProcessRegressor
-            from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
-            
-            if type(self._flist) == th.Tensor:
-                self._flist = self._flist.detach().numpy()
-                self._x_vec = self._x_vec.detach().numpy()
-            
-            self.ave_x = np.mean(self._x_vec,axis = 0)
-            self.std_x = np.std(self._x_vec,axis = 0)
-            x_train = (self._x_vec - self.ave_x)/self.std_x
-            
-            y_train = np.reshape(self._flist,-1)
-
-            kernel = C(1.0, (1e-4, 1e1)) * RBF(1.0, (1e-4, 1e1))
-            if self.opt_inherit != None: # if we have inherit
-                pass
-            else:
-                self._agent_model = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=10)
-            self._agent_model.fit(x_train, y_train)
-            
-            n = len(self._paras_init)
-            x_pred = np.array([self.x_optimize])
-            for i in range(25):
-                x_pred = np.concatenate((x_pred,[self.x_optimize+(6*np.random.rand(n)-3)*self.std_x]),axis = 0)
-                
-            y_pred,sigma = self._agent_model.predict(x_pred,return_std = True)
-            
-            plt.figure(800)
-            for i in range(len(self._paras_init)):
-                plt.scatter(np.arange(len(y_pred)),x_pred[:,i],label = f"agent_model, paras{i}",marker = "+",linewidth = 5)
-            
-            plt.twinx()
-            plt.errorbar(np.arange(len(y_pred)),y_pred,yerr=sigma,fmt='o',label = "agent model pred cost",c = "r")
-            plt.xlabel("agent pred runs")
-            plt.ylabel("amp")
-            plt.title("agent model predict")
-            plt.legend()    
-    
     def error(self,err:str) -> Exception:
+        """ rasse an error
+        
+        Args
+        ---------
+        err : str
+            error opc
+
+        Raises
+        ---------
+        optimize_Exception : Exception
+
+        """
         err_msg = optimize_Exception.err_dict(err)
         try:
             self._logging(err_msg)
         except:
             pass
         raise optimize_Exception(err_msg)
+
+    def _agent(self):
+        agent = self._agent_dict.get("agent",False)
+        if agent == "gaussian_process":
+            from .agent_model import gaussian_process
+            self._agent_model = gaussian_process
+            self._activate_agent = True
+        elif agent == "neural_net":
+            from .agent_model import neural_net
+            self._agent_model = neural_net
+            self._activate_agent = True
+        else:
+            self._agent_model = None
+            self._activate_agent = False
 
 if __name__ == "__main__":
     path = "labopt_logs/lab_opt_2025_01_06/err_optimization__2025-01-06-17-37__simplex__.txt"
