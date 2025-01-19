@@ -135,8 +135,7 @@ class global_optimize(optimize_base):
         kwargs["val_only"] = True # only need cost
         kwargs["opt_inherit"] = opt_inherit
         self._method = kwargs.get("method","simulated_annealing")
-        if "max_rum" not in kwargs:
-            kwargs["max_run"] = 10
+        kwargs["max_run"] = np.min([10,kwargs.get("max_run",10)])
         optimize_base.__init__(self,func,paras_init,args = args,bounds = bounds,**kwargs,_opt_type = self._doc())
         self._extra_dict = extra_dict
     
