@@ -57,3 +57,4 @@ mu0_const = 4.*pi*1e-7
 epsilon0_const = 8.854187817*1e-12
 kb_const = 1.380649e-23
 me_const = 9.109e-31 * kg
+G_const = 6.67259e-11
