@@ -24,15 +24,27 @@ class test_alg:
             
 del test_alg
 
+import importlib
 from .ISMA import ISMA
 
-def get_method(name:str) -> callable:
+def get_method(func_name:str,module_name:str = None) -> callable:
     """return optimization algorithm corresponds to name
 
     Args
     ---------
     name : str
         name of algorithms
+        
+    module_name : str
+        name of to import modules, defeault is None (this module : opt_lib)
     """
-
-    return ISMA
+    if module_name:
+        try:
+            module = importlib.import_module(f"{__package__}.{module_name}")
+            return getattr(module,func_name,None)
+        except:
+            return None
+    else:
+        func = globals().get(func_name, None)
+    
+    return func

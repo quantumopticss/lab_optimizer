@@ -166,7 +166,6 @@ class mloop_optimize(optimize_base):
         print("******************************************")
         
         self._logging()
-        self._agent_()
         return self.x_optimize
     
 ### operation

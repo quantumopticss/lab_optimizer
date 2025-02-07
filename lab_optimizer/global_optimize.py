@@ -83,7 +83,7 @@ class global_optimize(optimize_base):
             - ``"genetic"``
             - ``"particle_swarm"``
             - ``"artificial_fish"(not recommend)``
-             
+            
             defeault is ``"dual_annealing"`` 
         
         extra_dict : dict
