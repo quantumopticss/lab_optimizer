@@ -1,6 +1,7 @@
-from .optimize_base import *
+from optimize_base import *
 from scipy.optimize import minimize
 import numpy as np
+from opt_lib import __local__ as local_libs
 
 class local_optimize(optimize_base):
     """reconstructed scipy.optmize.minimize, which is a ``local optimization algorithm`` we recommend using 
@@ -139,8 +140,15 @@ class local_optimize(optimize_base):
             self._method = "Nelder-Mead"
     
     def optimization(self):
-        res = minimize(self._func,self._paras_init,args = self._args,method = self._method,bounds = self._bounds,**self._extra_dict,options = {"maxiter":self._max_run})
-        self.x_optimize = res.x
+        if self._method in local_libs: ## opt_extension
+            from opt_lib import get_method
+            alg = get_method(self._method)
+            res = alg(self._func,self._paras_init,args = self._args,bounds = self._bounds,**self._extra_dict)
+            res.run()
+            self.x_optimize = res.x
+        else:
+            res = minimize(self._func,self._paras_init,args = self._args,method = self._method,bounds = self._bounds,**self._extra_dict,options = {"maxiter":self._max_run})
+            self.x_optimize = res.x
         
         print("******************************************")
         print("best parameters find : ")
@@ -150,7 +158,6 @@ class local_optimize(optimize_base):
         print("******************************************")
         
         self._logging()
-        self._agent_()
         return self.x_optimize
 
 def _main():
@@ -162,8 +169,7 @@ def _main():
         return_dict = {'cost':f,'uncer':uncer,'bad':bad}
         return return_dict
 
-    method1 = "simplex"
-    method2 = "L-BFGS-B"
+    method1 = "test"
     ave_dict = {"ave":True,"ave_time":3,"ave_wait":0.01}
 
     init = np.array([3,-8,4,2])
@@ -174,7 +180,8 @@ def _main():
     bounds = ((-10,10),(-10,10),(-10,10),(-10,10))
     opt1 = local_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 128,delay = 0.0001,method = method1,val_only = True,ave_dict = ave_dict, log = True ,msg = True)
     opt1.optimization()
-    opt1.visualization()
+    
+    # opt1.visualization()
     # opt2 = local_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 10,delay = 0.002,method = method2,val_only = True,ave_dict = ave_dict, log = True,msg = True,opt_inherit = opt1)
     # x_end = opt2.optimization()
     # print(x_end)

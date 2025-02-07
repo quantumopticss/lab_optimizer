@@ -1,5 +1,6 @@
-from .optimize_base import *
+from optimize_base import *
 import numpy as np
+from opt_lib import __global__ as global_libs
 
 class global_optimize(optimize_base):
     """reconstructed global optmization algorithms:
@@ -124,7 +125,7 @@ class global_optimize(optimize_base):
         >>> opt2 = global_optimize(func,x_opt1,bounds,args,opt_inherit = opt1) # paras_init will be automatically set to x_opt1 
         >>> opt2.optimization()
         >>> opt2.visualization()
-     
+
     """
     @staticmethod
     def _doc() -> str:
@@ -245,57 +246,58 @@ class global_optimize(optimize_base):
                 self._opt = AFSA(self._func_args,n_dim = n_dim,max_iter = self._max_run//100,max_try_num = np.max([10,self._max_run//10]),**self._extra_dict)
                 self._opt.X[0,:] = self._paras_init
                 self._opt.Y[0,:] = self._func_args(self._paras_init)
-                
+    
     def optimization(self):
         if self._method in ["particle_swarm","genetic","artificial_fish"]:
             self._optimization_scikit()
             self.x_optimize, _ = self._opt.run()
-            print("******************************************")
-            print("best parameters find : ")
-            print(self.x_optimize)
-            print("cost : ")
-            self._func_args(self.x_optimize)
-            print("******************************************")
+        elif self._method in global_libs: ## opt_extension
+            from opt_lib import get_method
+            alg = get_method(self._method)
+            res = alg(self._func,self._paras_init,args = self._args,bounds = self._bounds,**self._extra_dict)
+            res.run()
+            self.x_optimize = res.x
         else:
             self._optimization_scipy()
             self.x_optimize = self._res.x
-            print("******************************************")
-            print("best parameters find : ")
-            print(self.x_optimize)
-            print("cost : ")
-            self._func(self.x_optimize,*self._args)
-            print("******************************************")
+            
+        print("******************************************")
+        print("best parameters find : ")
+        print(self.x_optimize)
+        print("cost : ")
+        self._func(self.x_optimize,*self._args)
+        print("******************************************")
         
         self._logging()
-        self._agent_()
         return self.x_optimize
 
 def _main():
-    def func(x,a,b,c,d):
-        vec = np.array([a,b,c,d])
-        f = 2*np.sum((x - vec)**2,axis = None) + 10*np.sum(np.cos(x-a)*np.cos(x-b) + np.sin(x-c) + np.sin(x-d)) + a*b*c*d # + 5*np.random.randn()
-        uncer = 0.1
-        bad = False
-        return_dict = {'cost':f,'uncer':uncer,'bad':bad}
-        return return_dict
+    from opt_lib.test_functions import F2 as FF
+    
+    def f_dec(func):
+        def wrap(x,*args,**kwargs):
+            f=func(x,*args,**kwargs)
+            return dict(cost = f)
+        return wrap
 
-    method = "differential_evolution"
+    func = f_dec(FF)
+    method = "ISMA"
 
-    init = np.array([3,-8,4,2])
+    init = np.array([30,-80,40,20])
     a = 6
     b = 8
     c = 1
     d = 2
-    bounds = ((-10,10),(-10,10),(-10,10),(-10,10))
-    bounds = ((-10,10),(-10,10),(-10,10),(-10,10))
-    extra_dict = {"no_local_search":None,"eps":0.05}
-    opt = global_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 1,delay = 0.001,method = method,extra_dict=extra_dict, log = "inherit")
+    bounds = ((-100,100),(-100,100),(-100,100),(-100,100))
+    extra_dict = dict(pop = 5)
+    opt = global_optimize(func,init,args = (),bounds = bounds,max_run = 37,delay = 0.01,method = method,extra_dict=extra_dict, log = True)
     opt.optimization()
-    from local_optimize import local_optimize
-    opt2 = local_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 10,delay = 0.002,method = "L-BFGS-B",val_only = True, log = True,msg = True,opt_inherit = opt)
-    x_end = opt2.optimization()
-    print(x_end)
-    opt2.visualization()
+    opt.visualization("classic")
+    # from local_optimize import local_optimize
+    # opt2 = local_optimize(func,init,args = (),bounds = bounds,max_run = 10,delay = 0.002,method = "L-BFGS-B",val_only = True, log = True,msg = True,opt_inherit = opt)
+    # x_end = opt2.optimization()
+    # print(x_end)
+    # opt2.visualization()
 
 if __name__ == "__main__":
     _main()

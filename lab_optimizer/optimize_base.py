@@ -135,7 +135,7 @@ def _opt_plot(flist,x_vec,method,visual = "all"):
         fig2.show()
         
     plt.show()
-     
+
 def log_visiual(path:str,visual:str = "all"):
     """view optimization results from log  
 
@@ -304,27 +304,6 @@ class optimize_base:
         inherit ``optimization results``, ``parameters`` and ``logs``
         defeault is None (not use inherit)
         
-    agent_dict : dict
-        - agent : str
-            whether to use agent model to do further prediction and visualization,
-            choose a agent model to accelerate your optimization : 
-            
-                - Gaussian_Process : using gaussian process to train a agent model, a slower but more robust solution
-                - Neural_Net : using neural net to train an agent model, a faster but may less robust slution
-                - otherwise : do not use agent model 
-        
-        - agent_batch : int
-            batch size to train agent model, defeault is 5
-            
-        - train_rounds : int
-            rounds to train agent model, defeault is 100
-            
-        - auxiliary_run : int
-            each time to call agent model, defeault is 1
-            
-        set ``agent = "gaussian_process"`` or ``agent = "neural_net"`` to use agent model,
-        otherwise you will not use it
-        
     """
     def __init__(self,func,paras_init:np.ndarray,args:tuple = (),bounds:tuple = None,**kwargs):
         print("optimization start")
@@ -351,8 +330,6 @@ class optimize_base:
             self._paras_init = self.opt_inherit.x_optimize
             self._run_count = self.opt_inherit._run_count
             self._ave_dict = self.opt_inherit._ave_dict
-            self._agent_dict = self.opt_inherit._agent_dict
-            self._agent_model = self.opt_inherit._agent_model
 
         else: # if no inherit
             self._paras_init = paras_init
@@ -370,15 +347,13 @@ class optimize_base:
             self._filename = kwargs.get("logfile","optimization__" + time.strftime("%Y-%m-%d-%H-%M",time.gmtime(self._time_start)) + "__" + kwargs.get("method","None") + "__" + ".txt")
             self._ave_dict = kwargs.get("ave_dict",{"ave":False,"ave_times":1,"ave_wait":0.})
             self._run_count = 0
-            self._agent_dict = kwargs.get("agent_dict",{"agent":False})
-            self._agent_model = self._agent(self._agent_dict)
 
         ## using average
         if self._ave_dict.get("ave",False) == True and self._torch == False:
             func = _ave_decorate(func,self._ave_dict.get("ave_times",3),self._ave_dict.get("ave_wait",0.01))
         
         ## decorate func
-        self._func = self._decorate(func,delay = delay,msg = msg,activate_agent=self._activate_agent,agent_model=self._agent_model)
+        self._func = self._decorate(func,delay = delay,msg = msg)
             
         ## create log head
         if self._log == True or self._log == "inherit":
@@ -435,7 +410,12 @@ class optimize_base:
                     file.write("[" + ",".join(map(str,self._x_vec[i])) + "]")
                     file.write(", " + f"{self._flist[i,0]}" + "\n")
     
-    def _decorate(self,func,delay = 0.1,msg = True,activate_agent = False,agent_model = None): # delay in s
+    def _decorate(self,func,delay = 0.1,msg = True):
+        ## decorate optimization function:
+        # msg -> message each call
+        # delay -> delay each call
+        # _torch -> whether torch func
+        
         if self._torch == True:
             def func_decorate(x,*args,**kwargs):
                 time.sleep(delay)
@@ -476,17 +456,14 @@ class optimize_base:
                 self._time_stamp = self._time_stamp + [ time.strftime("%d:%H:%M:%S",time.gmtime(local_time())) ]
                 if np.isnan(f_val): # nan error
                     self.error("nan") 
-                if activate_agent == True:
-                    agent_model.train(x,f_val)
                 if self._val_only == True:
                     return f_val
                 else:
                     return f
         return func_decorate
-
-    def optimization(self):
-        ## developers are supposed to override this method for each sub_optimizer
-        self.error("not_def") 
+    
+    ## developers are supposed to override this method for each sub_optimizer
+    def optimization(self):...
 
     def visualization(self,visual:str = "all"):
         """to visualize optimization results
@@ -527,20 +504,6 @@ class optimize_base:
         except:
             pass
         raise optimize_Exception(err_msg)
-
-    def _agent(self):
-        agent = self._agent_dict.get("agent",False)
-        if agent == "gaussian_process":
-            from .agent_model import gaussian_process
-            self._agent_model = gaussian_process
-            self._activate_agent = True
-        elif agent == "neural_net":
-            from .agent_model import neural_net
-            self._agent_model = neural_net
-            self._activate_agent = True
-        else:
-            self._agent_model = None
-            self._activate_agent = False
 
 if __name__ == "__main__":
     path = "labopt_logs/lab_opt_2025_01_06/err_optimization__2025-01-06-17-37__simplex__.txt"

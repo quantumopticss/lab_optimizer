@@ -2,8 +2,12 @@ __version__ = "1.2.0"
 
 """
 lab_optimizer
+
+author : Zifeng Li
+email : 221503020@smail.nju.edu.cn
+github_url : https://github.com/quantumopticss/lab_optimizer
+
 =========
-URL : https://github.com/quantumopticss/lab_optimizer
 
 Provides
   1. global_optimizer
@@ -17,8 +21,6 @@ Provides
 MIT License
 
 Copyright (c) 2025 Zifeng Li
-email : 221503020@smail.nju.edu.cn
-
 All rights reserved.
 
 part of this project are published under other open source licenses, refer to the License profile
