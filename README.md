@@ -231,7 +231,7 @@ ReleaseNotes
   add optimizer test function library:
   
   add opt algorithms library:
-    - Improved Slime Mould Algorithm (global)
+    - Improved Slime Mould Algorithm (ISMA) @ global
 
 - 1.3.x(building)
 
