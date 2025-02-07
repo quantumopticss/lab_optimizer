@@ -1,12 +1,13 @@
-# MSMA algorithm (minimize func)
-# ref : 
+# ISMA algorithm (minimize func)
+# ref :  https://doi.org/10.1016/j.cma.2022.115764
+# ref :  Digital Object Identifier 10.1109/ACCESS.2025.3527509
 
 import numpy as np
 from scipy.optimize import minimize
 from numpy.random import rand
 
 class ISMA:
-    def __init__(self,func:callable,paras_init:np.ndarray,bounds:tuple,args:tuple = (),pop:int = 10,max_iter:int = 37,local_polish:bool = True,slime_paras:dict = dict(z = 0.03, a = 0, b=0.01,eps = 5e-2,),**extra_dict):
+    def __init__(self,func:callable,paras_init:np.ndarray,bounds:tuple,args:tuple = (),max_iter:int = 37,pop:int = 5,local_polish:bool = True,slime_paras:dict = dict(z = 0.03, a = 0, b=0.01,eps = 5e-2,),**extra_dict):
         """ Multi Slime Mould Algorithm
         
         Args
@@ -24,7 +25,7 @@ class ISMA:
             extra arguments of func
         """
         
-        def dec(func): ## change sign
+        def sign_dec(func): ## change sign
             def wrap(x,*args,**kwargs):
                 f = - func(x,*args,**kwargs)
                 return f
@@ -32,13 +33,17 @@ class ISMA:
         
         ## initialize other parameters
         self._dim = len(paras_init)
-        self._T = np.min([3*self._dim,max_iter//4])
+        self._T = np.max([3*self._dim,max_iter//6])
         self._t = 0
         self._max_iter = max_iter
         self._pop = pop
-        self._func = dec(func)
+        
+        self._neg_func = sign_dec(func) ## negative function -> maximize
+        self._pos_func = func ## positive function -> minimize
+        
         self._args = args
         self._local_polish = local_polish
+        self._bounds = bounds
         
         self._eps = slime_paras.get("eps",0.05)
         self._a = slime_paras.get("a",0.)
@@ -66,7 +71,7 @@ class ISMA:
         for t in range(1,1+self._max_iter):
             ## calculate value
             for i in range(self._pop):
-                self._y[i] = self._func(self._x[:,i],*self._args)
+                self._y[i] = self._neg_func(self._x[:,i],*self._args)
             
             idx_min = np.argmin(self._y)
             y_min = self._y[idx_min]
@@ -74,9 +79,9 @@ class ISMA:
             y_max = self._y[idx_max]
             
             ## local polish
-            if self._local_polish == True and t%self._T == 0:
-                pass
-                # self._x[:,idx_max], y_max = self.polish(self._func,self._x[:,idx_max],self._args)
+            
+            if self._local_polish and t%self._T == 0:
+                self._x[:,idx_max], y_max = self.polish(self._pos_func,self._x[:,idx_max],bounds = self._bounds,args = self._args)
             
             ## update
             u = np.arctanh(1 - t/(self._max_iter))
@@ -123,23 +128,35 @@ class ISMA:
             #     (self._x[:,i])[f>=self.ub] = self.ub[f>=self.ub]
             #     (self._x[:,i])[f<=self.lb] = self.lb[f<=self.lb]
             
-        ## *** result ***
+        ## *** opt result ***
         for i in range(self._pop):
-            self._y[i] = self._func(self._x[:,i],*self._args)
+            self._y[i] = self._neg_func(self._x[:,i],*self._args)
         
         idx_max = np.argmax(self._y)
-        y_max = self._y[idx_max]
         self.x = self._x[:,idx_max]
-        self.x_opt = self.x
+        
+        self.x_opt, self.y_opt = self.polish(self._pos_func,self.x,self._bounds,self._args)
+        self.x = self.x_opt
+        self.y = self.y_opt
         
         return self.x
             
-    def polish(self,func,paras_init,args = ()):
-        ## perform local optimization
-        pass
-    
+    def polish(self,func,paras_init,bounds,args = (),polish_method = "L-BFGS-B"):
+        res = minimize(func,
+                    np.copy(paras_init),
+                    method=polish_method,
+                    bounds=bounds,
+                    args = args,
+                    options = dict(maxiter = 3))
+        
+        x_opt = res.x
+        y_opt = res.fun
+        
+        return x_opt, y_opt
+
 def main():
-    paras_init = np.array([19,-22,99,50])
+    from test_functions import F7 as FF
+    paras_init = np.array([99,120,-200])
     from time import sleep
     
     def f_dec(fun):
@@ -153,18 +170,17 @@ def main():
     
     func = f_dec(FF)
     
-    bounds = ((-500,500),(-500,500),(-500,500),(-500,500))
-    res = ISMA(func,paras_init,bounds = bounds,pop = 5,max_iter=10)
+    bounds = ((-500,500),(-500,500),(-500,500))
+    res = ISMA(func,paras_init,bounds = bounds,pop = 5,max_iter=1,local_polish=False)
     res.run()
     x_opt = res.x
     
     print("res:")
     print(x_opt)
     print(func(x_opt))
-
-if __name__ == "__main__":
-    from test_functions import F9 as FF
-    main()
     del FF
 
+if __name__ == "__main__":
+    main()
+    
 del main
