@@ -225,6 +225,13 @@ ReleaseNotes
 - 1.2.x
 
   add functions to handel optimizations Exceptions
+  
+  add optimizer extensions, provide a general interface of custom defined opt algorithms
+  
+  add optimizer test function library:
+  
+  add opt algorithms library:
+    - Improved Slime Mould Algorithm (global)
 
 - 1.3.x(building)
 
