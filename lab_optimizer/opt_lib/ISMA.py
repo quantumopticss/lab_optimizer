@@ -1,0 +1,170 @@
+# MSMA algorithm (minimize func)
+# ref : 
+
+import numpy as np
+from scipy.optimize import minimize
+from numpy.random import rand
+
+class ISMA:
+    def __init__(self,func:callable,paras_init:np.ndarray,bounds:tuple,args:tuple = (),pop:int = 10,max_iter:int = 37,local_polish:bool = True,slime_paras:dict = dict(z = 0.03, a = 0, b=0.01,eps = 5e-2,),**extra_dict):
+        """ Multi Slime Mould Algorithm
+        
+        Args
+        ---------
+        func : callable
+            function to opt
+        
+        paras_init : np.ndarray
+            init states
+            
+        bounds : tuple
+            boundary
+            
+        args : tuple
+            extra arguments of func
+        """
+        
+        def dec(func): ## change sign
+            def wrap(x,*args,**kwargs):
+                f = - func(x,*args,**kwargs)
+                return f
+            return wrap
+        
+        ## initialize other parameters
+        self._dim = len(paras_init)
+        self._T = np.min([3*self._dim,max_iter//4])
+        self._t = 0
+        self._max_iter = max_iter
+        self._pop = pop
+        self._func = dec(func)
+        self._args = args
+        self._local_polish = local_polish
+        
+        self._eps = slime_paras.get("eps",0.05)
+        self._a = slime_paras.get("a",0.)
+        self._b = slime_paras.get("b",0.01)
+        self._z = slime_paras.get("z",0.03)
+        
+        ## bounds
+        ub, lb = [], []
+        for i in range(self._dim):
+            ub.append(bounds[i][1])
+            lb.append(bounds[i][0])
+        self.ub, self.lb = np.array(ub), np.array(lb)
+        
+        ## initialize slime population
+        self._x = np.empty([self._dim,self._pop])
+        self._y = np.empty([self._pop])
+        
+        self._x[:,0] = paras_init
+        for i in range(1,self._pop):
+            s = np.cos(2*np.pi*rand())
+            self._x[:,i] = 0.5*( self.ub*(1+s) + self.lb*(1-s) )
+    
+    def run(self,mutation = 0.01):
+        ## *** opt *** 
+        for t in range(1,1+self._max_iter):
+            ## calculate value
+            for i in range(self._pop):
+                self._y[i] = self._func(self._x[:,i],*self._args)
+            
+            idx_min = np.argmin(self._y)
+            y_min = self._y[idx_min]
+            idx_max = np.argmax(self._y)
+            y_max = self._y[idx_max]
+            
+            ## local polish
+            if self._local_polish == True and t%self._T == 0:
+                pass
+                # self._x[:,idx_max], y_max = self.polish(self._func,self._x[:,idx_max],self._args)
+            
+            ## update
+            u = np.arctanh(1 - t/(self._max_iter))
+            dx_pop = np.empty_like(self._x) # store x in column
+            for i in range(self._pop):
+                r = rand()
+                p = np.tanh( np.abs( self._y[i] -  y_max)  )
+                
+                if rand() < self._z: ## mutation
+                    idx_r1_r2 = np.random.randint(self._pop,size = 2)
+                    dx_pop[:,i] = self._eps * (self._x[:,idx_r1_r2[0]] - self._x[:,idx_r1_r2[1]])
+                elif r<p:
+                    c1 = ( 2*rand() - 1 )*u
+                    y1 = self._y[i]
+                    
+                    str_G = np.sum( y1 > self._y )
+                    if str_G >= self._pop//2:
+                        G = 1 + r*np.log( 1 + (y_max - y1)/(y_max-y_min+1e-10) )
+                    else:
+                        G = 1 - r*np.log( 1 + (y_max - y1)/(y_max-y_min+1e-10) )
+                    
+                    dx_pop[:,i] = c1 * ( G * self._x[:,idx_max] - self._x[:,i] )
+                else:
+                    pr = rand(self._dim)
+                    dx_pop[:,i] = ( self._a + self._b*np.tan( np.pi*(pr-1/2) ) - 1 ) * self._x[:,i]
+                
+            self._x = self._x + dx_pop
+            
+            ## mutation
+            if rand() <= mutation:
+                num = 1 + self._dim//10
+                prob = num/self._dim
+                
+                mutation_index = rand(self._dim) <= prob
+                
+                for i in range(self._pop):
+                    self._x[:,i] = self._x[:,i] + self._eps*(self.ub - self.lb)*(2*rand(self._dim)-1)*mutation_index
+            
+            ## boundary control
+            self._x = np.clip(self._x, self.lb[:, None], self.ub[:, None])
+            # * equivalent to * #
+            # for i in range(self._pop):
+            #     f = self._x[:,i]
+            #     (self._x[:,i])[f>=self.ub] = self.ub[f>=self.ub]
+            #     (self._x[:,i])[f<=self.lb] = self.lb[f<=self.lb]
+            
+        ## *** result ***
+        for i in range(self._pop):
+            self._y[i] = self._func(self._x[:,i],*self._args)
+        
+        idx_max = np.argmax(self._y)
+        y_max = self._y[idx_max]
+        self.x = self._x[:,idx_max]
+        self.x_opt = self.x
+        
+        return self.x
+            
+    def polish(self,func,paras_init,args = ()):
+        ## perform local optimization
+        pass
+    
+def main():
+    paras_init = np.array([19,-22,99,50])
+    from time import sleep
+    
+    def f_dec(fun):
+        def wrap(x,*args,**kwargs):
+            sleep(0.05)
+            f=fun(x,*args,**kwargs)
+            print(f"val = {f}")
+            print(f"x = {x} \n")
+            return f
+        return wrap
+    
+    func = f_dec(FF)
+    
+    bounds = ((-500,500),(-500,500),(-500,500),(-500,500))
+    res = ISMA(func,paras_init,bounds = bounds,pop = 5,max_iter=10)
+    res.run()
+    x_opt = res.x
+    
+    print("res:")
+    print(x_opt)
+    print(func(x_opt))
+
+if __name__ == "__main__":
+    from test_functions import F9 as FF
+    main()
+    del FF
+
+del main
