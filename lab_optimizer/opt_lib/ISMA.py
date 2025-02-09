@@ -180,10 +180,7 @@ class ISMA:
                     args = args,
                     options = dict(maxiter = 3))
         
-        x_opt = res.x
-        y_opt = res.fun
-        
-        return x_opt, y_opt
+        return res.x, res.fun
 
 def main():
     from test_functions import F7 as FF

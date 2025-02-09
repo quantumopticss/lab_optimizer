@@ -1,4 +1,4 @@
-lab_optimizer, with latest version 1.2.2
+lab_optimizer, with latest version 1.2.3
 ---------
 optimization algorithms packages
 
