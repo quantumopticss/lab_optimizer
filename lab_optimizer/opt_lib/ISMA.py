@@ -11,7 +11,7 @@ class ISMA:
     def _doc():
         return "Improved Slime Mould Algorithm"
     
-    def __init__(self,func:callable,paras_init:np.ndarray,bounds:tuple,args:tuple = (),max_run:int = 37,pop:int = 5,local_polish:bool = True,slime_paras:dict = dict(z = 0.03, a = 0, b=0.01,eps = 5e-2,),**extra_dict):
+    def __init__(self,func:callable,paras_init:np.ndarray,bounds:tuple,args:tuple = (),max_run:int = 37,pop:int = 5,local_polish:bool = True,slime_paras:dict = dict(z = 0.03, a = 0, b=0.01,eps = 5e-2),**extra_dict):
         """ Multi Slime Mould Algorithm
         
         Args
@@ -27,6 +27,25 @@ class ISMA:
             
         args : tuple
             extra arguments of func
+            
+        max_run : int
+            maximum iterations, , defeault is 37
+            
+        Extra_Args
+        ---------
+        pop : int
+            population of slime mould, defeault is 5
+            
+        local_polish : bool
+            whether to do local_optimization where searching for global_opt during the whole iteration, defeault is True
+            
+        slime_paras : dict
+            basic properties of slime mould :
+                z : probability of nature mutation 
+                a & b : parameters for searching
+                eps : mutation step size 
+                
+            defeault is dict(z = 0.03, a = 0, b=0.01,eps = 5e-2)
         """
         
         def sign_dec(func): ## change sign
@@ -67,7 +86,7 @@ class ISMA:
         
         self._x[:,0] = paras_init
         for i in range(1,self._pop):
-            s = np.cos(2*np.pi*rand())
+            s = np.cos(2*np.pi*rand(*paras_init.shape))
             self._x[:,i] = 0.5*( self.ub*(1+s) + self.lb*(1-s) )
 
     def run(self,mutation:float = 0.01):
@@ -90,7 +109,6 @@ class ISMA:
             y_max = self._y[idx_max]
             
             ## local polish
-            
             if self._local_polish and t%self._T == 0:
                 self._x[:,idx_max], y_max = self.polish(self._pos_func,self._x[:,idx_max],bounds = self._bounds,args = self._args)
             
