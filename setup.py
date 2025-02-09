@@ -1,9 +1,8 @@
 from setuptools import setup, find_packages
-from lab_optimizer import __version__
 
 setup(
     name="lab_optimizer", 
-    version=__version__, 
+    version="1.2.3", 
     author="Zifeng Li",  # 
     author_email="221503020@smail.nju.edu.cn",  # 
     description="a collection of optimization algorithms",  # 
