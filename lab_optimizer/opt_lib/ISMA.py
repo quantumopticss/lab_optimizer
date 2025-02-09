@@ -147,8 +147,8 @@ class ISMA:
         self.x = self._x[:,idx_max]
         
         self.x_optimize, self.y_optimize = self.polish(self._pos_func,self.x,self._bounds,self._args)
-        self.x = self.x_opt
-        self.y = self.y_opt
+        self.x = self.x_optimize
+        self.y = self.y_optimize
         
         return self.x_optimize
 

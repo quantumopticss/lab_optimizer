@@ -53,7 +53,7 @@ def get_method(func_name:str) -> callable:
     """
         
     if func_name in __optlib_local__ or func_name in __optlib_global__:
-        exec(f"from {func_name} import {func_name}")
+        exec(f"from .{func_name} import {func_name}")
         return eval(func_name)
     else:
         print("optlib for local : " + str(__optlib_local__))
