@@ -284,10 +284,6 @@ def _main():
     method = "ISMA"
 
     init = np.array([30,-80,40,20])
-    a = 6
-    b = 8
-    c = 1
-    d = 2
     bounds = ((-100,100),(-100,100),(-100,100),(-100,100))
     extra_dict = dict(pop = 5)
     opt = global_optimize(func,init,args = (),bounds = bounds,max_run = 37,delay = 0.01,method = method,extra_dict=extra_dict, log = True)

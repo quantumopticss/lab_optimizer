@@ -304,14 +304,14 @@ class optimize_base:
         inherit ``optimization results``, ``parameters`` and ``logs``
         defeault is None (not use inherit)
         
-    """
+    """    
     def __init__(self,func,paras_init:np.ndarray,args:tuple = (),bounds:tuple = None,**kwargs):
         print("optimization start")
+        
+        ## not inherit args
         self._time_start = local_time()
         self._args = args
         self._bounds = bounds
-        
-        ## not inherit args
         self._max_run = kwargs.get("max_run",100)
         self._val_only = kwargs.get('val_only',True)
         self._torch = kwargs.get("torch",False)
@@ -330,7 +330,6 @@ class optimize_base:
             self._paras_init = self.opt_inherit.x_optimize
             self._run_count = self.opt_inherit._run_count
             self._ave_dict = self.opt_inherit._ave_dict
-
         else: # if no inherit
             self._paras_init = paras_init
             result = func(self._paras_init,*args)
@@ -347,13 +346,6 @@ class optimize_base:
             self._filename = kwargs.get("logfile","optimization__" + time.strftime("%Y-%m-%d-%H-%M",time.gmtime(self._time_start)) + "__" + kwargs.get("method","None") + "__" + ".txt")
             self._ave_dict = kwargs.get("ave_dict",{"ave":False,"ave_times":1,"ave_wait":0.})
             self._run_count = 0
-
-        ## using average
-        if self._ave_dict.get("ave",False) == True and self._torch == False:
-            func = _ave_decorate(func,self._ave_dict.get("ave_times",3),self._ave_dict.get("ave_wait",0.01))
-        
-        ## decorate func
-        self._func = self._decorate(func,delay = delay,msg = msg)
             
         ## create log head
         if self._log == True or self._log == "inherit":
@@ -364,10 +356,16 @@ class optimize_base:
                 "paras_init : " + self._paras_init.__repr__() + "\n" +
                 "bounds : " + self._bounds.__repr__() + "\n" + 
                 "args : " + self._args.__repr__() + "\n" +
-                "kwargs : " + kwargs.__repr__() + "\n" + 
-                "max_run : "  f"{self._max_run}" + "\n"
-                "form : " + "rounds, time, parameters, cost " + "\n\n" 
+                "kwargs : " + kwargs.__repr__() + "\n" 
             )
+
+        # decorate func
+        ## using average
+        if self._ave_dict.get("ave",False) == True and self._torch == False:
+            func = _ave_decorate(func,self._ave_dict.get("ave_times",3),self._ave_dict.get("ave_wait",0.01))
+        
+        ## normal decorate
+        self._func = self._decorate(func,delay = delay,msg = msg)
     
     def _logging(self,err_msg:str = ""):
         """generating loggings
@@ -397,6 +395,7 @@ class optimize_base:
                 file.write("end_time : " + time.strftime("%Y_%m_%d_%H:%M:%S",time.gmtime(self._time_end)) + " * " +  "\n\n")
                 if err_msg != "":
                     file.write("** " + "ERROR : " +  err_msg + " : ERROR" + " ** \n\n")
+                file.write("form : " + "rounds, time, parameters, cost " + "\n\n")
                 file.write("##\n")
             ## data
             if type(self._x_vec) == th.Tensor:
