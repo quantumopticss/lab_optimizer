@@ -1,6 +1,6 @@
 from optimize_base import *
 import numpy as np
-from opt_lib import __global__ as global_libs
+from opt_lib import __optlib_global__ as optlib_global
 
 class global_optimize(optimize_base):
     """reconstructed global optmization algorithms:
@@ -180,7 +180,7 @@ class global_optimize(optimize_base):
                 ##
                 self._res = direct(self._func,self._bounds,args = self._args,maxiter = self._max_run,**self._extra_dict)
         
-            case _:
+            case "dual_annealing":
                 self._method = "dual_annealing"
                 from scipy.optimize import dual_annealing
                 
@@ -248,18 +248,18 @@ class global_optimize(optimize_base):
                 self._opt.Y[0,:] = self._func_args(self._paras_init)
     
     def optimization(self):
-        if self._method in ["particle_swarm","genetic","artificial_fish"]:
+        if self._method in ["dual_annealing", "differential_evolution", "direct", "shgo"]: 
+            self._optimization_scipy()
+            self.x_optimize = self._res.x
+        elif self._method in ["particle_swarm","genetic","artificial_fish"]:
             self._optimization_scikit()
             self.x_optimize, _ = self._opt.run()
-        elif self._method in global_libs: ## opt_extension
+        else: ## opt_extension
             from opt_lib import get_method
             alg = get_method(self._method)
             res = alg(self._func,self._paras_init,args = self._args,bounds = self._bounds,**self._extra_dict)
             res.run()
             self.x_optimize = res.x
-        else:
-            self._optimization_scipy()
-            self.x_optimize = self._res.x
             
         print("******************************************")
         print("best parameters find : ")

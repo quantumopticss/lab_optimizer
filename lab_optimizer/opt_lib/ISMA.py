@@ -7,6 +7,10 @@ from scipy.optimize import minimize
 from numpy.random import rand
 
 class ISMA:
+    @staticmethod
+    def _doc():
+        return "Improved Slime Mould Algorithm"
+    
     def __init__(self,func:callable,paras_init:np.ndarray,bounds:tuple,args:tuple = (),max_iter:int = 37,pop:int = 5,local_polish:bool = True,slime_paras:dict = dict(z = 0.03, a = 0, b=0.01,eps = 5e-2,),**extra_dict):
         """ Multi Slime Mould Algorithm
         
@@ -65,8 +69,15 @@ class ISMA:
         for i in range(1,self._pop):
             s = np.cos(2*np.pi*rand())
             self._x[:,i] = 0.5*( self.ub*(1+s) + self.lb*(1-s) )
-    
-    def run(self,mutation = 0.01):
+
+    def run(self,mutation:float = 0.01):
+        """run ISMA algorithm
+
+        Args
+        ---------
+        mutation : float, optional
+            mutation probability in each iteration, defaults to 0.01.
+        """
         ## *** opt *** 
         for t in range(1,1+self._max_iter):
             ## calculate value
@@ -140,8 +151,10 @@ class ISMA:
         self.y = self.y_opt
         
         return self.x
-            
-    def polish(self,func,paras_init,bounds,args = (),polish_method = "L-BFGS-B"):
+
+    def polish(self,func,paras_init,bounds,args = (),polish_method = "L-BFGS-B"): 
+        """ polish opt result ( a small operate of minimizing func )
+        """
         res = minimize(func,
                     np.copy(paras_init),
                     method=polish_method,
@@ -178,7 +191,6 @@ def main():
     print("res:")
     print(x_opt)
     print(func(x_opt))
-    del FF
 
 if __name__ == "__main__":
     main()

@@ -1,7 +1,7 @@
 from optimize_base import *
 from scipy.optimize import minimize
 import numpy as np
-from opt_lib import __local__ as local_libs
+from opt_lib import __optlib_local__ as optlib_local
 
 class local_optimize(optimize_base):
     """reconstructed scipy.optmize.minimize, which is a ``local optimization algorithm`` we recommend using 
@@ -140,14 +140,16 @@ class local_optimize(optimize_base):
             self._method = "Nelder-Mead"
     
     def optimization(self):
-        if self._method in local_libs: ## opt_extension
+        _local_opt__ = ["Nelder-Mead","Powell","CG","BFGS","Newton-CG","L-BFGS-B","TNC","COBYLA","COBYQA"
+                 ,"SLSQP","trust-constr","dogleg","trust-ncg","trust-exact","trust-krylov","custom"]
+        if self._method in _local_opt__: 
+            res = minimize(self._func,self._paras_init,args = self._args,method = self._method,bounds = self._bounds,**self._extra_dict,options = {"maxiter":self._max_run})
+            self.x_optimize = res.x
+        else: ## opt_extension
             from opt_lib import get_method
             alg = get_method(self._method)
             res = alg(self._func,self._paras_init,args = self._args,bounds = self._bounds,**self._extra_dict)
             res.run()
-            self.x_optimize = res.x
-        else:
-            res = minimize(self._func,self._paras_init,args = self._args,method = self._method,bounds = self._bounds,**self._extra_dict,options = {"maxiter":self._max_run})
             self.x_optimize = res.x
         
         print("******************************************")

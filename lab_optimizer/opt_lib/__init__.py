@@ -1,7 +1,10 @@
-__global__ = ["ISMA"]
-__local__ = [""]
+__optlib_global__ = ["ISMA"]
+"""global optimization algorithms in opt_lib"""
 
-"this libs aim at providing extensions for lab_optimizer"
+__optlib_local__ = [""]
+"""lobal optimization algorithms in opt_lib"""
+
+# this libs aim at providing extensions for lab_optimizer
 # you can add your own optimization algorithm here, with a fix interface 
 
 # ** assume that _alg is your opt algorithm **
@@ -24,27 +27,33 @@ class test_alg:
             
 del test_alg
 
-import importlib
-from .ISMA import ISMA
+class LIB_ERROR(Exception):
+    def __init__(self,opt):
+        error_dict = dict(
+            not_found = "algorithm not found, or invalid name",
+        )
+        if opt in error_dict:
+            msg = error_dict[opt]
+        else:
+            msg = opt 
+        raise Exception("opt_lib error : " + msg)
 
-def get_method(func_name:str,module_name:str = None) -> callable:
+def get_method(func_name:str) -> callable:
     """return optimization algorithm corresponds to name
 
     Args
     ---------
     name : str
-        name of algorithms
-        
-    module_name : str
-        name of to import modules, defeault is None (this module : opt_lib)
+        name of algorithms, should be either in __optlib_local__ or in __optlib_global__
     """
-    if module_name:
-        try:
-            module = importlib.import_module(f"{__package__}.{module_name}")
-            return getattr(module,func_name,None)
-        except:
-            return None
+        
+    if func_name in __optlib_local__ or func_name in __optlib_global__:
+        exec(f"from {func_name} import {func_name}")
+        return eval(func_name)
     else:
-        func = globals().get(func_name, None)
-    
-    return func
+        print("optlib for local : " + str(__optlib_local__))
+        print("optlib for global : " + str(__optlib_global__))
+        LIB_ERROR("not_found")
+
+med = get_method("ISM")
+print(med._doc())

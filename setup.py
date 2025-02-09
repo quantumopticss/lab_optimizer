@@ -1,7 +1,3 @@
-import os,sys
-path = os.path.abspath(__file__)
-sys.path.append(os.path.dirname(path))
-
 from setuptools import setup, find_packages
 from lab_optimizer import __version__
 
