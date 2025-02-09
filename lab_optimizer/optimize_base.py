@@ -508,5 +508,3 @@ class optimize_base:
 if __name__ == "__main__":
     path = "labopt_logs/lab_opt_2025_01_06/err_optimization__2025-01-06-17-37__simplex__.txt"
     log_visiual(path)
-    
-    

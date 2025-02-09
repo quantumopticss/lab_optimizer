@@ -257,7 +257,7 @@ class global_optimize(optimize_base):
         else: ## opt_extension
             from opt_lib import get_method
             alg = get_method(self._method)
-            res = alg(self._func,self._paras_init,args = self._args,bounds = self._bounds,**self._extra_dict)
+            res = alg(self._func,self._paras_init,args = self._args,bounds = self._bounds,max_run = self._max_run,**self._extra_dict)
             res.run()
             self.x_optimize = res.x
             

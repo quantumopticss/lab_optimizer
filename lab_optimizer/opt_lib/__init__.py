@@ -7,23 +7,28 @@ __optlib_local__ = [""]
 # this libs aim at providing extensions for lab_optimizer
 # you can add your own optimization algorithm here, with a fix interface 
 
+# to add custom defined algorithm, you need to : 
+# 1. follow the general parameters name (you can require some parameters in **extra_dict if necessary)
+# 2. provide general interface XXX.run() , XXX.x_optimize 
+
+### example:
 # ** assume that _alg is your opt algorithm **
-# res = _alg(func,paras_init,bounds,,args,*,**self._extra_dict)
+# res = _alg(func,paras_init,bounds,args,**extra_dict)
+# x_optimize = res.run()
 
-# x_opt = res.run() 
-# OR OR OR 
-# res.run(), x_opt = res.x
-
-# example:
 class test_alg:
     def __init__(self,func,paras_init,bounds,args = (),**kwargs):
-        self.x = paras_init
-            
+        self._x = paras_init
+        self._kwargs = kwargs
     def run(self):
-        import numpy as np
-        for i in range(10):
-            self.x = self.x + np.random.randn(*self.x.shape)*1e-3
-            print(self.x)
+        ## operate
+        from numpy.random import rand
+        for i in range(self._kwargs.get("max_run",10)):
+            self._x += rand(self._x.shape)
+            
+        ## finish
+        self.x_optimize = self._x
+        return self.x_optimize
             
 del test_alg
 
@@ -54,6 +59,3 @@ def get_method(func_name:str) -> callable:
         print("optlib for local : " + str(__optlib_local__))
         print("optlib for global : " + str(__optlib_global__))
         LIB_ERROR("not_found")
-
-med = get_method("ISM")
-print(med._doc())

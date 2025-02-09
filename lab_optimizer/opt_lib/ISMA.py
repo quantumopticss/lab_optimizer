@@ -11,7 +11,7 @@ class ISMA:
     def _doc():
         return "Improved Slime Mould Algorithm"
     
-    def __init__(self,func:callable,paras_init:np.ndarray,bounds:tuple,args:tuple = (),max_iter:int = 37,pop:int = 5,local_polish:bool = True,slime_paras:dict = dict(z = 0.03, a = 0, b=0.01,eps = 5e-2,),**extra_dict):
+    def __init__(self,func:callable,paras_init:np.ndarray,bounds:tuple,args:tuple = (),max_run:int = 37,pop:int = 5,local_polish:bool = True,slime_paras:dict = dict(z = 0.03, a = 0, b=0.01,eps = 5e-2,),**extra_dict):
         """ Multi Slime Mould Algorithm
         
         Args
@@ -37,9 +37,9 @@ class ISMA:
         
         ## initialize other parameters
         self._dim = len(paras_init)
-        self._T = np.max([3*self._dim,max_iter//6])
+        self._T = np.max([3*self._dim,max_run//6])
         self._t = 0
-        self._max_iter = max_iter
+        self._max_run = max_run
         self._pop = pop
         
         self._neg_func = sign_dec(func) ## negative function -> maximize
@@ -79,7 +79,7 @@ class ISMA:
             mutation probability in each iteration, defaults to 0.01.
         """
         ## *** opt *** 
-        for t in range(1,1+self._max_iter):
+        for t in range(1,1+self._max_run):
             ## calculate value
             for i in range(self._pop):
                 self._y[i] = self._neg_func(self._x[:,i],*self._args)
@@ -95,7 +95,7 @@ class ISMA:
                 self._x[:,idx_max], y_max = self.polish(self._pos_func,self._x[:,idx_max],bounds = self._bounds,args = self._args)
             
             ## update
-            u = np.arctanh(1 - t/(self._max_iter))
+            u = np.arctanh(1 - t/(self._max_run))
             dx_pop = np.empty_like(self._x) # store x in column
             for i in range(self._pop):
                 r = rand()
@@ -146,11 +146,11 @@ class ISMA:
         idx_max = np.argmax(self._y)
         self.x = self._x[:,idx_max]
         
-        self.x_opt, self.y_opt = self.polish(self._pos_func,self.x,self._bounds,self._args)
+        self.x_optimize, self.y_optimize = self.polish(self._pos_func,self.x,self._bounds,self._args)
         self.x = self.x_opt
         self.y = self.y_opt
         
-        return self.x
+        return self.x_optimize
 
     def polish(self,func,paras_init,bounds,args = (),polish_method = "L-BFGS-B"): 
         """ polish opt result ( a small operate of minimizing func )
