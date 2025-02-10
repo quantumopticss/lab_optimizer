@@ -134,11 +134,9 @@ class global_optimize(optimize_base):
     
     def __init__(self,func,paras_init:np.ndarray,bounds:tuple,args:tuple = (),extra_dict:dict = {},opt_inherit = None,**kwargs):
         kwargs["val_only"] = True # only need cost
-        kwargs["opt_inherit"] = opt_inherit
-        kwargs["extra_dict"] = extra_dict
         self._method = kwargs.get("method","simulated_annealing")
         kwargs["max_run"] = np.min([50,kwargs.get("max_run",10)])
-        optimize_base.__init__(self,func,paras_init,args = args,bounds = bounds,**kwargs,_opt_type = self._doc())
+        optimize_base.__init__(self,func,paras_init,args = args,bounds = bounds,**kwargs,_opt_type = self._doc(),extra_dict = extra_dict,opt_inherit = opt_inherit)
         self._extra_dict = extra_dict
     
     #### scipy algorithms

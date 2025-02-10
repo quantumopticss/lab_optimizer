@@ -91,7 +91,7 @@ class mloop_optimize(optimize_base):
             
         log : Bool
             whether to generate a log file in labopt_logs
-             
+            
         logfile : str
             log file name , defeault is "optimization__ + <timestamp>__ + <method>__.txt"
             level lower than inherited logfile
@@ -126,9 +126,7 @@ class mloop_optimize(optimize_base):
     def __init__(self,func,paras_init:np.ndarray,bounds:tuple,args:tuple = (),extra_dict:dict = {},opt_inherit = None,**kwargs):
         kwargs["val_only"] = False # let f return cost dict instead of a cost value
         kwargs["msg"] = None # use mloop msg
-        kwargs["opt_inherit"] = opt_inherit
-        kwargs["extra_dict"] = extra_dict
-        optimize_base.__init__(self,func,paras_init,args = args,bounds = bounds,**kwargs,_opt_type = self._doc())
+        optimize_base.__init__(self,func,paras_init,args = args,bounds = bounds,**kwargs,_opt_type = self._doc(),extra_dict = extra_dict,opt_inherit = opt_inherit)
         self._method = kwargs.get("method","gaussian_process")
         if self._method == "simplex":
             self._method = "nelder_mead"
