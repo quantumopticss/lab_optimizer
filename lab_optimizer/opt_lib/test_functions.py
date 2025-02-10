@@ -94,11 +94,13 @@ def F10(x: Union[np.ndarray,th.Tensor,float]):
             _exp = th.exp
             _sqrt = th.sqrt
             _cos = th.cos
+            e = th.e
         else:
             _exp = np.exp
             _sqrt = np.sqrt
             _cos = np.cos
-        f = 20 + _exp(1) - 20*_exp(-0.2*_sqrt(1/len(x)*(x**2).sum())) - _exp(1/len(x)* (_cos(2*th.pi*x)).sum()  )
+            e = np.e
+        f = 20 + e - 20*_exp(-0.2*_sqrt(1/len(x)*(x**2).sum())) - _exp(1/len(x)* (_cos(2*th.pi*x)).sum()  )
         return f
     return 20 + np.e - 20*np.exp(-0.2*abs(x) ) - np.exp(np.cos(2*np.pi*x))
 
@@ -122,12 +124,7 @@ def F11(x:np.ndarray|th.Tensor|float):
     return f
 
 def u(x: Union[th.Tensor,np.ndarray,float],a:float,k:float,m:float):
-    if x > a:
-        f = k*(x-a)**m
-    elif x >= -a and x<= a:
-        f = 0.
-    else:
-        f = k*(-x-a)**m
+    f = k*(x-a)**m * (x>a) + k*(-x-a)**m * (x<-a)
     return f
 
 def y(x:float):
@@ -139,7 +136,7 @@ def y(x:float):
 def F12(x:np.ndarray|th.Tensor):
     r"""f = \sum_{i}^{dim} u(x_i,5,100,4) + \frac{\pi}{dim} \left[ 10 \sin^2(\pi*y1) + \sum_{i=1}{dim-1} (y_i-1)**2 (1 + 10 \sin^2(\pi y_{i+1})) + (y_{dim} -1)**2 \right]
     """
-    _sin, _pi = th.sin, th.pi if isinstance(x, th.Tensor) else np.sin, np.pi
+    _sin, _pi = (th.sin, th.pi, ) if isinstance(x, th.Tensor) else (np.sin, np.pi, )
     f = u(x,5,100,4).sum() + _pi/len(x)*( 10*_sin(_pi*y(x[0]))**2 + ( (y(x[0:-1])-1)**2 * (1 + 10*_sin(_pi*y(x[1:]))**2)).sum() + (y(x[-1])-1)**2  )
     return f
 
@@ -148,6 +145,6 @@ def F13(x: Union[np.ndarray,th.Tensor]):
     \sin^2(3 \pi x_1) + \sum_{i=1}^{dim-1} (x_i - 1)^2 ( 1 + \sin^2(3 \pi x_{i+1}) )
     ) + \sum_{i=1}^{dim} u(x_i,5,100,4)
     """
-    _sin, _pi = th.sin, th.pi if isinstance(x, th.Tensor) else np.sin, np.pi
+    _sin, _pi = (th.sin, th.pi, ) if isinstance(x, th.Tensor) else (np.sin, np.pi, )
     f = 0.1 * ( _sin(3*_pi*x[0])**2 + ( (x[0:-1]-1)**2 * (1 + _sin(3*_pi*x[1:])**2) ).sum() ) + u(x,5,100,4).sum()
     return f
