@@ -271,7 +271,7 @@ class global_optimize(optimize_base):
         return self.x_optimize
 
 def _main():
-    from opt_lib.test_functions import F6 as FF
+    from opt_lib.test_functions import F5 as FF
     def f_dec(func):
         def wrap(x,*args,**kwargs):
             f=func(x,*args,**kwargs)
@@ -284,9 +284,9 @@ def _main():
     init = np.array([30,-70,40])
     bounds = ((-200,200),(-200,200),(-200,200))
     extra_dict = dict(pop = 6,local_polish = False)
-    opt = global_optimize(func,init,args = (),bounds = bounds,max_run = 30,delay = 0.01,method = method,extra_dict=extra_dict, log = True)
+    opt = global_optimize(func,init,args = (),bounds = bounds,max_run = 20,delay = 0.01,method = method,extra_dict=extra_dict, log = True)
     opt.optimization()
-    opt.visualization("classic")
+    opt.visualization("all")
     # from local_optimize import local_optimize
     # opt2 = local_optimize(func,init,args = (),bounds = bounds,max_run = 10,delay = 0.002,method = "L-BFGS-B",val_only = True, log = True,msg = True,opt_inherit = opt)
     # x_end = opt2.optimization()

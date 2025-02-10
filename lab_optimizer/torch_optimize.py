@@ -176,20 +176,20 @@ class torch_optimize(optimize_base):
         return self.x_optimize
 
 def _main():
-    def func(x,a,b,c,d):
-        vec = th.tensor([a,b,c,d],device = x.device)
-        f = th.sum((x - vec)**2,dim = None) + 5*th.sum(th.cos(x-a) + th.cos(x-b) + th.sin(x-c) + th.sin(x-d)) + a*b*c*d
-        uncer = 0.1
-        bad = None
-        return_dict = {'cost':f,'uncer':uncer,'bad':bad}
-        return return_dict
+    from opt_lib.test_functions import F10 as FF
+    def f_dec(func):
+        def wrap(x,*args,**kwargs):
+            f=func(x,*args,**kwargs)
+            return dict(cost = f)
+        return wrap
+
+    func = f_dec(FF)
     
-    init = th.tensor([3.,0.,4.,-3.])
-    a = 6.;b=8.;c = 1.;d = 2.
-    bounds = ((-10,10),(-10,10),(-10,10),(-10,10))
+    init = th.tensor([30.,10.,40.,-30.])
+    bounds = ((-100,100),(-100,100),(-100,100),(-100,100))
     # 'SGD', 'Adam','RMSprop','ASGD','AdamW', 'SparseAdam'
-    method = "Adafactor"
-    opt1 = torch_optimize(func,init,args = (a,b,c,d),bounds = bounds,max_run = 40,delay = 0.02,method = method,lr = 0.03, lr_clt = 0.9,log = True,device = "cpu")
+    method = "AdamW"
+    opt1 = torch_optimize(func,init,args = (),bounds = bounds,max_run = 50,delay = 0.02,method = method,lr = 0.03, lr_clt = 0.9,log = True,device = "cpu")
     x_end =  opt1.optimization()
     opt1.visualization()
     # opt2 = torch_optimize(func,init,args = (a,b,c,d),bounds = bounds,max_run = 10,delay = 0.02,method = "SGD",lr = 0.05, lr_clt = 0.9,log = True,opt_inherit=opt1)
