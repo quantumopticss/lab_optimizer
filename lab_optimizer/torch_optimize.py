@@ -29,6 +29,7 @@ class torch_optimize(optimize_base):
             - 'RAdam'
             - 'AdamW'
             - 'Adamax'
+            - 'Adafactor'
             - 'Adagrade' (cpu_only)
     
     require ``torch based func`` and must be ``based on explicite cost function``
@@ -134,49 +135,16 @@ class torch_optimize(optimize_base):
         self._device = kwargs.get("device",("cuda" if th.cuda.is_available() else "cpu"))
         kwargs["val_only"] = True # only need cose
         kwargs["torch"] = True # activate pytorch
-        kwargs["opt_inherit"] = opt_inherit
-        kwargs["extra_dict"] = extra_dict
-        optimize_base.__init__(self,func,paras_init,args = args,bounds = bounds,**kwargs,_opt_type = self._doc())
+        optimize_base.__init__(self,func,paras_init.to(self._device),args = args,bounds = bounds,**kwargs,_opt_type = self._doc(),extra_dict = extra_dict,opt_inherit = opt_inherit)
         self._method = kwargs.get("method","ASGD")
         self._model = _torch_interface(self._func,paras_init,args = args).to(self._device)
         
-        match self._method:
-            case "Adadelta":
-                th_alg = th.optim.Adadelta
-                
-            case "RAdam":
-                th_alg = th.optim.RAdam
-                
-            case "NAdam":
-                th_alg = th.optim.NAdam
-                
-            case "LBFGS":
-                th_alg = th.optim.LBFGS
-                
-            case "Rprop":
-                th_alg = th.optim.Rprop
-            
-            case "Adagrade":
-                th_alg = th.optim.Adagrad
-                
-            case "Adamax":
-                th_alg = th.optim.Adamax
-            
-            case "Adam":
-                th_alg = th.optim.Adam
-                
-            case 'AdamW':
-                th_alg = th.optim.AdamW
-                
-            case "RMSprop":
-                th_alg = th.optim.RMSprop
-                
-            case "SGD":
-                th_alg = th.optim.SGD
-
-            case _:    
-                self._method = "ASGD"
-                th_alg = th.optim.ASGD
+        _torch_opt = ["ASGD", "SGD", "RMSprop", "Rprop" , "Adam", "AdamW", "Adamax", "Adagrad"
+                    , "Adadelta", "NAdam", "RAdam" , "LBFGS" , "Adafactor"]
+        if self._method in _torch_opt:
+            th_alg = getattr(th.optim,self._method)
+        else:
+            raise ValueError(f"torch optimizer {self._method} not found")
                 
         self._optimizer = th_alg(params = self._model.parameters(),lr = kwargs.get("lr",0.05),**extra_dict)
         self._scheduler = ExponentialLR(self._optimizer, gamma=kwargs.get("lr_ctl",0.95))
@@ -192,7 +160,7 @@ class torch_optimize(optimize_base):
             
             self._model.eval()
             with th.inference_mode():
-                if (n+1) % th.min(th.tensor([int(self._max_run/10), 500],dtype = th.int)) == 0:
+                if (n+1) % th.min(th.tensor([self._max_run//10, 500],dtype = th.int)) == 0:
                     self._scheduler.step()
                     
         self.x_optimize = self._model.to("cpu").state_dict()['_th_params']
@@ -201,7 +169,7 @@ class torch_optimize(optimize_base):
         print("best parameters find : ")
         print(self.x_optimize)
         print("cost : ")
-        self._func(self.x_optimize,*self._args)
+        self._func(self.x_optimize.to(self._device),*self._args)
         print("******************************************")
         
         self._logging()
@@ -209,7 +177,7 @@ class torch_optimize(optimize_base):
 
 def _main():
     def func(x,a,b,c,d):
-        vec = th.tensor([a,b,c,d])
+        vec = th.tensor([a,b,c,d],device = x.device)
         f = th.sum((x - vec)**2,dim = None) + 5*th.sum(th.cos(x-a) + th.cos(x-b) + th.sin(x-c) + th.sin(x-d)) + a*b*c*d
         uncer = 0.1
         bad = None
@@ -220,14 +188,15 @@ def _main():
     a = 6.;b=8.;c = 1.;d = 2.
     bounds = ((-10,10),(-10,10),(-10,10),(-10,10))
     # 'SGD', 'Adam','RMSprop','ASGD','AdamW', 'SparseAdam'
-    opt1 = torch_optimize(func,init,args = (a,b,c,d),bounds = bounds,max_run = 40,delay = 0.02,method = "RAdam",lr = 0.03, lr_clt = 0.9,log = "inherit")
+    method = "Adafactor"
+    opt1 = torch_optimize(func,init,args = (a,b,c,d),bounds = bounds,max_run = 40,delay = 0.02,method = method,lr = 0.03, lr_clt = 0.9,log = True,device = "cpu")
     x_end =  opt1.optimization()
     opt1.visualization()
     # opt2 = torch_optimize(func,init,args = (a,b,c,d),bounds = bounds,max_run = 10,delay = 0.02,method = "SGD",lr = 0.05, lr_clt = 0.9,log = True,opt_inherit=opt1)
     # x_end = opt2.optimization()
 
     # opt2.visualization()
-     
+    
 if __name__ == "__main__":
     _main()
     

@@ -121,7 +121,7 @@ def _opt_plot(flist,x_vec,method,visual = "all"):
             )
                 
         ## t-SNE
-        tsne = TSNE(n_components = 3,perplexity=np.min([30,2 + x_vec.shape[0]//11]),n_iter = 1000)
+        tsne = TSNE(n_components = 3,perplexity=np.min([30,2 + x_vec.shape[0]//11]),max_iter = 1000)
         data_tsne = tsne.fit_transform(x_vec)
         df["tsne1"] = data_tsne[:,0]
         df["tsne2"] = data_tsne[:,1]
@@ -305,7 +305,7 @@ class optimize_base:
         defeault is None (not use inherit)
         
     """    
-    def __init__(self,func,paras_init:np.ndarray,args:tuple = (),bounds:tuple = None,**kwargs):
+    def __init__(self,func:callable,paras_init:np.ndarray|th.Tensor,args:tuple = (),bounds:tuple = None,**kwargs):
         print("optimization start")
         
         ## not inherit args
@@ -336,7 +336,7 @@ class optimize_base:
             if type(result) != dict:
                 self.error("not_dict")
             if self._torch == True:
-                self._flist = th.tensor([result.get("cost",0)])
+                self._flist = th.tensor([result.get("cost",0)], device = self._device)
                 self._x_vec = self._paras_init.clone()
             else:   
                 self._flist = np.array([result.get("cost",0)])
@@ -399,10 +399,10 @@ class optimize_base:
                 file.write("##\n")
             ## data
             if type(self._x_vec) == th.Tensor:
-                self._x_vec = self._x_vec.detach().numpy()
-                self._flist = self._flist.detach().numpy()
+                self._x_vec = self._x_vec.to("cpu").detach().numpy()
+                self._flist = self._flist.to("cpu").detach().numpy()
             with open(self._filename, "a") as file:
-                for i in range(np.size(self._flist)):
+                for i in range(self._flist.size):
                     file.write(f"{i}" + ", " +
                                 self._time_stamp[i] 
                                 + ", ")
@@ -428,10 +428,10 @@ class optimize_base:
                 ## build flist including f values
                 ## and x_vec in which x_vec[:,i] include the 
                 ## changing traj of a parameter 
-                self._flist = th.vstack((self._flist,th.tensor([f_val])))
+                self._flist = th.vstack((self._flist,th.tensor([f_val],device = self._device)))
                 self._x_vec = th.vstack((self._x_vec,x))
                 self._time_stamp = self._time_stamp + [ time.strftime("%d:%H:%M:%S",time.gmtime(local_time())) ]
-                if th.isnan(f): # nan error
+                if th.isnan(f_val): # nan error
                     self.error("nan") 
                 if self._val_only == True:
                     return f_val
@@ -479,8 +479,8 @@ class optimize_base:
                 defeault is ``"all"``
         """        
         if type(self._x_vec) == th.Tensor:
-            self._flist = self._flist.detach().numpy()
-            self._x_vec = self._x_vec.detach().numpy()
+            self._flist = self._flist.to("cpu").detach().numpy()
+            self._x_vec = self._x_vec.to("cpu").detach().numpy()
         
         _opt_plot(self._flist,self._x_vec,self._method,visual)
         
