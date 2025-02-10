@@ -206,15 +206,15 @@ def _ave_decorate(func,ave_times,ave_wait,ave_opc = "ave"):
         cost = np.array([])
         if ave_opc == "ave": # follow cost_dict
             uncer = np.array([])
-            bad = True
+            bad = False # True represent bad
             for _ in range(int(ave_times)):
                 f_dict = func(x,*args,**kwargs)
                 cost = np.hstack((cost,f_dict["cost"]))
-                uncer = np.hstack((cost,f_dict["uncer"]))
+                uncer = np.hstack((uncer,f_dict["uncer"]))
                 try:
-                    bad *= f_dict["bad"]
+                    bad *= not f_dict["bad"]
                 except:
-                    bad = False
+                    bad = True
                 time.sleep(ave_wait)
             f_dict = {"cost":np.mean(cost),"uncer":np.sqrt(np.mean(uncer**2)),"bad" : bad}
         elif ave_opc == "std": # vals only 
@@ -414,53 +414,36 @@ class optimize_base:
         # msg -> message each call
         # delay -> delay each call
         # _torch -> whether torch func
-        
         if self._torch == True:
-            def func_decorate(x,*args,**kwargs):
-                time.sleep(delay)
-                f = func(x,*args,**kwargs)
-                f_val = f.get("cost")
-                print(f"INFO RUN: {self._run_count}")
-                if msg == True:
-                    print(f"INFO cost {f_val:.6f}")
-                    print(f"INFO parameters {x}" + "\n")
-                self._run_count += 1
-                ## build flist including f values
-                ## and x_vec in which x_vec[:,i] include the 
-                ## changing traj of a parameter 
-                self._flist = th.vstack((self._flist,th.tensor([f_val],device = self._device)))
-                self._x_vec = th.vstack((self._x_vec,x))
-                self._time_stamp = self._time_stamp + [ time.strftime("%d:%H:%M:%S",time.gmtime(local_time())) ]
-                if th.isnan(f_val): # nan error
-                    self.error("nan") 
-                if self._val_only == True:
-                    return f_val
-                else:
-                    return f
+            _vstack = th.vstack
+            _isnan = th.isnan
+            exec_str = "th.tensor([f_val],device = self._device)"
         else:
-            def func_decorate(x,*args,**kwargs):
-                time.sleep(delay)
-                f = func(x,*args,**kwargs)
-                f_val = f.get("cost")
-                print(f"INFO RUN: {self._run_count}")
-                if msg == True:
-                    print(f"INFO cost {f_val:.6f}")
-                    print(f"INFO parameters {x}" + "\n")
-                self._run_count += 1
-                ## build flist including f values
-                ## and x_vec in which x_vec[:,i] include the 
-                ## changing traj of a parameter
-                self._flist = np.vstack((self._flist,f_val))
-                self._x_vec = np.vstack((self._x_vec,x))
-                self._time_stamp = self._time_stamp + [ time.strftime("%d:%H:%M:%S",time.gmtime(local_time())) ]
-                if np.isnan(f_val): # nan error
-                    self.error("nan") 
-                if self._val_only == True:
-                    return f_val
-                else:
-                    return f
+            _vstack = np.vstack
+            _isnan = np.isnan
+            exec_str = "f_val"
+        def func_decorate(x,*args,**kwargs):
+            time.sleep(delay)
+            f = func(x,*args,**kwargs)
+            f_val = f.get("cost")
+            print(f"INFO RUN: {self._run_count}")
+            if msg == True:
+                print(f"INFO cost {f_val:.6f}")
+                print(f"INFO parameters {x}" + "\n")
+            self._run_count += 1
+            ## build flist including f values
+            ## and x_vec in which x_vec[:,i] include the 
+            ## changing traj of a parameter 
+            self._flist = _vstack((self._flist,exec(exec_str)))
+            self._x_vec = _vstack((self._x_vec,x))
+            self._time_stamp = self._time_stamp + [ time.strftime("%d:%H:%M:%S",time.gmtime(local_time())) ]
+            if _isnan(f_val): # nan error
+                self.error("nan") 
+            if self._val_only == True:
+                return f_val
+            else:
+                return f
         return func_decorate
-    
     ## developers are supposed to override this method for each sub_optimizer
     def optimization(self):...
 
