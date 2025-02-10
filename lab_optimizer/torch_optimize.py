@@ -123,7 +123,7 @@ class torch_optimize(optimize_base):
         >>> opt2 = torch_optimize(func,x_opt1,bounds,args,opt_inherit = opt1) # paras_init will be automatically set to x_opt1
         >>> opt2.optimization()
         >>> opt2.visualization()
-     
+        
     """
     @staticmethod
     def _doc() -> str:
@@ -135,6 +135,7 @@ class torch_optimize(optimize_base):
         kwargs["val_only"] = True # only need cose
         kwargs["torch"] = True # activate pytorch
         kwargs["opt_inherit"] = opt_inherit
+        kwargs["extra_dict"] = extra_dict
         optimize_base.__init__(self,func,paras_init,args = args,bounds = bounds,**kwargs,_opt_type = self._doc())
         self._method = kwargs.get("method","ASGD")
         self._model = _torch_interface(self._func,paras_init,args = args).to(self._device)
@@ -148,7 +149,7 @@ class torch_optimize(optimize_base):
                 
             case "NAdam":
                 th_alg = th.optim.NAdam
-
+                
             case "LBFGS":
                 th_alg = th.optim.LBFGS
                 
@@ -172,7 +173,7 @@ class torch_optimize(optimize_base):
                 
             case "SGD":
                 th_alg = th.optim.SGD
-                                           
+
             case _:    
                 self._method = "ASGD"
                 th_alg = th.optim.ASGD

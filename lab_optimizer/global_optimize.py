@@ -135,8 +135,9 @@ class global_optimize(optimize_base):
     def __init__(self,func,paras_init:np.ndarray,bounds:tuple,args:tuple = (),extra_dict:dict = {},opt_inherit = None,**kwargs):
         kwargs["val_only"] = True # only need cost
         kwargs["opt_inherit"] = opt_inherit
+        kwargs["extra_dict"] = extra_dict
         self._method = kwargs.get("method","simulated_annealing")
-        kwargs["max_run"] = np.min([10,kwargs.get("max_run",10)])
+        kwargs["max_run"] = np.min([50,kwargs.get("max_run",10)])
         optimize_base.__init__(self,func,paras_init,args = args,bounds = bounds,**kwargs,_opt_type = self._doc())
         self._extra_dict = extra_dict
     
@@ -272,8 +273,7 @@ class global_optimize(optimize_base):
         return self.x_optimize
 
 def _main():
-    from opt_lib.test_functions import F2 as FF
-    
+    from opt_lib.test_functions import F6 as FF
     def f_dec(func):
         def wrap(x,*args,**kwargs):
             f=func(x,*args,**kwargs)
@@ -283,10 +283,10 @@ def _main():
     func = f_dec(FF)
     method = "ISMA"
 
-    init = np.array([30,-80,40,20])
-    bounds = ((-100,100),(-100,100),(-100,100),(-100,100))
-    extra_dict = dict(pop = 5)
-    opt = global_optimize(func,init,args = (),bounds = bounds,max_run = 37,delay = 0.01,method = method,extra_dict=extra_dict, log = True)
+    init = np.array([3,-0.7,0.4])
+    bounds = ((-2,2),(-2,2),(-2,2))
+    extra_dict = dict(pop = 6,local_polish = False)
+    opt = global_optimize(func,init,args = (),bounds = bounds,max_run = 30,delay = 0.01,method = method,extra_dict=extra_dict, log = True)
     opt.optimization()
     opt.visualization("classic")
     # from local_optimize import local_optimize

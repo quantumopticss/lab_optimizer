@@ -10,7 +10,8 @@ __optlib_local__ = [""]
 # to add custom defined algorithm, you need to : 
 # 0. create a XXX.py file , where XXX (class) is the name of your algrithm 
 # 1. follow the general parameters name (you can require some parameters in **extra_dict if necessary)
-# 2. provide general interface XXX.run() , XXX.x_optimize 
+# 2. follow the general IO formular , return cost for val_only and cost_dict for others 
+# 3. provide general interface XXX.run() , XXX.x_optimize 
 
 ### example:
 # ** XXX is your opt algorithm **

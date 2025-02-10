@@ -86,7 +86,7 @@ class ISMA:
         
         self._x[:,0] = paras_init
         for i in range(1,self._pop):
-            s = np.cos(2*np.pi*rand(*paras_init.shape))
+            s = np.cos(2*np.pi*rand(self._dim))
             self._x[:,i] = 0.5*( self.ub*(1+s) + self.lb*(1-s) )
 
     def run(self,mutation:float = 0.01):
