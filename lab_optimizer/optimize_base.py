@@ -80,7 +80,7 @@ def _opt_plot(flist,x_vec,method,visual = "all"):
         if x_vec.shape[1] <= 6:
             # Parallel Coordinates
             plt.figure(2,figsize=(6,6)) 
-            df_scalar['cost_range'] = pd.qcut(df_scalar['cost'],q = 15,labels = False)
+            df_scalar['cost_range'] = pd.qcut(df_scalar['cost'], q = 15, labels = False, duplicates='drop')
 
             parallel_coordinates(df_scalar, 'cost_range',colormap = "plasma")
             plt.title('Parallel Coordinates')
@@ -434,7 +434,7 @@ class optimize_base:
             ## build flist including f values
             ## and x_vec in which x_vec[:,i] include the 
             ## changing traj of a parameter 
-            self._flist = _vstack((self._flist,exec(exec_str)))
+            self._flist = _vstack((self._flist,eval(exec_str)))
             self._x_vec = _vstack((self._x_vec,x))
             self._time_stamp = self._time_stamp + [ time.strftime("%d:%H:%M:%S",time.gmtime(local_time())) ]
             if _isnan(f_val): # nan error
@@ -447,7 +447,7 @@ class optimize_base:
     ## developers are supposed to override this method for each sub_optimizer
     def optimization(self):...
 
-    def visualization(self,visual:str = "all"):
+    def visualization(self,basic_visual:str = "all", extra_visual:callable = None):
         """to visualize optimization results
         
             Args
@@ -455,17 +455,34 @@ class optimize_base:
             visual : str
                 to choose visualization figures, should be one of 
                 
-                    - ``"classic"`` : to view just cost and std-normalized traj
-                    - ``"advanced"`` : provide multidimension visualization 
-                    - ``"all"`` : all of them
+                    - "classic" : to view just cost and std-normalized traj
+                    - "advanced" : provide multidimension visualization, including : 
+                        ``t-SNE`` , ``PCA`` , ``scatter matrix`` , ``parallel coordinates``
+                    - "all" : all of them
                 
                 defeault is ``"all"``
+            
+            extra_visual : callable
+                custom defined visualization function to provide extra visualization, 
+                should be a function with following args with fixed range :
+                
+                Args
+                ---------
+                flist : np.ndarray
+                    cost list
+                x_vec : np.ndarray
+                    parameters list
+                method : str
+                    method name
         """        
         if type(self._x_vec) == th.Tensor:
             self._flist = self._flist.to("cpu").detach().numpy()
             self._x_vec = self._x_vec.to("cpu").detach().numpy()
         
-        _opt_plot(self._flist,self._x_vec,self._method,visual)
+        _opt_plot(self._flist,self._x_vec,self._method,basic_visual)
+        
+        if extra_visual != None:
+            extra_visual(self._flist,self._x_vec,self._method)
         
     def error(self,err:str) -> Exception:
         """ rasse an error
