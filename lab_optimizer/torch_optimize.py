@@ -7,12 +7,12 @@ from torch.optim.lr_scheduler import ExponentialLR
 class _torch_interface(nn.Module):
     def __init__(self,func,paras_init,args):
         super().__init__()
-        self._func1 = func
-        self._args1 = args
+        self._func = func
+        self._args = args
         self._th_params = nn.Parameter(paras_init,requires_grad = True)
         
     def forward(self):
-        cost = self._func1(self._th_params,*self._args1)
+        cost = self._func(self._th_params,*self._args)
         return cost
     
 class torch_optimize(optimize_base):
@@ -135,9 +135,9 @@ class torch_optimize(optimize_base):
         self._device = kwargs.get("device",("cuda" if th.cuda.is_available() else "cpu"))
         kwargs["val_only"] = True # only need cose
         kwargs["torch"] = True # activate pytorch
-        optimize_base.__init__(self,func,paras_init.to(self._device),args = args,bounds = bounds,**kwargs,_opt_type = self._doc(),extra_dict = extra_dict,opt_inherit = opt_inherit)
+        optimize_base.__init__(self,func,paras_init.clone().to(self._device),args = args,bounds = bounds,**kwargs,_opt_type = self._doc(),extra_dict = extra_dict,opt_inherit = opt_inherit)
         self._method = kwargs.get("method","ASGD")
-        self._model = _torch_interface(self._func,paras_init,args = args).to(self._device)
+        self._model = _torch_interface(self._func,self._paras_init,args = self._args).to(self._device)
         
         _torch_opt = ["ASGD", "SGD", "RMSprop", "Rprop" , "Adam", "AdamW", "Adamax", "Adagrad"
                     , "Adadelta", "NAdam", "RAdam" , "LBFGS" , "Adafactor"]
@@ -160,7 +160,7 @@ class torch_optimize(optimize_base):
             
             self._model.eval()
             with th.inference_mode():
-                if (n+1) % th.min(th.tensor([self._max_run//10, 500],dtype = th.int)) == 0:
+                if (n+1) % min(self._max_run//10, 500) == 0:
                     self._scheduler.step()
                     
         self.x_optimize = self._model.to("cpu").state_dict()['_th_params']

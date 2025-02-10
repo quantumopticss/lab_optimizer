@@ -136,7 +136,7 @@ class global_optimize(optimize_base):
         kwargs["val_only"] = True # only need cost
         self._method = kwargs.get("method","simulated_annealing")
         kwargs["max_run"] = np.min([50,kwargs.get("max_run",10)])
-        optimize_base.__init__(self,func,paras_init,args = args,bounds = bounds,**kwargs,_opt_type = self._doc(),extra_dict = extra_dict,opt_inherit = opt_inherit)
+        optimize_base.__init__(self,func,paras_init.copy(),args = args,bounds = bounds,**kwargs,_opt_type = self._doc(),extra_dict = extra_dict,opt_inherit = opt_inherit)
         self._extra_dict = extra_dict
     
     #### scipy algorithms
@@ -281,8 +281,8 @@ def _main():
     func = f_dec(FF)
     method = "ISMA"
 
-    init = np.array([3,-0.7,0.4])
-    bounds = ((-2,2),(-2,2),(-2,2))
+    init = np.array([30,-70,40])
+    bounds = ((-200,200),(-200,200),(-200,200))
     extra_dict = dict(pop = 6,local_polish = False)
     opt = global_optimize(func,init,args = (),bounds = bounds,max_run = 30,delay = 0.01,method = method,extra_dict=extra_dict, log = True)
     opt.optimization()

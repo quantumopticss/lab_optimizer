@@ -126,7 +126,7 @@ class mloop_optimize(optimize_base):
     def __init__(self,func,paras_init:np.ndarray,bounds:tuple,args:tuple = (),extra_dict:dict = {},opt_inherit = None,**kwargs):
         kwargs["val_only"] = False # let f return cost dict instead of a cost value
         kwargs["msg"] = None # use mloop msg
-        optimize_base.__init__(self,func,paras_init,args = args,bounds = bounds,**kwargs,_opt_type = self._doc(),extra_dict = extra_dict,opt_inherit = opt_inherit)
+        optimize_base.__init__(self,func,paras_init.copy(),args = args,bounds = bounds,**kwargs,_opt_type = self._doc(),extra_dict = extra_dict,opt_inherit = opt_inherit)
         self._method = kwargs.get("method","gaussian_process")
         if self._method == "simplex":
             self._method = "nelder_mead"

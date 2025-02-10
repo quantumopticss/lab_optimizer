@@ -123,7 +123,6 @@ class local_optimize(optimize_base):
         >>> opt2 = local_optimize(func,x_opt1,bounds,args,opt_inherit = opt1) # paras_init will be automatically set to x_opt1
         >>> opt2.optimization()
         >>> opt2.visualization()
-     
     """
     @staticmethod
     def _doc() -> str:
@@ -132,7 +131,7 @@ class local_optimize(optimize_base):
     
     def __init__(self,func,paras_init:np.ndarray,bounds:tuple,args:tuple = (),extra_dict:dict = {},opt_inherit = None,**kwargs):
         kwargs["val_only"] = True # only need cost
-        optimize_base.__init__(self,func,paras_init,args = args,bounds = bounds,**kwargs,_opt_type = self._doc(),extra_dict = extra_dict,opt_inherit = opt_inherit)
+        optimize_base.__init__(self,func,paras_init.copy(),args = args,bounds = bounds,**kwargs,_opt_type = self._doc(),extra_dict = extra_dict,opt_inherit = opt_inherit)
         self._extra_dict = extra_dict
         self._method = kwargs.get("method","simplex")
         if self._method == "simplex":

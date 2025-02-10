@@ -337,7 +337,7 @@ class optimize_base:
                 self.error("not_dict")
             if self._torch == True:
                 self._flist = th.tensor([result.get("cost",0)], device = self._device)
-                self._x_vec = self._paras_init.clone()
+                self._x_vec = self._paras_init
             else:   
                 self._flist = np.array([result.get("cost",0)])
                 self._x_vec = np.array([self._paras_init])
