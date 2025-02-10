@@ -14,7 +14,7 @@ optimization base class
 """
 
 def local_time(time_zone:float = 8.0) -> float:
-    """get local time
+    """get local time, return (time.time() + time_zone*3600.0)
     
         Args
         ---------
@@ -299,7 +299,7 @@ class optimize_base:
         
     log_file : str
         name of log name
-       
+        
     opt_inherit : class 
         inherit ``optimization results``, ``parameters`` and ``logs``
         defeault is None (not use inherit)

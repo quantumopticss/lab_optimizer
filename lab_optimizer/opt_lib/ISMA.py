@@ -95,8 +95,12 @@ class ISMA:
         Args
         ---------
         mutation : float, optional
-            mutation probability in each iteration, defaults to 0.01.
+            mutation probability in each iteration, should be in range [0,0.1], defaults to 0.01.
         """
+        ## check value
+        if mutation < 0. or mutation > 0.1:
+            raise ValueError("muttion should be in range [0,0.1]")
+        
         ## *** opt *** 
         for t in range(1,1+self._max_run):
             ## calculate value
@@ -110,7 +114,7 @@ class ISMA:
             
             ## local polish
             if self._local_polish and t%self._T == 0:
-                self._x[:,idx_max], y_max = self.polish(self._pos_func,self._x[:,idx_max],bounds = self._bounds,args = self._args)
+                self._x[:,idx_max], y_max = self.__polish(self._pos_func,self._x[:,idx_max],bounds = self._bounds,args = self._args)
             
             ## update
             u = np.arctanh(1 - t/(self._max_run))
@@ -164,13 +168,13 @@ class ISMA:
         idx_max = np.argmax(self._y)
         self.x = self._x[:,idx_max]
         
-        self.x_optimize, self.y_optimize = self.polish(self._pos_func,self.x,self._bounds,self._args)
+        self.x_optimize, self.y_optimize = self.__polish(self._pos_func,self.x,self._bounds,self._args)
         self.x = self.x_optimize
         self.y = self.y_optimize
         
         return self.x_optimize
 
-    def polish(self,func,paras_init,bounds,args = (),polish_method = "L-BFGS-B"): 
+    def __polish(self,func,paras_init,bounds,args = (),polish_method = "L-BFGS-B"): 
         """ polish opt result ( a small operate of minimizing func )
         """
         res = minimize(func,
