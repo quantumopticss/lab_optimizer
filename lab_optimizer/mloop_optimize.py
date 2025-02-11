@@ -4,23 +4,23 @@ import mloop.controllers as mlc
 from optimize_base import *
 import numpy as np
 
-class _mloops_interface(mli.Interface,optimize_base):
+class _mloops_interface(mli.Interface):
     def __init__(self,func,args):
         mli.Interface.__init__(self)
-        self._func1 = func
-        self._args1 = args
+        self._func = func
+        self._args = args
     
     #the method that runs the experiment given a set of parameters and returns a cost
     def get_next_cost_dict(self,params_dict):
 
         #The parameters come in a dictionary and are provided in a numpy array
         params = params_dict['params']
-        cost_dict = self._func1(params,*self._args1)
+        cost_dict = self._func(params,*self._args)
         
         #The cost, uncertainty and bad boolean must all be returned as a dictionary
         return cost_dict
     
-class mloop_optimize(optimize_base):
+class mloop_optimize(base_optimizer):
     """reconstructed mloop algorithms <https://m-loop.readthedocs.io/en/stable/index.html> 
         mloop is a good integrated lab used optimization algorithm, ``methods`` including:
         - ``'gaussian_process', 'neural_net', 'differential_evolution',  'simplex', 'random'``
@@ -116,21 +116,20 @@ class mloop_optimize(optimize_base):
         >>> opt2 = mloop_optimize(func,x_opt1,bounds,args,opt_inherit = opt1) # paras_init will be automatically set to x_opt1 
         >>> opt2.optimization()
         >>> opt2.visualization()
-     
     """
     @staticmethod
     def _doc() -> str:
         doc = "mloop_optimizer"
         return doc
     
-    def __init__(self,func,paras_init:np.ndarray,bounds:tuple,args:tuple = (),extra_dict:dict = {},opt_inherit = None,**kwargs):
+    def __init__(self,func:callable,paras_init:np.ndarray,bounds:tuple,args:tuple = (),extra_dict:dict = {},opt_inherit = None,**kwargs):
         kwargs["val_only"] = False # let f return cost dict instead of a cost value
         kwargs["msg"] = None # use mloop msg
-        optimize_base.__init__(self,func,paras_init.copy(),args = args,bounds = bounds,**kwargs,_opt_type = self._doc(),extra_dict = extra_dict,opt_inherit = opt_inherit)
+        base_optimizer.__init__(self,func,paras_init.copy(),args = args,bounds = bounds,**kwargs,_opt_type = self._doc(),extra_dict = extra_dict,opt_inherit = opt_inherit)
         self._method = kwargs.get("method","gaussian_process")
         if self._method == "simplex":
             self._method = "nelder_mead"
-        self._interface = _mloops_interface(self._func,args = args)
+        self._interface = _mloops_interface(self._func,args = self._args)
         
         i = len(self._bounds)
         min_bound = np.empty([i])
@@ -169,26 +168,22 @@ class mloop_optimize(optimize_base):
     
 ### operation
 def _main():
-    def func(x,a,b,c,d):
-        vec = np.array([a,b,c,d])
-        f = np.sum((x - vec)**2,axis = None) + 5*np.sum(np.cos(x-a) + np.cos(x-b) + np.sin(x-c) + np.sin(x-d)) + a*b*c*d
-        uncer = 0.1
-        bad = None
-        return_dict = {'cost':f,'uncer':uncer,'bad':bad}
-        return return_dict
-    
-    method = "gaussian_process"
-    
-    init = np.array([3,0,4,2])
-    a = 6
-    b = 8
-    c = 1
-    d = 2
-    bounds = ((-10,10),(-10,10),(-10,10),(-10,10))
-    opt = mloop_optimize(func,init,args = (a,b,c,d,),bounds = bounds,max_run = 300,delay = 0.03,method = method,val_only = True)
-    x_end = opt.optimization()
-    print(x_end)
-    opt.visualization()
+    from opt_lib.test_functions import F5 as FF
+    def f_dec(func):
+        def wrap(x,*args,**kwargs):
+            f=func(x,*args,**kwargs)
+            return dict(cost = f)
+        return wrap
+
+    func = f_dec(FF)
+    method = "simplex"
+
+    init = np.array([1.2,-1.1,1.4])
+    bounds = ((-2,2),(-2,2),(-2,2))
+    extra_dict = {} #dict(pop = 6,local_polish = False)
+    opt = mloop_optimize(func,init,args = (),bounds = bounds,max_run = 100,delay = 0.01,method = method,extra_dict=extra_dict, log = True)
+    opt.optimization()
+    opt.visualization("all")
 
 if __name__ == '__main__':
     _main()
