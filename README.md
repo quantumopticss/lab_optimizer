@@ -212,6 +212,12 @@ Documentation
   - 'AdamW'
   - 'Adamax'
 
+- other build_in functions : 
+
+  - local_time : get local time since the epoch, return (time.time() + time_zone*3600.0)
+  - log_visual : view optimization results from log 
+  - opt_random_seed : set random seeds for numpy and torch module to ensure the repeatability of experiments
+
 ReleaseNotes
 ---------
 - 1.1.x 

@@ -41,7 +41,7 @@ from . import units
 
 del os, sys
 def opt_random_seed(np_seed:int = 37, th_seed:int = 37):
-    """Set random seeds to ensure the repeatability of experiments
+    """set random seeds for numpy and torch module to ensure the repeatability of experiments
 
     Args
     ---------

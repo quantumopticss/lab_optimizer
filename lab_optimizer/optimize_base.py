@@ -14,7 +14,7 @@ optimization base class
 """
 
 def local_time(time_zone:float = 8.0) -> float:
-    """get local time, return (time.time() + time_zone*3600.0)
+    """get local time since the epoch, return (time.time() + time_zone*3600.0)
     
         Args
         ---------
@@ -227,7 +227,7 @@ def _ave_decorate(func,ave_times,ave_wait,ave_opc = "ave"):
         return f_dict
     return ave_func
 
-class optimize_Exception(Exception):
+class __optimize_Exception(Exception):
     def __init__(self,err_msg:str) -> Exception:
         """cls to handle exceptions
         
@@ -439,10 +439,8 @@ class optimize_base:
             self._time_stamp = self._time_stamp + [ time.strftime("%d:%H:%M:%S",time.gmtime(local_time())) ]
             if _isnan(f_val): # nan error
                 self.error("nan") 
-            if self._val_only == True:
-                return f_val
-            else:
-                return f
+            return (f_val if self._val_only == True else f)
+            
         return func_decorate
     ## developers are supposed to override this method for each sub_optimizer
     def optimization(self):...
@@ -497,12 +495,12 @@ class optimize_base:
         optimize_Exception : Exception
 
         """
-        err_msg = optimize_Exception.err_dict(err)
+        err_msg = __optimize_Exception.err_dict(err)
         try:
             self._logging(err_msg)
         except:
             pass
-        raise optimize_Exception(err_msg)
+        raise __optimize_Exception(err_msg)
 
 if __name__ == "__main__":
     path = "labopt_logs/lab_opt_2025_01_06/err_optimization__2025-01-06-17-37__simplex__.txt"
