@@ -176,7 +176,7 @@ class torch_optimize(optimize_base):
         return self.x_optimize
 
 def _main():
-    from opt_lib.test_functions import F10 as FF
+    from opt_lib.test_functions import F1 as FF
     def f_dec(func):
         def wrap(x,*args,**kwargs):
             f=func(x,*args,**kwargs)
@@ -188,8 +188,8 @@ def _main():
     init = th.tensor([30.,10.,40.,-30.])
     bounds = ((-100,100),(-100,100),(-100,100),(-100,100))
     # 'SGD', 'Adam','RMSprop','ASGD','AdamW', 'SparseAdam'
-    method = "AdamW"
-    opt1 = torch_optimize(func,init,args = (),bounds = bounds,max_run = 50,delay = 0.02,method = method,lr = 0.03, lr_clt = 0.9,log = True,device = "cpu")
+    method = "ASGD"
+    opt1 = torch_optimize(func,init,args = (),bounds = bounds,max_run = 50,delay = 0.02,method = method,lr = 0.05, lr_clt = 0.9,log = True,device = "cuda")
     x_end =  opt1.optimization()
     opt1.visualization()
     # opt2 = torch_optimize(func,init,args = (a,b,c,d),bounds = bounds,max_run = 10,delay = 0.02,method = "SGD",lr = 0.05, lr_clt = 0.9,log = True,opt_inherit=opt1)

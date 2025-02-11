@@ -283,8 +283,8 @@ def _main():
 
     init = np.array([30,-70,40])
     bounds = ((-200,200),(-200,200),(-200,200))
-    extra_dict = dict(pop = 6,local_polish = False)
-    opt = global_optimize(func,init,args = (),bounds = bounds,max_run = 20,delay = 0.01,method = method,extra_dict=extra_dict, log = True)
+    extra_dict = dict(pop = 10,local_polish = False)
+    opt = global_optimize(func,init,args = (),bounds = bounds,max_run = 15,delay = 0.01,method = method,extra_dict=extra_dict, log = True)
     opt.optimization()
     opt.visualization("all")
     # from local_optimize import local_optimize
