@@ -259,7 +259,7 @@ class __optimize_Exception(Exception):
         )
         return error_dict[err_key]
 
-class optimize_base:
+class base_optimizer:
     """optimize_base class
     
     Args:

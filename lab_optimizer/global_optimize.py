@@ -2,7 +2,7 @@ from optimize_base import *
 import numpy as np
 from opt_lib import __optlib_global__ as optlib_global
 
-class global_optimize(optimize_base):
+class global_optimize(base_optimizer):
     """reconstructed global optmization algorithms:
         ``"dual_annealing", "differential_evolution", "direct", "shgo", "particle_swarm", "genetic"``
         we recommend using ``"dual_annealing", "differential_evolution", "direct"`` which are more efficient
@@ -132,11 +132,11 @@ class global_optimize(optimize_base):
         doc = "global_optimizer"
         return doc
     
-    def __init__(self,func,paras_init:np.ndarray,bounds:tuple,args:tuple = (),extra_dict:dict = {},opt_inherit = None,**kwargs):
+    def __init__(self,func:callable,paras_init:np.ndarray,bounds:tuple,args:tuple = (),extra_dict:dict = {},opt_inherit = None,**kwargs):
         kwargs["val_only"] = True # only need cost
         self._method = kwargs.get("method","simulated_annealing")
         kwargs["max_run"] = np.min([50,kwargs.get("max_run",10)])
-        optimize_base.__init__(self,func,paras_init.copy(),args = args,bounds = bounds,**kwargs,_opt_type = self._doc(),extra_dict = extra_dict,opt_inherit = opt_inherit)
+        base_optimizer.__init__(self,func,paras_init.copy(),args = args,bounds = bounds,**kwargs,_opt_type = self._doc(),extra_dict = extra_dict,opt_inherit = opt_inherit)
         self._extra_dict = extra_dict
     
     #### scipy algorithms

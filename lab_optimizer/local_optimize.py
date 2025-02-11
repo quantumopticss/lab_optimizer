@@ -3,7 +3,7 @@ from scipy.optimize import minimize
 import numpy as np
 from opt_lib import __optlib_local__ as optlib_local
 
-class local_optimize(optimize_base):
+class local_optimize(base_optimizer):
     """reconstructed scipy.optmize.minimize, which is a ``local optimization algorithm`` we recommend using 
     - ``"simplex" - Nelder_Mead``, ``"Powell"``, ``"CG"``, ``BFGS``, ``L-BFGS-B``,``"TNC", "COBYLA", "COBYQA", "SLSQP"``,
     they can be directly called, no foreced extra needs in extra_dict
@@ -129,9 +129,9 @@ class local_optimize(optimize_base):
         doc = "local_optimizer"
         return doc
     
-    def __init__(self,func,paras_init:np.ndarray,bounds:tuple,args:tuple = (),extra_dict:dict = {},opt_inherit = None,**kwargs):
+    def __init__(self,func:callable,paras_init:np.ndarray,bounds:tuple,args:tuple = (),extra_dict:dict = {},opt_inherit = None,**kwargs):
         kwargs["val_only"] = True # only need cost
-        optimize_base.__init__(self,func,paras_init.copy(),args = args,bounds = bounds,**kwargs,_opt_type = self._doc(),extra_dict = extra_dict,opt_inherit = opt_inherit)
+        base_optimizer.__init__(self,func,paras_init.copy(),args = args,bounds = bounds,**kwargs,_opt_type = self._doc(),extra_dict = extra_dict,opt_inherit = opt_inherit)
         self._extra_dict = extra_dict
         self._method = kwargs.get("method","simplex")
         if self._method == "simplex":

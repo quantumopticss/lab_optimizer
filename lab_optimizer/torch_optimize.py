@@ -15,7 +15,7 @@ class _torch_interface(nn.Module):
         cost = self._func(self._th_params,*self._args)
         return cost
     
-class torch_optimize(optimize_base):
+class torch_optimize(base_optimizer):
     """reconstructed pytorch ``gradient descent algorithm family``
 
             - 'ASGD' (defeault)
@@ -131,11 +131,11 @@ class torch_optimize(optimize_base):
         doc = "torch_optimizer"
         return doc
     
-    def __init__(self,func,paras_init:th.Tensor,bounds:tuple = None,args:tuple = (),extra_dict:dict = {},opt_inherit = None,**kwargs):
+    def __init__(self,func:callable,paras_init:th.Tensor,bounds:tuple = None,args:tuple = (),extra_dict:dict = {},opt_inherit = None,**kwargs):
         self._device = kwargs.get("device",("cuda" if th.cuda.is_available() else "cpu"))
         kwargs["val_only"] = True # only need cose
         kwargs["torch"] = True # activate pytorch
-        optimize_base.__init__(self,func,paras_init.clone().to(self._device),args = args,bounds = bounds,**kwargs,_opt_type = self._doc(),extra_dict = extra_dict,opt_inherit = opt_inherit)
+        base_optimizer.__init__(self,func,paras_init.clone().to(self._device),args = args,bounds = bounds,**kwargs,_opt_type = self._doc(),extra_dict = extra_dict,opt_inherit = opt_inherit)
         self._method = kwargs.get("method","ASGD")
         self._model = _torch_interface(self._func,self._paras_init,args = self._args).to(self._device)
         
