@@ -25,7 +25,7 @@ def local_time(time_zone:float = 8.0) -> float:
     t = time.time() + time_zone*3600.0
     return t
 
-def _opt_plot(flist,x_vec,method,visual = "all"):
+def _opt_plot(flist,x_vec,method,visual = "all",_show_opc:bool = True):
     print("making visualizing figures")
     match visual:
         case "classic":
@@ -37,7 +37,8 @@ def _opt_plot(flist,x_vec,method,visual = "all"):
     N,M = x_vec.shape
     ## classic : traj & cost vs rounds
     if "classic" in visual:
-        plt.figure(figsize=(12, 6))
+        print("classic")
+        plt.figure(999,figsize=(13, 6))
         plt.subplot(1,2,1) # cost vs round
         timelist = np.arange(N)
         plt.plot(timelist,flist,label = "f value")
@@ -81,8 +82,7 @@ def _opt_plot(flist,x_vec,method,visual = "all"):
         
         if x_vec.shape[1] <= 6:
             # Parallel Coordinates
-            print("parallel coordinates")
-            plt.figure(2,figsize=(6,6)) 
+            plt.figure(1000,figsize=(6,6)) 
             df_scalar['cost_range'] = pd.qcut(df_scalar['cost'], q = 15, labels = False, duplicates='drop')
 
             parallel_coordinates(df_scalar, 'cost_range',colormap = "plasma")
@@ -95,9 +95,9 @@ def _opt_plot(flist,x_vec,method,visual = "all"):
                         hue = "cost", palette = 'viridis', diag_kind = 'hist',
                         plot_kws = {'alpha':0.8},height = 8.1/(x_vec.shape[1]))
             plt.title("scatter matrix")
+            print("parallel coordinates")
         
         ## PCA
-        print("PCA")
         pca = PCA(n_components=3)
         df['iter'] = range(1,len(df)+1)
         data_pca = pca.fit_transform(x_vec)
@@ -123,9 +123,9 @@ def _opt_plot(flist,x_vec,method,visual = "all"):
                 zaxis=dict(title="PCA3, comp = " + str(comp[2]) + f", contribute = {variance_ratio[2]*100:.2f}%")
                     )
             )
+        print("PCA")
                 
         ## t-SNE
-        print("t_SNE")
         tsne = TSNE(n_components = 3,perplexity=np.min([30,2 + x_vec.shape[0]//11]),max_iter = 1000)
         data_tsne = tsne.fit_transform(x_vec)
         df["tsne1"] = data_tsne[:,0]
@@ -135,13 +135,14 @@ def _opt_plot(flist,x_vec,method,visual = "all"):
                                 title = "high dimension visual @ TSNE , focus on ** Clusters **",
                                 labels = {"cost":"cost"},hover_data = [f"x{i}" for i in range(x_vec.shape[1])])
         fig2.update_traces(marker=dict(line=dict(width=0.5, color='DarkSlateGrey',colorscale='viridis')),opacity=0.8)
+        print("t_SNE")
         
         fig1.show()
         fig2.show()
         
-    plt.show()
+    plt.show(block = _show_opc) # interpreter will run next line without stopping
 
-def log_visiual(path:str,visual:str = "all"):
+def log_visiual(path:str,visual:str = "all",extra_visual:callable = None):
     """view optimization results from log  
 
         Args
@@ -152,14 +153,28 @@ def log_visiual(path:str,visual:str = "all"):
         visual : str
             to choose visualization figures, should be one of 
             
-                - ``"classic"`` : to view just cost and std-normalized traj
-                - ``"advanced"`` : provide multidimension visualization 
-                - ``otherwise`` : all of them
+                - "classic" : to view just cost and std-normalized traj
+                - "advanced" : provide multidimension visualization, including : 
+                    ``t-SNE`` , ``PCA`` , ``scatter matrix`` , ``parallel coordinates``
+                - "all" : all of them
             
             defeault is ``"all"``
+        
+        extra_visual : callable
+            custom defined visualization function to provide extra visualization, \
+            should be a function with following args with fixed range : def extra_visual(flist,x_vec,method):...
+            
+                Args
+                ---------
+                flist : np.ndarray
+                    cost list
+                x_vec : np.ndarray
+                    parameters list
+                method : str
+                    method name
     """
     def converter(s):
-        s = s[1:-2].decode('utf-8')
+        s = s[1:-2]
         # Split the string into individual numbers and convert them to floats
         return np.array([float(x) for x in s.split(',')])
 
@@ -173,7 +188,7 @@ def log_visiual(path:str,visual:str = "all"):
             if f_msgs == "##":
                 break
     
-    data_list = np.loadtxt(path,skiprows = head_numbers,usecols=(2),converters = {2: converter},dtype = object)
+    data_list = np.loadtxt(path,skiprows = head_numbers,usecols=(2),converters = converter,delimiter=' ',dtype = object)
     value_list = np.loadtxt(path,skiprows = head_numbers,usecols=(3))
     
     x_list = np.array([data_list[0]])
@@ -186,7 +201,15 @@ def log_visiual(path:str,visual:str = "all"):
     f_list = np.reshape(f_list,[-1,1])
     x_list = x_list[valid_flist.flatten(),:]
     
-    _opt_plot(f_list,x_list,"from log : " + os.path.basename(path),visual)
+    if extra_visual is not None:
+        _opt_plot(f_list,x_list,"from log : " + os.path.basename(path),visual,False)
+        try:
+            extra_visual(f_list,x_list,"from log : " + os.path.basename(path))
+        except:
+            pass
+        plt.show()
+    else:
+        _opt_plot(f_list,x_list,"from log : " + os.path.basename(path),visual,True)
 
 def _ave_decorate(func,ave_times,ave_wait,ave_opc = "ave"):
     """average decorator:
@@ -441,7 +464,7 @@ class base_optimizer:
     ## developers are supposed to override this method for each sub_optimizer
     def optimization(self):...
 
-    def visualization(self,basic_visual:str = "all", extra_visual:callable = None):
+    def visualization(self,visual:str = "all",extra_visual:callable = None):
         """to visualize optimization results
         
             Args
@@ -457,17 +480,17 @@ class base_optimizer:
                 defeault is ``"all"``
             
             extra_visual : callable
-                custom defined visualization function to provide extra visualization, 
-                should be a function with following args with fixed range :
+                custom defined visualization function to provide extra visualization, \
+                should be a function with following args with fixed range : def extra_visual(flist,x_vec,method):...
                 
-                Args
-                ---------
-                flist : np.ndarray
-                    cost list
-                x_vec : np.ndarray
-                    parameters list
-                method : str
-                    method name
+                    Args
+                    ---------
+                    flist : np.ndarray
+                        cost list
+                    x_vec : np.ndarray
+                        parameters list
+                    method : str
+                        method name
         """ 
         if type(self._flist) == list:
             if self._torch == True:
@@ -477,10 +500,15 @@ class base_optimizer:
                 self._flist = np.array(self._flist)
                 self._x_vec = np.array(self._x_vec)
         
-        _opt_plot(self._flist,self._x_vec,self._method,basic_visual)
-        
-        if extra_visual != None:
-            extra_visual(self._flist,self._x_vec,self._method)
+        if extra_visual is not None:
+            _opt_plot(self._flist,self._x_vec,self._method,visual)
+            try:
+                extra_visual(self._flist,self._x_vec,self._method)
+            except:
+                pass
+            plt.show()
+        else:
+            _opt_plot(self._flist,self._x_vec,self._method,visual)
         
     def error(self,err:str) -> Exception:
         """ rasse an error
@@ -503,5 +531,11 @@ class base_optimizer:
         raise __optimize_Exception(err_msg)
 
 if __name__ == "__main__":
-    path = "labopt_logs/lab_opt_2025_01_06/err_optimization__2025-01-06-17-37__simplex__.txt"
-    log_visiual(path)
+    def extra_vis(flist,x_vec,method):
+        print("extra")
+        plt.figure(1)
+        plt.plot(flist,flist)
+        plt.show()
+    
+    path = "labopt_logs/lab_opt_2025_02_11/optimization__2025-02-11-22-03__simplex__.txt"
+    log_visiual(path,visual="all",extra_visual=extra_vis)
