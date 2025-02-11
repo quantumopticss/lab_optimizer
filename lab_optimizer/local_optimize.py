@@ -176,7 +176,7 @@ def _main():
     extra_dict = {} #dict(pop = 6,local_polish = False)
     opt = local_optimize(func,init,args = (),bounds = bounds,max_run = 100,delay = 0.01,method = method,extra_dict=extra_dict, log = True)
     opt.optimization()
-    opt.visualization("classic")
+    opt.visualization("all")
     # from local_optimize import local_optimize
     # opt2 = local_optimize(func,init,args = (),bounds = bounds,max_run = 10,delay = 0.002,method = "L-BFGS-B",val_only = True, log = True,msg = True,opt_inherit = opt)
     # x_end = opt2.optimization()
