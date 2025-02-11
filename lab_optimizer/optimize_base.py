@@ -49,7 +49,7 @@ def _opt_plot(flist,x_vec,method,visual = "all"):
         plt.subplot(1,2,2) # std-normal traj
         for i in range(M):
             plot_vec = x_vec[:,i]
-            normal = np.std(plot_vec)
+            normal = np.std(plot_vec) + abs(mean[i])*1e-10      
             plot_vec = (plot_vec - mean[i])/normal
             plt.scatter(timelist,plot_vec,label = f"times vs paras-{i} with : [amp-std = {normal:.4f} , mean = {mean[i]:.3f}]")
         plt.legend()
@@ -58,6 +58,7 @@ def _opt_plot(flist,x_vec,method,visual = "all"):
     
     # advanced : higher dimensional visualizing
     if "advanced" in visual:
+        os.environ["LOKY_MAX_CPU_COUNT"] = "4"  # Use logical cores
         import plotly.express as px
         import pandas as pd
         from sklearn.decomposition import PCA
@@ -72,6 +73,7 @@ def _opt_plot(flist,x_vec,method,visual = "all"):
         df['cost'] = flist
         
         # scalar x and f
+        flist = np.reshape(flist,[flist.size,1])
         x_vec_scalar = scalar.fit_transform(x_vec)
         flist_scalar = scalar.fit_transform(flist)
         df_scalar = pd.DataFrame(x_vec_scalar,columns=[f"x{i}" for i in range(x_vec.shape[1])])
@@ -79,6 +81,7 @@ def _opt_plot(flist,x_vec,method,visual = "all"):
         
         if x_vec.shape[1] <= 6:
             # Parallel Coordinates
+            print("parallel coordinates")
             plt.figure(2,figsize=(6,6)) 
             df_scalar['cost_range'] = pd.qcut(df_scalar['cost'], q = 15, labels = False, duplicates='drop')
 
@@ -94,6 +97,7 @@ def _opt_plot(flist,x_vec,method,visual = "all"):
             plt.title("scatter matrix")
         
         ## PCA
+        print("PCA")
         pca = PCA(n_components=3)
         df['iter'] = range(1,len(df)+1)
         data_pca = pca.fit_transform(x_vec)
@@ -121,6 +125,7 @@ def _opt_plot(flist,x_vec,method,visual = "all"):
             )
                 
         ## t-SNE
+        print("t_SNE")
         tsne = TSNE(n_components = 3,perplexity=np.min([30,2 + x_vec.shape[0]//11]),max_iter = 1000)
         data_tsne = tsne.fit_transform(x_vec)
         df["tsne1"] = data_tsne[:,0]
@@ -331,16 +336,11 @@ class optimize_base:
             self._run_count = self.opt_inherit._run_count
             self._ave_dict = self.opt_inherit._ave_dict
         else: # if no inherit
+            ## store np/th result in list
             self._paras_init = paras_init
-            result = func(self._paras_init,*args)
-            if type(result) != dict:
-                self.error("not_dict")
-            if self._torch == True:
-                self._flist = th.tensor([result.get("cost",0)], device = self._device)
-                self._x_vec = self._paras_init
-            else:   
-                self._flist = np.array([result.get("cost",0)])
-                self._x_vec = np.array([self._paras_init])
+            self._flist = []
+            self._x_vec = []
+            
             self._time_stamp = [time.strftime("%d:%H:%M:%S",time.gmtime(self._time_start))]
             log_head_inhert = ""
             self._filename = kwargs.get("logfile","optimization__" + time.strftime("%Y-%m-%d-%H-%M",time.gmtime(self._time_start)) + "__" + kwargs.get("method","None") + "__" + ".txt")
@@ -398,34 +398,33 @@ class optimize_base:
                 file.write("form : " + "rounds, time, parameters, cost " + "\n\n")
                 file.write("##\n")
             ## data
-            if type(self._x_vec) == th.Tensor:
-                self._x_vec = self._x_vec.to("cpu").detach().numpy()
-                self._flist = self._flist.to("cpu").detach().numpy()
+            if type(self._flist) == list:
+                if self._torch == True:
+                    self._flist = th.stack(self._flist).cpu().detach().numpy()
+                    self._x_vec = th.stack(self._x_vec).cpu().detach().numpy()
+                else:
+                    self._flist = np.array(self._flist)
+                    self._x_vec = np.array(self._x_vec)
             with open(self._filename, "a") as file:
                 for i in range(self._flist.size):
                     file.write(f"{i}" + ", " +
                                 self._time_stamp[i] 
                                 + ", ")
                     file.write("[" + ",".join(map(str,self._x_vec[i])) + "]")
-                    file.write(", " + f"{self._flist[i,0]}" + "\n")
+                    file.write(", " + f"{self._flist[i]}" + "\n")
     
     def _decorate(self,func,delay = 0.1,msg = True):
         ## decorate optimization function:
         # msg -> message each call
         # delay -> delay each call
         # _torch -> whether torch func
-        if self._torch == True:
-            _vstack = th.vstack
-            _isnan = th.isnan
-            exec_str = "th.tensor([f_val],device = self._device)"
-        else:
-            _vstack = np.vstack
-            _isnan = np.isnan
-            exec_str = "f_val"
+        _isnan, eval_str = (th.isnan, "x.clone()") if self._torch == True else (np.isnan, "x.copy()")
         def func_decorate(x,*args,**kwargs):
             time.sleep(delay)
             f = func(x,*args,**kwargs)
             f_val = f.get("cost")
+            if _isnan(f_val): # nan error
+                self.error("nan") 
             print(f"INFO RUN: {self._run_count}")
             if msg == True:
                 print(f"INFO cost {f_val:.6f}")
@@ -433,12 +432,9 @@ class optimize_base:
             self._run_count += 1
             ## build flist including f values
             ## and x_vec in which x_vec[:,i] include the 
-            ## changing traj of a parameter 
-            self._flist = _vstack((self._flist,eval(exec_str)))
-            self._x_vec = _vstack((self._x_vec,x))
+            self._flist.append(f_val)
+            self._x_vec.append(eval(eval_str))
             self._time_stamp = self._time_stamp + [ time.strftime("%d:%H:%M:%S",time.gmtime(local_time())) ]
-            if _isnan(f_val): # nan error
-                self.error("nan") 
             return (f_val if self._val_only == True else f)
             
         return func_decorate
@@ -472,10 +468,14 @@ class optimize_base:
                     parameters list
                 method : str
                     method name
-        """        
-        if type(self._x_vec) == th.Tensor:
-            self._flist = self._flist.to("cpu").detach().numpy()
-            self._x_vec = self._x_vec.to("cpu").detach().numpy()
+        """ 
+        if type(self._flist) == list:
+            if self._torch == True:
+                self._flist = th.stack(self._flist).cpu().detach().numpy()
+                self._x_vec = th.stack(self._x_vec).cpu().detach().numpy()
+            else:
+                self._flist = np.array(self._flist)
+                self._x_vec = np.array(self._x_vec)
         
         _opt_plot(self._flist,self._x_vec,self._method,basic_visual)
         
