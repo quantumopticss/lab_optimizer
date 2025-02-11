@@ -171,7 +171,7 @@ def _main():
     func = f_dec(FF)
     method = "simplex"
 
-    init = np.array([1.2,-1.1,1.4])
+    init = np.array([1.2,-1.1,-1.4])
     bounds = ((-2,2),(-2,2),(-2,2))
     extra_dict = {} #dict(pop = 6,local_polish = False)
     opt = local_optimize(func,init,args = (),bounds = bounds,max_run = 100,delay = 0.01,method = method,extra_dict=extra_dict, log = True)
