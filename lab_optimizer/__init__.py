@@ -17,7 +17,7 @@ Provides
     5. powerful visualization tools
     6. physics constants and units conversion 
     7. lab_optimizer examples
-    8. flexible custom opt algorithm API
+    8. flexible custom opt algorithm API and visualization API
 
 MIT License
 
