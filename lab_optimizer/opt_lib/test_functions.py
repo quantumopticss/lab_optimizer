@@ -89,6 +89,7 @@ def F9(x: Union[np.ndarray,th.Tensor,float]):
 def F10(x: Union[np.ndarray,th.Tensor,float]):
     r"""f = 20 + e - 20*exp( -0.2\sqrt{ 1/dim * \sum_{i=1}^{dim} x_i^2 } ) - exp(1/dim \sum_{i=1}^{dim} cos(2 \PI x_i))
     """
+    ## np.e is equivalent to th.e to 2.7182818284...
     if isinstance(x, (np.ndarray, th.Tensor)):
         if isinstance(x, th.Tensor):
             _exp = th.exp
@@ -136,6 +137,7 @@ def y(x:float):
 def F12(x:np.ndarray|th.Tensor):
     r"""f = \sum_{i}^{dim} u(x_i,5,100,4) + \frac{\pi}{dim} \left[ 10 \sin^2(\pi*y1) + \sum_{i=1}{dim-1} (y_i-1)**2 (1 + 10 \sin^2(\pi y_{i+1})) + (y_{dim} -1)**2 \right]
     """
+    ## np.pi is equivalent to th.pi to 3.1415926...
     _sin, _pi = (th.sin, th.pi, ) if isinstance(x, th.Tensor) else (np.sin, np.pi, )
     f = u(x,5,100,4).sum() + _pi/len(x)*( 10*_sin(_pi*y(x[0]))**2 + ( (y(x[0:-1])-1)**2 * (1 + 10*_sin(_pi*y(x[1:]))**2)).sum() + (y(x[-1])-1)**2  )
     return f
@@ -145,6 +147,7 @@ def F13(x: Union[np.ndarray,th.Tensor]):
     \sin^2(3 \pi x_1) + \sum_{i=1}^{dim-1} (x_i - 1)^2 ( 1 + \sin^2(3 \pi x_{i+1}) )
     ) + \sum_{i=1}^{dim} u(x_i,5,100,4)
     """
+    ## np.pi is equivalent to th.pi to 3.1415926...
     _sin, _pi = (th.sin, th.pi, ) if isinstance(x, th.Tensor) else (np.sin, np.pi, )
     f = 0.1 * ( _sin(3*_pi*x[0])**2 + ( (x[0:-1]-1)**2 * (1 + _sin(3*_pi*x[1:])**2) ).sum() ) + u(x,5,100,4).sum()
     return f
