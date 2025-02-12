@@ -52,10 +52,10 @@ class torch_optimize(base_optimizer):
 
                 ``fun(x, *args) -> dict : {'cost':th.float, 'uncer':th.float, 'bad':bool}``
                 
-            where ``cost`` is the value to minimize, ``uncer`` is uncertainty,
-            ``bad`` is the judge whether this value is bad (bad = True) for this cost
+            where ``cost`` is the value to minimize (nan will raise an error), ``uncer`` is uncertainty of cost,
+            ``bad`` is the judge whether this value is bad (True means bad) for this cost
             
-            if you set val_only = True, then you can set bad and uncer to anything because they will not be used and default is True
+            f you set val_only = True, then ``bad`` and ``uncer`` will not be used and default is val_only = True
 
             ``x`` is a ``1-D tensor`` with shape (n,) and ``args``
             is a tuple of the fixed parameters needed to completely
