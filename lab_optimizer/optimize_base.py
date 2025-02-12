@@ -371,7 +371,7 @@ class base_optimizer:
             self._run_count = 0
             
         ## create log head
-        if self._log == True or self._log == "inherit":
+        if self._log or self._log == "inherit":
             self._log_head = log_head_inhert + (
                 "start_time : " + time.strftime("%Y_%m_%d_%H:%M:%S",time.gmtime(local_time())) + " * " + "\n" +
                 "opt_alg : " + kwargs.get("_opt_type","None") + " @ " + kwargs.get("method","None") + "\n" +
@@ -384,7 +384,7 @@ class base_optimizer:
 
         # decorate func
         ## using average
-        if self._ave_dict.get("ave",False) == True and self._torch == False:
+        if self._ave_dict.get("ave",False) and self._torch == False:
             func = _ave_decorate(func,self._ave_dict.get("ave_times",3),self._ave_dict.get("ave_wait",0.01))
         
         ## normal decorate
@@ -404,7 +404,7 @@ class base_optimizer:
         print("\nthe optimization progress costs:")
         print(f"hh:mm:ss = {f_delta_t}\n")
         
-        if self._log == True or err_msg != "":
+        if self._log == True or err_msg != "": ## log == "inherit" -> not writting log
             ## folder
             os.makedirs("labopt_logs", exist_ok=True)
             sub_folder = os.path.join("labopt_logs","lab_opt_" + time.strftime("%Y_%m_%d",time.gmtime(self._time_start)) )
@@ -422,7 +422,7 @@ class base_optimizer:
                 file.write("##\n")
             ## data
             if type(self._flist) == list:
-                if self._torch == True:
+                if self._torch :
                     self._flist = th.stack(self._flist).cpu().detach().numpy()
                     self._x_vec = th.stack(self._x_vec).cpu().detach().numpy()
                 else:
@@ -441,7 +441,7 @@ class base_optimizer:
         # msg -> message each call
         # delay -> delay each call
         # _torch -> whether torch func
-        _isnan, eval_str = (th.isnan, "x.clone()") if self._torch == True else (np.isnan, "x.copy()")
+        _isnan, eval_str = (th.isnan, "x.clone()") if self._torch else (np.isnan, "x.copy()")
         def func_decorate(x,*args,**kwargs):
             time.sleep(delay)
             f = func(x,*args,**kwargs)
@@ -449,7 +449,7 @@ class base_optimizer:
             if _isnan(f_val): # nan error
                 self.error("nan") 
             print(f"INFO RUN: {self._run_count}")
-            if msg == True:
+            if msg:
                 print(f"INFO cost {f_val:.6f}")
                 print(f"INFO parameters {x}" + "\n")
             self._run_count += 1
@@ -458,7 +458,7 @@ class base_optimizer:
             self._flist.append(f_val)
             self._x_vec.append(eval(eval_str))
             self._time_stamp = self._time_stamp + [ time.strftime("%d:%H:%M:%S",time.gmtime(local_time())) ]
-            return (f_val if self._val_only == True else f)
+            return (f_val if self._val_only else f)
             
         return func_decorate
     ## developers are supposed to override this method for each sub_optimizer
@@ -493,7 +493,7 @@ class base_optimizer:
                         method name
         """ 
         if type(self._flist) == list:
-            if self._torch == True:
+            if self._torch:
                 self._flist = th.stack(self._flist).cpu().detach().numpy()
                 self._x_vec = th.stack(self._x_vec).cpu().detach().numpy()
             else:
