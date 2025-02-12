@@ -282,6 +282,43 @@ class __optimize_Exception(Exception):
         )
         return error_dict[err_key]
 
+class __opt_agent_model:
+    def __init__(self,model:str = "gaussian_process",extra_dict:dict = {},load_path:str = None):
+        pass
+    def train(self,X_train:np.ndarray,Y_train:float):
+        pass
+    def predict(self,X_pred:np.ndarray) -> float:
+        pass
+    def save(self,save_path:str):
+        """save agent model
+
+        Args
+        ---------
+        save_path : str
+            path to save, defeault is /opt_agent_model/...
+        """
+        if path == None:
+            ## folder
+            os.makedirs("opt_agent_model", exist_ok=True)
+            sub_folder = os.path.join("opt_agent_model","opt_agent_model" + time.strftime("%Y_%m_%d",time.gmtime(time.time())) )
+            os.makedirs(sub_folder, exist_ok=True)
+            self._filename = os.path.join(sub_folder, self._filename) 
+            ## save
+            ...
+        else:
+            ## save
+            ...
+            
+    def load(self,load_path:str):
+        """load agent model
+
+        Args
+        ---------
+        load_path : str
+            path of agent model to load
+        """
+        pass
+
 class base_optimizer:
     """optimize_base class
     
