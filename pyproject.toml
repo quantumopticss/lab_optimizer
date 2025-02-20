@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lab_optimizer"
+version = "1.2.4"
+authors = [{ name = "Zifeng Li", email = "221503020@smail.nju.edu.cn" }]
+description = "A collection of optimization algorithms"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+dependencies = [
+    "M-LOOP>=3.3.5",
+    "scikit-opt>=0.6.6",
+    "scikit-learn>=1.2.2",
+    "numpy>=1.26.4",
+    "scipy>=1.14.0",
+    "matplotlib>=3.9.2",
+    "pandas>=1.5.3",
+    "seaborn>=0.12.2",
+    "plotly>=5.24.1",
+    "torch>=2.3.1"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/quantumopticss/lab_optimizer"

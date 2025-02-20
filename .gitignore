@@ -1,0 +1,6 @@
+
+.codegpt
+*.pyc
+/lab_optimizer/__pycache__
+*.pyc
+lab_optimizer/__pycache__/local_optimize.cpython-310.pyc
