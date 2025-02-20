@@ -514,8 +514,7 @@ class base_optimizer:
         """
         
         # if there are err_msg , we will add special head !!_ in log
-        if err_msg != "":
-            self._filename = "err_" + self._filename
+        self._filename = "err_" + self._filename if err_msg != "" else self._filename
             
         self._time_end = local_time()
         delta_t = self._time_end - self._time_start
