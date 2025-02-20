@@ -298,7 +298,6 @@ class _opt_plot:
         # advanced : higher dimensional visualizing
         if "advanced" in visual:
             from multiprocessing import Pool
-            
             os.environ["LOKY_MAX_CPU_COUNT"] = "4"  # Use logical cores
             from pandas import DataFrame
             from pandas.plotting import parallel_coordinates
