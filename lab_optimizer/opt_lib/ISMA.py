@@ -7,8 +7,7 @@ from scipy.optimize import minimize
 from numpy.random import rand
 
 class ISMA:
-    @staticmethod
-    def _doc():
+    def __doc__(self):
         return "Improved Slime Mould Algorithm"
     
     def __init__(self,func:callable,paras_init:np.ndarray,bounds:tuple,args:tuple = (),max_run:int = 37,pop:int = 5,local_polish:bool = True,slime_paras:dict = dict(z = 0.03, a = 0, b=0.01,eps = 5e-2),**extra_dict):
@@ -74,11 +73,12 @@ class ISMA:
         self._z = slime_paras.get("z",0.03)
         
         ## bounds
-        ub, lb = [], []
+        ub = []
+        lb = []
         for i in range(self._dim):
-            ub.append(bounds[i][1])
+            ub.append()
             lb.append(bounds[i][0])
-        self.ub, self.lb = np.array(ub), np.array(lb)
+        self.ub, self.lb = np.array(ub,copy = False), np.array(lb,copy = False)
         
         ## initialize slime population
         self._x = np.empty([self._dim,self._pop])

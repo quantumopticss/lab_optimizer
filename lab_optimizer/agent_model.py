@@ -16,8 +16,7 @@ class agent_model:
     def __init__(self):
         self._saved = None
     def __del__(self):
-        if self._saved == None and self._to_save:
-            self.save()
+        if self._saved == None and self._to_save : self.save()
     def save(self,obj,pkl_path:str = None,decstr:str = ""):
         """save agent model
 
@@ -61,8 +60,7 @@ class agent_model:
         ---------
         return joblib.load(pkl_path)    
         """
-        try:
-            return joblib.load(pkl_path)
+        try : return joblib.load(pkl_path)
         except Exception as e:
             print("load failed")
             raise e
@@ -114,7 +112,7 @@ class gaussian_process(agent_model):
             training function values, must be (n,) like, where n is the number of training points
         
         """
-        self.trained_x = np.concatenate((self.trained_x,X_train),axis = 0)
+        self.trained_x = np.concatenate((self.trained_x.reshape(-1,X_train.shape[1]),X_train),axis = 0)
         self.trained_y = np.concatenate((self.trained_y,Y_train),axis = 0)
         self.model.fit(X_train,Y_train)
         
@@ -228,10 +226,12 @@ def main_numpy():
     import matplotlib.pyplot as plt
     from opt_lib.test_functions import F10 as FF
     test_func = lambda x: FF(x) + np.random.rand() * 0.2
-    x = np.linspace(-8,8,16).reshape(-1,1)
-    x += np.random.rand(*x.shape)
-    y0 = np.apply_along_axis(test_func,axis = 1,arr = x)
-    XX = np.linspace(-12,12,100).reshape(-1,1)
+    x = np.linspace(-15,15,16).reshape(-1,1)
+    x += (np.random.rand(*x.shape)-0.5)*2
+    y0 = np.apply_along_axis(test_func,axis = 1,arr = x) 
+    y0 += + (np.random.rand(*y0.shape)-0.5)*2
+    
+    XX = np.linspace(-15,15,200).reshape(-1,1)
     YY = np.apply_along_axis(test_func,axis = 1,arr = XX)
 
     model = gaussian_process(noise_level=0.01,save = False)
@@ -241,7 +241,7 @@ def main_numpy():
     y_pred, sigma = model.predict(x_pred, return_std=True)
 
     plt.figure(1)
-    plt.scatter(x, y0, color='r', label='Training data')
+    plt.scatter(x, y0, color='r', label='noised Training data')
     plt.plot(x_pred, y_pred, color='b', label='Predicted function')
     plt.plot(XX, YY, color='g', label='raw function')
     plt.fill_between(x_pred.ravel(), y_pred - 1.96 * sigma, y_pred + 1.96 * sigma, color='gray', alpha=0.2, label='95% confidence interval')
