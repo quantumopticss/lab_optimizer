@@ -10,7 +10,7 @@ class ISMA:
     def __doc__(self):
         return "Improved Slime Mould Algorithm"
     
-    def __init__(self,func:callable,paras_init:np.ndarray,bounds:tuple,args:tuple = (),max_run:int = 37,pop:int = 5,local_polish:bool = True,slime_paras:dict = dict(z = 0.03, a = 0, b=0.01,eps = 5e-2),**extra_dict):
+    def __init__(self,func:callable,paras_init:np.ndarray,bounds:tuple,args:tuple = (),max_run:int = 37,init_method = "spherical_random",pop:int = 5,local_polish:bool = True,slime_paras:dict = dict(z = 0.03, a = 0, b=0.01,eps = 5e-2),**extra_dict):
         """ Multi Slime Mould Algorithm
         
         Args
@@ -32,6 +32,10 @@ class ISMA:
             
         Extra_Args
         ---------
+        init_method : str
+            method for population initialization, should be either ``"spherical_random"``, ``"LHS"`` or ``"random"``,
+            defeault is spherical random (random on bloch sphere)
+        
         pop : int
             population of slime mould, defeault is 5
             
@@ -76,19 +80,34 @@ class ISMA:
         ub = []
         lb = []
         for i in range(self._dim):
-            ub.append()
+            ub.append(bounds[i][1])
             lb.append(bounds[i][0])
-        self.ub, self.lb = np.array(ub,copy = False), np.array(lb,copy = False)
+        self.ub, self.lb = np.array(ub), np.array(lb)
         
         ## initialize slime population
         self._x = np.empty([self._dim,self._pop])
         self._y = np.empty([self._pop])
+        match init_method:
+            case "LHS":
+                ## latin hypercubic sampling
+                from scipy.stats import qmc
+                sampler = qmc.LatinHypercube(d=paras_init.size)
+                sample = sampler.random(n=self._pop)
+                self._x = qmc.scale(sample, self.lb, self.ub).T
+            case "random":
+                ## random
+                for i in range(1,self._pop):
+                    s = np.random.rand(self._dim)
+                    self._x[:,i] = 0.5*( self.ub*(1+s) + self.lb*(1-s) )
+            case _:
+                ## spherical random        
+                for i in range(1,self._pop):
+                    s = np.cos(np.pi*rand(self._dim))
+                    self._x[:,i] = 0.5*( self.ub*(1+s) + self.lb*(1-s) )
         
+        ## use define init_state
         self._x[:,0] = paras_init
-        for i in range(1,self._pop):
-            s = np.cos(2*np.pi*rand(self._dim))
-            self._x[:,i] = 0.5*( self.ub*(1+s) + self.lb*(1-s) )
-
+        
     def run(self,mutation:float = 0.01):
         """run ISMA algorithm
 
